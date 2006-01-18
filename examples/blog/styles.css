@@ -1,0 +1,10 @@
+body {
+    font-family: Utopia, Georga, serif;
+}
+h1.header {
+    background-color: #fef;
+    margin: 0; padding: 10px;
+}
+div.content {
+    padding: 10px;
+}

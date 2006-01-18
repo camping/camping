@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-$:.unshift File.dirname(__FILE__) + "/../../lib"
+#$:.unshift File.dirname(__FILE__) + "/../../lib"
+require 'rubygems'
 require 'camping'
   
 module Camping::Models
@@ -91,10 +92,8 @@ module Camping::Controllers
      
     class Style < R '/styles.css', '/view/styles.css'
         def get
-            Response.new(200) do
-                @header["Content-Type"] = "text/css; charset=utf-8"
-                @body = File.read('templates/style.css')
-            end
+            @headers["Content-Type"] = "text/css; charset=utf-8"
+            @body = File.read('styles.css')
         end
     end
 end
@@ -109,14 +108,22 @@ module Camping::Views
                :href => 'styles.css', :media => 'screen'
         end
         body do
-          yield
+          h1.header { a 'blog', :href => '/' }
+          div.content do
+            self << yield
+          end
         end
       end
     end
 
     def index
-      for post in @posts
-        _post(post)
+      if @posts.empty?
+        p 'No posts found.'
+        p { a 'Add', :href => '/add' }
+      else
+        for post in @posts
+          _post(post)
+        end
       end
     end
 
@@ -147,7 +154,6 @@ module Camping::Views
     end
 
     def view
-        h1.header { a 'blog', :href => '/' }
         _post(post)
 
         p "Comment for this post:"
