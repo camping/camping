@@ -1,11 +1,8 @@
 #!/usr/bin/env ruby
 
-$:.unshift "/home/why/cvs/camping/lib"
+$:.unshift File.dirname(__FILE__) + "/../../lib"
 require 'camping'
- 
-# For debugging use only
-# web.internalerror = web.debugerror
- 
+  
 module Camping::Models
     class Post < Base; belongs_to :user; end
     class Comment < Base; belongs_to :user; end
