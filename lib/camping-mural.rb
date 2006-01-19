@@ -34,10 +34,10 @@ end;def unescape(s);s.tr('+',' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete(
 '%')].pack('H*')}end;def qs_parse(qs,d='&;');OpenStruct.new((qs||'').split(
 /[#{d}] */n).inject({}){|hsh, p|k,v=p.split('=',2).map{|v|unescape(v)};hsh[
 k]=v unless v.empty?;hsh}) end;def cookie_parse(s);c=qs_parse(s,';,') end
-def run(r=$stdin,w=$stdout);begin;k,a,m=Controllers.D(ENV['PATH_INFO'])+[ENV['REQUEST_METHOD']||
-"GET"];k.class_eval{include Controllers::RM};o=k.new;o.class.class_eval do
-Models.constants.each{|c|g=Models.const_get(c);remove_const c if 
-const_defined? c;const_set c,g};end;w<<o.service(r,ENV,m,a);rescue=>e
-w<<Response.new(200){@headers['Content-Type']='text/html';@body=Markaby::
-Builder.new({},{}){h1'#{C} Problem!';h2"#{k}.#{m}";h3"#{e.class} \
+def run(r=$stdin,w=$stdout);begin;k,a,m=Controllers.D(ENV['PATH_INFO'])+[
+ENV['REQUEST_METHOD']||"GET"];k.class_eval{include Controllers::RM};o=k.new
+o.class.class_eval{Models.constants.each{|c|g=Models.const_get(c)
+remove_const c if const_defined? c;const_set c,g}};w<<o.service(r,ENV,m,a)
+rescue=>e;w<<Response.new(200){@headers['Content-Type']='text/html';@body=
+Markaby::Builder.new({},{}){h1'#{C} Problem!';h2"#{k}.#{m}";h3"#{e.class} \
 #{e.message}:";ul{e.backtrace.each{|bt|li bt}}}.to_s};end end end end
