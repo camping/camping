@@ -22,6 +22,7 @@ module Camping::Controllers
         def get
             if cookies.user_id
                 @session = User.find cookies.user_id
+                @post = Post.new
             end
             render :add
         end
