@@ -20,8 +20,7 @@ module Camping
       def redirect(*args)
         c, *args = args
         if c.respond_to? :urls
-          c = c.urls.first 
-          c.gsub!(/\(.+?\)/) do
+          c = c.urls.first.gsub(/\(.+?\)/) do
             a = args.shift
             a.method(a.class.primary_key)[] rescue a
           end
@@ -29,7 +28,7 @@ module Camping
         r(302, '', 'Location' => c)
       end
       def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
-      def service(e, m, a)
+      def service(r, e, m, a)
         @status, @headers = 200, {'Content-Type' => 'text/html'}
         @cookies = Camping.cookie_parse(e['HTTP_COOKIE'] || e['COOKIE'])
         cook = @cookies.marshal_dump.dup
@@ -38,7 +37,7 @@ module Camping
           return r(500, "Urgh, multipart/form-data not yet supported.")
         else
           @input = Camping.qs_parse(e['REQUEST_METHOD'] == "POST" ? 
-                                    $stdin.read(e['CONTENT_LENGTH'].to_i) : e['QUERY_STRING'])
+                                    r.read(e['CONTENT_LENGTH'].to_i) : e['QUERY_STRING'])
         end
 
         @body = method( m.downcase ).call(*a)
@@ -85,7 +84,7 @@ module Camping
     def qs_parse(qs, d = '&;'); OpenStruct.new((qs||'').split(/[#{d}] */n).
         inject({}){|hsh, p|k, v = p.split('=',2).map {|v| unescape(v)}; hsh[k] = v unless v.empty?; hsh}) end
     def cookie_parse(s); c = qs_parse(s, ';,'); end
-    def run
+    def run(r=$stdin,w=$stdout)
       begin
         k, a, m = Controllers.D(ENV['PATH_INFO']) + [ENV['REQUEST_METHOD'] || "GET"]
         k.class_eval { include Controllers::RM }
@@ -97,9 +96,9 @@ module Camping
             const_set c, g
           end
         end
-        puts o.service(ENV, m, a)
+        w << o.service(r, ENV, m, a)
       rescue => e
-        puts Response.new(200) { @headers['Content-Type'] = 'text/html'; @body = Markaby::Builder.new({}, {}) { h1 'Camping Problem!'; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }.to_s }
+        w << Response.new(200) { @headers['Content-Type'] = 'text/html'; @body = Markaby::Builder.new({}, {}) { h1 'Camping Problem!'; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }.to_s }
       end
     end
   end
