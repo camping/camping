@@ -6,8 +6,8 @@ attr_accessor :input,:cookies,:headers,:body,:status;def method_missing(m,
 str}rescue nil;r(200,str.to_s,'Content-Type'=>'text/html');end;def render(m)
 str = markaview(m);str = markaview(:layout){ str }rescue nil;r(200, str, 
 "Content-Type" => 'text/html');end;def redirect(*args);c, *args = args;if \
-c.respond_to? :urls;c = c.urls.first;c.gsub!(/\(.+?\)/) do;((a = args.
-shift).respond_to?(:primary_key) ? a.method(a.primary_key) : a).to_s;end
+c.respond_to? :urls;c = c.urls.first;c.gsub!(/\(.+?\)/) do;a = args.
+shift;a.method(a.class.primary_key)[] rescue a;end
 end;r(302,'','Location' => c);end;def r(s, b, h = {});@status = s;@headers.
 merge!(h);@body = b;end;def service(e, m, a);@status, @headers = 200, 
 {'Content-Type' => 'text/html'};@cookies=Camping.cookie_parse(e['COOKIE']||

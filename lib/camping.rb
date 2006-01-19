@@ -22,7 +22,8 @@ module Camping
         if c.respond_to? :urls
           c = c.urls.first 
           c.gsub!(/\(.+?\)/) do
-            ((a = args.shift).respond_to?(:primary_key) ? a.method(a.primary_key) : a).to_s
+            a = args.shift
+            a.method(a.class.primary_key)[] rescue a
           end
         end
         r(302, '', 'Location' => c)
