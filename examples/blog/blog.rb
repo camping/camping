@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-#$:.unshift File.dirname(__FILE__) + "/../../lib"
+$:.unshift File.dirname(__FILE__) + "/../../lib"
 require 'rubygems'
 require 'camping'
   
@@ -34,14 +34,14 @@ module Camping::Controllers
 
     class Info
         def get
-            pre cookies.inspect
+            code ENV.inspect
         end
     end
 
     class View < R '/view/(\d+)'
         def get post_id 
             @post = Post.find post_id
-            @comments = Comment.find :all, :conditions => ['post_id = ?', post_id]
+            @comments = Models::Comment.find :all, :conditions => ['post_id = ?', post_id]
             render :view
         end
     end
@@ -64,7 +64,7 @@ module Camping::Controllers
      
     class Comment
         def post
-            Comment.create(:username => input.post_username,
+            Models::Comment.create(:username => input.post_username,
                        :body => input.post_body, :post_id => input.post_id)
             redirect View, input.post_id
         end
@@ -190,8 +190,8 @@ module Camping::Views
       h1 post.title
       p post.body
       p do
-        a "Edit", :href => "/edit/#{post.id}"
-        a "View", :href => "/view/#{post.id}"
+        a "Edit", :href => R(Edit, post)
+        a "View", :href => R(View, post)
       end
     end
 
