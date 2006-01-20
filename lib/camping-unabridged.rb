@@ -1,4 +1,4 @@
-%w[rubygems active_record markaby metaid ostruct].each { |lib| require lib }
+%w[rubygems active_record markaby metaid ostruct tempfile].each { |lib| require lib }
 
 # == Camping 
 #
@@ -216,15 +216,31 @@ module Camping
 
       def service(r, e, m, a) #:nodoc:
         @status, @headers, @root = 200, {}, e['SCRIPT_NAME']
-        @cookies = C.cookie_parse(e['HTTP_COOKIE'] || e['COOKIE'])
-        cook = @cookies.marshal_dump.dup
-        if ("POST" == e['REQUEST_METHOD']) and
-            %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)\"?|n.match(e['CONTENT_TYPE'])
-          return r(500, "Urgh, multipart/form-data not yet supported.")
-        else
-          @input = C.qs_parse(e['REQUEST_METHOD'] == "POST" ? 
-                                    r.read(e['CONTENT_LENGTH'].to_i) : e['QUERY_STRING'])
+        cook = C.cookie_parse(e['HTTP_COOKIE'] || e['COOKIE'])
+        qs = C.qs_parse(e['QUERY_STRING'])
+        if "POST" == m
+          inp = r.read(e['CONTENT_LENGTH'].to_i)
+          if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)\"?|n.match(e['CONTENT_TYPE'])
+            b = "--#$1"
+            inp.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
+              h,v=pt.split("\r\n\r\n",2);fh={}
+              [:name, :filename].each { |x|
+                fh[x] = $1 if h =~ /Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
+              }
+              fn = fh[:name]
+              if fh[:filename]
+                fh[:type]=$1 if h =~ /Content-Type: (.+?)(\r\n|\Z)/m
+                fh[:tempfile]=Tempfile.new("#{C}").instance_eval {binmode;write v;rewind;self}
+              else
+                fh=v
+              end
+              qs[fn]=fh if fn
+            }
+          else
+            qs.merge!(C.qs_parse(inp))
+          end
         end
+        @cookies, @input = [cook, qs].map{|_|OpenStruct.new(_)}
 
         @body = method( m.downcase ).call(*a)
         @headers['Set-Cookie'] = @cookies.marshal_dump.map { |k,v| "#{k}=#{C.escape(v)}; path=/" if v != cook[k] }.compact
@@ -345,8 +361,8 @@ module Camping
     #   input.name
     #     #=> "Philarp Tremaine"
     #
-    def qs_parse(qs, d = '&;'); OpenStruct.new((qs||'').split(/[#{d}] */n).
-        inject({}){|hsh, p|k, v = p.split('=',2).map {|v| unescape(v)}; hsh[k] = v unless v.empty?; hsh}) end
+    def qs_parse(qs, d = '&;'); (qs||'').split(/[#{d}] */n).
+        inject({}){|hsh, p|k, v = p.split('=',2).map {|v| unescape(v)}; hsh[k] = v unless v.blank?; hsh} end
 
     # Parses a string of cookies from the <tt>Cookie</tt> header.
     def cookie_parse(s); c = qs_parse(s, ';,'); end
