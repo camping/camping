@@ -1,0 +1,6 @@
+#!/usr/bin/ruby
+require 'webrick/httpserver'
+s = WEBrick::HTTPServer.new(:BindAddress => 'localhost', :Port => 3044)
+s.mount("/", WEBrick::HTTPServlet::CGIHandler, "charts.rb")
+trap( :INT ) { s.shutdown }
+s.start
