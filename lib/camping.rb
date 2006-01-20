@@ -1,6 +1,37 @@
 %w[rubygems active_record markaby metaid ostruct].each { |lib| require lib }
 
 # == Camping 
+#
+# The camping module contains three modules for separating your application:
+#
+# * Camping::Models for storing classes derived from ActiveRecord::Base.
+# * Camping::Controllers for storing controller classes, which map URLs to code.
+# * Camping::Views for storing methods which generate HTML.
+#
+# Of use to you is also one module for storing helpful additional methods:
+#
+# * Camping::Helpers which can be used in controllers and views.
+#
+# == The postamble
+#
+# Most Camping applications contain the entire application in a single script.
+# The script begins by requiring Camping, then fills each of the three modules
+# described above with classes and methods.  Finally, a postamble puts the wheels
+# in motion.
+#
+#   if __FILE__ == $0
+#     Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
+#     Camping::Models::Base.logger = Logger.new('camping.log')
+#     Camping.run
+#   end
+#
+# In the postamble, your job is to setup Camping::Models::Base (see: ActiveRecord::Base) 
+# and call Camping::run in a request loop.  The above postamble is for a standard
+# CGI setup, where the web server manages the request loop and calls the script once
+# for every request.
+#
+# For other configurations, see 
+# http://code.whytheluckystiff.net/camping/wiki/PostAmbles
 module Camping
   C = self
 

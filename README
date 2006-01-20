@@ -1,0 +1,69 @@
+== Camping, a Microframework
+
+Camping is a web framework which consistently stays at about 3.3kb of code.
+You can probably view the complete source code on a single page.  But, you know,
+it's so small that, if you think about it, what can it really do?
+
+The idea here is to store a complete fledgling web application in a single file
+like many small CGIs.  But to organize it as a Model-View-Controller application
+like Rails does.  You can then easily move it to Rails once you've got it going.
+
+A skeleton might be:
+
+  require 'camping'
+  
+  module Camping::Models
+    class Post < Base; belongs_to :user; end
+    class Comment < Base; belongs_to :user; end
+    class User < Base; end
+  end
+
+  module Camping::Controllers
+    class Index < R '/'
+      def get
+        @posts = Post.find :all
+        render :index
+      end
+    end
+  end
+
+  module Camping::Views
+    def layout
+      html do
+        body do
+          self << yield
+        end
+      end
+    end
+
+    def index
+      for post in @posts
+        h1 post.title
+      end
+    end
+  end
+
+  if __FILE__ == $0
+    Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
+    Camping::Models::Base.logger = Logger.new('camping.log')
+    Camping.run
+  end
+
+Some things you might have noticed:
+
+* Camping::Models uses ActiveRecord to do its work.  We love ActiveRecord!
+* Camping::Controllers can be assigned URLs in the class definition.  Neat?
+* Camping::Views describes HTML using pure Ruby.  Markup as Ruby, which we
+  call Markaby.
+
+If you want to write larger applications with Camping, you are encouraged to
+split the application into distinct parts which can be mounted at URLs on your
+web server.  You might have a blog at /blog and a wiki at /wiki.  Each
+self-contained.  But you can certainly share layouts and models by storing them
+in plain Ruby scripts.
+
+Interested yet?  Okay, okay, one step at a time.
+
+== Installation
+
+* <tt>gem install camping</tt>
