@@ -35,34 +35,6 @@
 module Camping
   C = self
 
-  # Models is an empty Ruby module for housing model classes derived
-  # from ActiveRecord::Base.  As a shortcut, you may derive from Base
-  # which is an alias for ActiveRecord::Base.
-  #
-  #   module Camping::Models
-  #     class Post < Base; belongs_to :user end
-  #     class User < Base; has_many :posts end
-  #   end
-  #
-  # == Where Models are Used
-  #
-  # Models are used in your controller classes.  However, if your model class
-  # name conflicts with a controller class name, you will need to refer to it
-  # using the Models module.
-  #
-  #   module Camping::Controllers
-  #     class Post < R '/post/(\d+)'
-  #       def get(post_id)
-  #         @post = Models::Post.find post_id
-  #         render :index
-  #       end
-  #     end
-  #   end
-  #
-  # Models cannot be referred to in Views at this time.
-  module Models; end
-  Models::Base = ActiveRecord::Base
-
   # Helpers contains methods available in your controllers and views.
   module Helpers
     # From inside your controllers and views, you will often need to figure out
@@ -251,8 +223,8 @@ module Camping
       end
       private
       def markaby
-          Class.new(Markaby::Builder) {@root=@root;include Views;def tag!(*g,&b);[:href,:action].each{|a|(g.last[a]=self./(g.last[a]))rescue 0};super end }.new( instance_variables.map { |iv| 
-            [iv[1..-1].intern, instance_variable_get(iv)] }, {} )
+          Mab.new( instance_variables.map { |iv| 
+            [iv[1..-1], instance_variable_get(iv)] }, {} )
       end
       def markaview(m, *args, &blk)
         markaby.instance_eval { Views.instance_method(m).bind(self).call(*args, &blk); self }.to_s
@@ -406,6 +378,33 @@ module Camping
     end
   end
 
+  # Models is an empty Ruby module for housing model classes derived
+  # from ActiveRecord::Base.  As a shortcut, you may derive from Base
+  # which is an alias for ActiveRecord::Base.
+  #
+  #   module Camping::Models
+  #     class Post < Base; belongs_to :user end
+  #     class User < Base; has_many :posts end
+  #   end
+  #
+  # == Where Models are Used
+  #
+  # Models are used in your controller classes.  However, if your model class
+  # name conflicts with a controller class name, you will need to refer to it
+  # using the Models module.
+  #
+  #   module Camping::Controllers
+  #     class Post < R '/post/(\d+)'
+  #       def get(post_id)
+  #         @post = Models::Post.find post_id
+  #         render :index
+  #       end
+  #     end
+  #   end
+  #
+  # Models cannot be referred to in Views at this time.
+  module Models; end
+
   # Views is an empty module for storing methods which create HTML.  The HTML is described
   # using the Markaby language.
   #
@@ -414,4 +413,16 @@ module Camping
   # If your Views module has a <tt>layout</tt> method defined, it will be called with a block
   # which will insert content from your view.
   module Views; include Controllers; include Helpers end
+  Models::Base = ActiveRecord::Base
+  
+  # The Mab class wraps Markaby, allowing it to run methods from Camping::Views
+  # and also to replace :href and :action attributes in tags by prefixing the root
+  # path.
+  class Mab < Markaby::Builder
+      include Views
+      def tag!(*g,&b)
+          [:href,:action].each{|a|(g.last[a]=self./(g.last[a]))rescue 0}
+          super 
+      end
+  end
 end

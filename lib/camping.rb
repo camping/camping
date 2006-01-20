@@ -1,5 +1,5 @@
 %w[rubygems active_record markaby metaid ostruct tempfile].each{|l|require l}
-module Camping;C=self;module Models;end;Models::Base=ActiveRecord::Base
+module Camping;C=self
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.detect{|x|x.
 scan(p).size==args.size}.dup){|str,a|str.gsub(p,(a.method(a.class.primary_key
 )[]rescue a).to_s)};end;def / p;File.join(@root,p) end;end;module Controllers
@@ -23,9 +23,8 @@ Cookie"]=@cookies.marshal_dump.map{|k,v|"#{k}=#{C.escape(v)}; path=/" if v !=
 cook[k]}.compact;self;end;def to_s
 "Status: #{@status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|
 v.to_a.map{|v2|"#{k}: #{v2}"}}.flatten.join("\n")}\n\n#{@body}";end;def \
-markaby;Class.new(Markaby::Builder){@root=@root;include Views;def tag!(*g,&b)
-[:href,:action].each{|a|(g.last[a]=self./(g.last[a]))rescue 0};super end}.new(
-instance_variables.map{|iv|[iv[1..-1].intern,instance_variable_get(iv)]},{})
+markaby;Mab.new(instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv
+)]},{})
 end;def markaview(m,*args,&blk);markaby.instance_eval{Views.instance_method(m
 ).bind(self).call(*args, &blk);self}.to_s;end;end;class R;include Base end
 class NotFound<R;def get(p);r(404,div{h1("#{C} Problem!")+h2("#{p} not found")
@@ -44,4 +43,7 @@ def run(r=$stdin,w=$stdout);w<<begin;k,a=Controllers.D "/#{ENV['PATH_INFO']}".
 gsub(%r!/+!,'/');m=ENV['REQUEST_METHOD']||"GET";k.class_eval{include C
 include Controllers::Base;include Models};o=k.new;o.service(r,ENV,m,a);rescue\
 =>e;Controllers::ServerError.new.service(r,ENV,"GET",[k,m,e]);end;end;end
-module Views; include Controllers; include Helpers end;end
+module Views; include Controllers; include Helpers end;module Models;end
+Models::Base=ActiveRecord::Base;class Mab<Markaby::Builder;include Views
+def tag!(*g,&b);[:href,:action].each{|a|(g.last[a]=self./(g.last[a]))rescue 0}
+super;end;end;end
