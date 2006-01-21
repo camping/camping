@@ -46,5 +46,5 @@ include Controllers::Base;include Models};o=k.new;o.service(r,ENV,m,a);rescue\
 =>e;Controllers::ServerError.new.service(r,ENV,"GET",[k,m,e]);end;end;end
 module Views; include Controllers; include Helpers end;module Models;end
 Models::Base=ActiveRecord::Base;class Mab<Markaby::Builder;include Views
-def tag!(*g,&b);p=g[-1];[:href,:action].each{|a|(p[a]&&p[a]=self/p[a])rescue 0}
+def tag!(*g,&b);h=g[-1];[:href,:action].each{|a|(h[a]&&h[a]=self/h[a])rescue 0}
 super;end;end;end

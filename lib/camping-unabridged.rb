@@ -438,8 +438,8 @@ module Camping
   class Mab < Markaby::Builder
       include Views
       def tag!(*g,&b)
-          p=g[-1]
-          [:href,:action].each{|a|(p[a]&&p[a]=self/p[a])rescue 0}
+          h=g[-1]
+          [:href,:action].each{|a|(h[a]&&h[a]=self/h[a])rescue 0}
           super 
       end
   end
