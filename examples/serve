@@ -32,7 +32,7 @@ apps.each do |app, klass|
               end
               if header.has_key?('set-cookie')
                 header['set-cookie'].each{|k|
-                  self.cookies << Cookie.parse_set_cookie(k)
+                  self.cookies << WEBrick::Cookie.parse_set_cookie(k)
                 }
                 header.delete('set-cookie')
               end

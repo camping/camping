@@ -73,7 +73,7 @@ module Camping
     #   self / "styles.css" #=> "styles.css"
     #   self / R(Edit, 1)
     #
-    def /(p); p=~/^\//?@root+p:p end
+    def /(p); p[/^\//]?@root+p:p end
   end
 
   # Controllers is a module for placing classes which handle URLs.  This is done
@@ -173,7 +173,7 @@ module Camping
       #   redirect View, 12     # redirects to "/articles/view/12"
       #
       def redirect(c, *args)
-        c = R(c,*args) if c.respond_to? :urls
+        c = R(c,*args)
         r(302, '', 'Location' => self/c)
       end
 
@@ -251,7 +251,7 @@ module Camping
     #     end
     #   end
     #
-    class NotFound < R; def get(p); r(404, div{h1("#{C} Problem!")+h2("#{p} not found")}); end end
+    class NotFound; def get(p); r(404, div{h1("#{C} Problem!")+h2("#{p} not found")}); end end
 
     # The ServerError class is a special controller class for handling many (but not all) 500 errors.
     # If there is a parse error in Camping or in your application's source code, it will not be caught
@@ -305,11 +305,11 @@ module Camping
       # given to Controllers::R.  If no routes were given, the dispatcher uses a slash followed
       # by the name of the controller lowercased.
       def D(path)
-        constants.each do |c| 
+        constants.inject(nil) do |d,c| 
             k = const_get(c)
-            return k, $~[1..-1] if (k.urls rescue "/#{c.downcase}").find { |x| path =~ /^#{x}\/?$/ }
-        end
-        [NotFound, [path]]
+            k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R)
+            d||([k, $~[1..-1]] if k.urls.find { |x| path =~ /^#{x}\/?$/ })
+        end||[NotFound, [path]]
       end
     end
   end
@@ -439,7 +439,7 @@ module Camping
       include Views
       def tag!(*g,&b)
           h=g[-1]
-          [:href,:action].each{|a|(h[a]&&h[a]=self/h[a])rescue 0}
+          [:href,:action].each{|a|(h[a]=self/h[a])rescue 0}
           super 
       end
   end
