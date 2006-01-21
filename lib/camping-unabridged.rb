@@ -34,6 +34,7 @@
 # http://code.whytheluckystiff.net/camping/wiki/PostAmbles
 module Camping
   C = self
+  S = File.read(__FILE__).gsub(/_{2}FILE_{2}/,__FILE__.dump)
 
   # Helpers contains methods available in your controllers and views.
   module Helpers
@@ -62,14 +63,15 @@ module Camping
     def R(c,*args)
       p = /\(.+?\)/
       args.inject(c.urls.detect{|x|x.scan(p).size==args.size}.dup){|str,a|
-        str[p]=(a.method(a.class.primary_key)[] rescue a).to_s
+        str.sub(p,(a.method(a.class.primary_key)[] rescue a).to_s)
       }
     end
     # Simply builds the complete URL from a relative or absolute path +p+.  If your
     # application is running from <tt>/blog</tt>:
     #
-    #   self/"view/1"    #=> "/blog/view/1"
-    #   self/R(Edit, 1)
+    #   self / "/view/1"    #=> "/blog/view/1"
+    #   self / "styles.css" #=> "styles.css"
+    #   self / R(Edit, 1)
     #
     def /(p); p=~/^\//?@root+p:p end
   end
@@ -178,11 +180,11 @@ module Camping
       # A quick means of setting this controller's status, body and headers.
       # Used internally by Camping, but... by all means...
       #
-      #   r(302, '', 'Location' => self/"view/12")
+      #   r(302, '', 'Location' => self / "/view/12")
       #
       # Is equivalent to:
       #
-      #   redirect "view/12"
+      #   redirect "/view/12"
       #
       def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
 
@@ -313,6 +315,21 @@ module Camping
   end
 
   class << self
+    # When you are running many applications, you may want to create independent
+    # modules for each Camping application.  Namespaces for each.  Camping::goes
+    # defines a toplevel constant with the whole MVC rack inside.
+    #
+    #   require 'camping'
+    #   Camping.goes :Blog
+    #
+    #   module Blog::Controllers; ... end
+    #   module Blog::Models;      ... end
+    #   module Blog::Views;       ... end
+    #
+    def goes(m)
+        eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)
+    end
+
     # URL escapes a string.
     #
     #   Camping.escape("I'd go to the museum straightway!")  

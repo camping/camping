@@ -4,13 +4,27 @@ $:.unshift File.dirname(__FILE__) + "/../../lib"
 require 'rubygems'
 require 'camping'
   
-module Camping::Models
+Camping.goes :Blog
+
+module Blog::Models
+    def self.schema(&block)
+        @@schema = block if block_given?
+        @@schema
+    end
+  
     class Post < Base; belongs_to :user; end
     class Comment < Base; belongs_to :user; end
     class User < Base; end
 end
 
-module Camping::Controllers
+Blog::Models.schema do
+#  create_table :posts, :force => true do |t|
+#    t.column :title, :string, :limit => 255
+#    t.column :body, :text
+#  end
+end
+
+module Blog::Controllers
     class Index < R '/'
         def get
             @posts = Post.find :all
@@ -32,9 +46,13 @@ module Camping::Controllers
         end
     end
 
-    class Info
-        def get
-            code ENV.inspect
+    class Info < R '/info/(\d+)', '/info/(\w+)/(\d+)', '/info', '/info/(\d+)/(\d+)/(\d+)/([\w-]+)'
+        def get(*args)
+            div do
+                code args.inspect; br; br
+                code ENV.inspect; br
+                code "Link: #{R(Info, 1, 2)}"
+            end
         end
     end
 
@@ -99,17 +117,17 @@ module Camping::Controllers
     end
 end
 
-module Camping::Views
+module Blog::Views
 
     def layout
       html do
         head do
           title 'blog'
           link :rel => 'stylesheet', :type => 'text/css', 
-               :href => 'styles.css', :media => 'screen'
+               :href => '/styles.css', :media => 'screen'
         end
         body do
-          h1.header { a 'blog', :href => '/' }
+          h1.header { a 'blog', :href => R(Index) }
           div.content do
             self << yield
           end
@@ -120,7 +138,7 @@ module Camping::Views
     def index
       if @posts.empty?
         p 'No posts found.'
-        p { a 'Add', :href => '/add' }
+        p { a 'Add', :href => R(Add) }
       else
         for post in @posts
           _post(post)
@@ -130,17 +148,17 @@ module Camping::Views
 
     def login
       p { b @login }
-      p { a 'Continue', :href => '/add' }
+      p { a 'Continue', :href => R(Add) }
     end
 
     def logout
       p "You have been logged out."
-      p { a 'Continue', :href => '/' }
+      p { a 'Continue', :href => R(Index) }
     end
 
     def add
       if @session
-        _form(post, :action => '/add')
+        _form(post, :action => R(Add))
       else
         _login
       end
@@ -148,7 +166,7 @@ module Camping::Views
 
     def edit
       if @session
-        _form(post, :action => '/edit')
+        _form(post, :action => R(Edit))
       else
         _login
       end
@@ -163,7 +181,7 @@ module Camping::Views
           p c.body
         end
 
-        form :action => '/comment', :method => 'post' do
+        form :action => R(Comment), :method => 'post' do
           label 'Name', :for => 'post_username'; br
           input :name => 'post_username', :type => 'text'; br
           label 'Comment', :for => 'post_body'; br
@@ -175,7 +193,7 @@ module Camping::Views
 
     # partials
     def _login
-      form :action => '/login', :method => 'post' do
+      form :action => R(Login), :method => 'post' do
         label 'Username', :for => 'username'; br
         input :name => 'username', :type => 'text'; br
 
@@ -198,7 +216,7 @@ module Camping::Views
     def _form(post, opts)
       p do
         text "You are logged in as #{@session.username} | "
-        a 'Logout', :href => '/logout'
+        a 'Logout', :href => R(Logout)
       end
       form({:method => 'post'}.merge(opts)) do
         label 'Title', :for => 'post_title'; br
@@ -214,8 +232,11 @@ module Camping::Views
     end
 end
  
+db_exists = File.exists?('blog3.db')
+Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
+Blog::Models::Base.logger = Logger.new('camping.log')
+ActiveRecord::Schema.define(&Blog::Models.schema) unless db_exists
+
 if __FILE__ == $0
-    Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
-    Camping::Models::Base.logger = Logger.new('camping.log')
-    Camping.run
+    Blog.run
 end

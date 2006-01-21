@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+$:.unshift File.dirname(__FILE__) + "/../../lib"
 $:.unshift File.dirname(__FILE__)
 require 'rubygems'
 require 'fileutils'
@@ -7,7 +8,9 @@ require 'camping'
 require 'rvg/rvg'
 require 'pie'
   
-module Camping::Controllers
+Camping.goes :Charts
+
+module Charts::Controllers
   class Index < R '/'
     def get
       # find all charts
@@ -49,7 +52,7 @@ module Camping::Controllers
   end
 end
 
-module Camping::Views
+module Charts::Views
 
   def layout
     html do
@@ -82,5 +85,5 @@ module Camping::Views
 end
  
 if __FILE__ == $0
-  Camping.run
+  Charts.run
 end

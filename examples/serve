@@ -1,0 +1,51 @@
+#!/bin/env ruby
+#
+# Serves all examples, mounted into Webrick.
+#
+require 'stringio'
+require 'webrick/httpserver'
+apps = 
+    Dir['*'].select do |d|
+        if File.exists? "#{d}/#{d}.rb"
+            load "#{d}/#{d}.rb"
+        end
+    end
+apps.map! do |app|
+    [app, (Object.const_get(Object.constants.grep(/^#{app}$/i)[0]) rescue nil)]
+end
+
+s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
+apps.each do |app, klass|
+    s.mount_proc("/#{app}") do |req, resp|
+        Object.instance_eval do
+            remove_const :ENV
+            const_set :ENV, req.meta_vars
+        end
+        def resp.<<(data)
+            raw_header, body = "#{data}".split(/^[\xd\xa]+/on, 2) 
+
+            begin
+              header = WEBrick::HTTPUtils::parse_header(raw_header)
+              if /^(\d+)/ =~ header['status'][0]
+                self.status = $1.to_i
+                header.delete('status')
+              end
+              if header.has_key?('set-cookie')
+                header['set-cookie'].each{|k|
+                  self.cookies << Cookie.parse_set_cookie(k)
+                }
+                header.delete('set-cookie')
+              end
+              header.each{|key, val| self[key] = val.join(", ") }
+            rescue => ex
+              raise WEBrick::HTTPStatus::InternalServerError, ex.message
+            end
+            self.body = body
+        end
+        klass.run((req.body and StringIO.new(req.body)), resp)
+    end
+end
+trap(:INT) do
+    s.shutdown
+end
+s.start

@@ -1,8 +1,8 @@
 %w[rubygems active_record markaby metaid ostruct tempfile].each{|l|require l}
-module Camping;C=self
+module Camping;C=self;S=File.read(__FILE__).gsub(/_{2}FILE_{2}/,__FILE__.dump)
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.detect{|x|x.
-scan(p).size==args.size}.dup){|str,a|str[p]=(a.method(a.class.primary_key
-)[]rescue a).to_s};end;def / p;p=~/^\//?@root+p:p end;end;module Controllers
+scan(p).size==args.size}.dup){|str,a|str.sub(p,(a.method(a.class.primary_key
+)[]rescue a).to_s)};end;def / p;p=~/^\//?@root+p:p end;end;module Controllers
 module Base;include Helpers;attr_accessor :input,:cookies,:headers,:body,
 :status,:root;def method_missing(m,*args,&blk);str=m==:render ? markaview(
 *args,&blk):eval("markaby.#{m}(*args,&blk)");str=markaview(:layout){str
@@ -33,7 +33,8 @@ lem!";h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{e.backtrace.each{|bt|li(
 bt)}}})end end;class<<self;def R(*urls);Class.new(R){meta_def(:inherited){|c|
 c.meta_def(:urls){urls}}};end;def D(path);constants.each{|c|k=const_get(c)
 return k,$~[1..-1] if (k.urls rescue "/#{c.downcase}").find {|x|path=~/^#{x}\
-\/?$/}};[NotFound,[path]];end end end;class<<self;def escape(s);s.to_s.gsub(
+\/?$/}};[NotFound,[path]];end end end;class<<self;def goes m;eval(S.gsub(/Ca\
+mping/,m.to_s),TOPLEVEL_BINDING)end;def escape s;s.to_s.gsub(
 /([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join('%').upcase}.tr(' ',
 '+') end;def unescape(s);s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.
 delete('%')].pack('H*')} end;def qs_parse(qs,d ='&;');(qs||'').split(/[#{d}]\
