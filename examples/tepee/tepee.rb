@@ -33,7 +33,7 @@ module Tepee::Controllers
     end
   end
 
-  class List
+  class List < R '/list'
     def get
       @pages = Page.find :all, :order => 'title'
       render :list
@@ -71,8 +71,8 @@ module Tepee::Views
         p do
           small do
             span "welcome to " ; a 'tepee', :href => "http://code.whytheluckystiff.net/svn/camping/trunk/examples/tepee/"
-            span '. go ' ;       a 'home',  :href => '/'
-            span '. list all ' ; a 'pages', :href => "/list"
+            span '. go ' ;       a 'home',  :href => R(Show, 'home_page')
+            span '. list all ' ; a 'pages', :href => R(List)
           end
         end
         div.content do
@@ -86,15 +86,15 @@ module Tepee::Views
     h1 @page.title
     div { _markup @version.body }
     p do 
-      a 'edit',    :href => "/e/#{@version.title}/#{@version.version}"
-      a 'back',    :href => "/s/#{@version.title}/#{@version.version-1}" unless @version.version == 1
-      a 'next',    :href => "/s/#{@version.title}/#{@version.version+1}" unless @version.version == @page.version
-      a 'current', :href => "/s/#{@version.title}" unless @version.version == @page.version
+      a 'edit',    :href => R(Edit, @version.title, @version.version)
+      a 'back',    :href => R(Show, @version.title, @version.version-1) unless @version.version == 1
+      a 'next',    :href => R(Show, @version.title, @version.version+1) unless @version.version == @page.version
+      a 'current', :href => R(Show, @version.title)                     unless @version.version == @page.version
     end
   end
 
   def edit
-    form :method => 'post', :action => "/e/#{@page.title}" do
+    form :method => 'post', :action => R(Edit, @page.title) do
       p do
         label 'Body' ; br
         textarea @page.body, :name => 'post_body', :rows => 50, :cols => 100
@@ -102,14 +102,14 @@ module Tepee::Views
       
       p do
         input :type => 'submit'
-        a 'cancel', :href => "/s/#{@page.title}/#{@page.version}"
+        a 'cancel', :href => R(Show, @page.title, @page.version)
       end
     end
   end
 
   def list
     h1 'all pages'
-    ul { @pages.each { |p| li { a p.title, :href => "/show/#{p.title}" } } }
+    ul { @pages.each { |p| li { a p.title, :href => R(Show, p.title) } } }
   end
 
   def _markup body
@@ -118,9 +118,9 @@ module Tepee::Views
       page = title = $1.underscore
       title = $2 unless $2.empty?
       if Tepee::Models::Page.find(:all, :select => 'title').collect { |p| p.title }.include?(page)
-        %Q{<a href="/s/#{page}">#{title}</a>}
+        %Q{<a href="#{R Show, page}">#{title}</a>}
       else
-        %Q{<span>#{title}<a href="/e/#{page}/1">?</a></span>}
+        %Q{<span>#{title}<a href="#{R Edit, page, 1}">?</a></span>}
       end
     end
     RedCloth.new(body, [ :hard_breaks ]).to_html
