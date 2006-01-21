@@ -33,6 +33,13 @@ module Tepee::Controllers
     end
   end
 
+  class List
+    def get
+      @pages = Page.find :all, :order => 'title'
+      render :list
+    end
+  end
+
   class Show < R '/s/(\w+)', '/s/(\w+)/(\d+)'
     def get page_name, version = nil
       redirect(Edit, page_name, 1) and return unless @page = Page.find_by_title(page_name)
@@ -61,6 +68,13 @@ module Tepee::Views
         title 'test'
       end
       body do
+        p do
+          small do
+            span "welcome to " ; a 'tepee', :href => "http://code.whytheluckystiff.net/svn/camping/trunk/examples/tepee/"
+            span '. go ' ;       a 'home',  :href => '/'
+            span '. list all ' ; a 'pages', :href => "/list"
+          end
+        end
         div.content do
           self << yield
         end
@@ -72,9 +86,10 @@ module Tepee::Views
     h1 @page.title
     div { _markup @version.body }
     p do 
-      a 'edit', :href => "/e/#{@version.title}/#{@version.version}"
-      a 'back', :href => "/s/#{@version.title}/#{@version.version-1}" unless @version.version == 1
-      a 'next', :href => "/s/#{@version.title}/#{@version.version+1}" unless @version.version == @page.version
+      a 'edit',    :href => "/e/#{@version.title}/#{@version.version}"
+      a 'back',    :href => "/s/#{@version.title}/#{@version.version-1}" unless @version.version == 1
+      a 'next',    :href => "/s/#{@version.title}/#{@version.version+1}" unless @version.version == @page.version
+      a 'current', :href => "/s/#{@version.title}" unless @version.version == @page.version
     end
   end
 
@@ -90,6 +105,11 @@ module Tepee::Views
         a 'cancel', :href => "/s/#{@page.title}/#{@page.version}"
       end
     end
+  end
+
+  def list
+    h1 'all pages'
+    ul { @pages.each { |p| li { a p.title, :href => "/show/#{p.title}" } } }
   end
 
   def _markup body
