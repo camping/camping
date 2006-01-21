@@ -62,7 +62,7 @@ module Camping
     def R(c,*args)
       p = /\(.+?\)/
       args.inject(c.urls.detect{|x|x.scan(p).size==args.size}.dup){|str,a|
-        str.gsub(p,(a.method(a.class.primary_key)[] rescue a).to_s)
+        str[p]=(a.method(a.class.primary_key)[] rescue a).to_s
       }
     end
     # Simply builds the complete URL from a relative or absolute path +p+.  If your
@@ -71,7 +71,7 @@ module Camping
     #   self/"view/1"    #=> "/blog/view/1"
     #   self/R(Edit, 1)
     #
-    def /(p); File.join(@root,p) end
+    def /(p); p=~/^\//?@root+p:p end
   end
 
   # Controllers is a module for placing classes which handle URLs.  This is done
