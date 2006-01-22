@@ -194,16 +194,16 @@ module Camping
         qs = C.qs_parse(e['QUERY_STRING'])
         if "POST" == m
           inp = r.read(e['CONTENT_LENGTH'].to_i)
-          if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)\"?|n.match(e['CONTENT_TYPE'])
+          if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e['CONTENT_TYPE'])
             b = "--#$1"
             inp.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
               h,v=pt.split("\r\n\r\n",2);fh={}
               [:name, :filename].each { |x|
-                fh[x] = $1 if h =~ /Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
+                fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
               }
               fn = fh[:name]
               if fh[:filename]
-                fh[:type]=$1 if h =~ /Content-Type: (.+?)(\r\n|\Z)/m
+                fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\r\n|\Z)/m
                 fh[:tempfile]=Tempfile.new("#{C}").instance_eval {binmode;write v;rewind;self}
               else
                 fh=v
@@ -229,7 +229,9 @@ module Camping
             [iv[1..-1], instance_variable_get(iv)] }, {} )
       end
       def markaview(m, *args, &blk)
-        markaby.instance_eval { Views.instance_method(m).bind(self).call(*args, &blk); self }.to_s
+        b=markaby
+        b.method(m).call(*args, &blk)
+        b.to_s
       end
     end
 
@@ -276,7 +278,7 @@ module Camping
     #     end
     #   end
     #
-    class ServerError < R; def get(k,m,e); r(500, markaby.div{ h1 "#{C} Problem!"; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }) end end
+    class ServerError; include Base; def get(k,m,e); r(500, markaby.div{ h1 "#{C} Problem!"; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }) end end
 
     class << self
       # Add routes to a controller class by piling them into the R method.

@@ -9,12 +9,12 @@ method_missing(m,*args,&blk);str=m==:render ? markaview(*args,&blk):eval(
 to_s);end;def r(s,b,h={});@status=s;@headers.merge!(h);@body=b;end;def 
 redirect(c,*args);c=R(c,*args);r(302,'','Location'=>self/c);end;def service(r,
 e,m,a)@status,@headers,@root=200,{},e['SCRIPT_NAME'];cook=C.cookie_parse(e[
-'HTTP_COOKIE']);qs=C.qs_parse(e['QUERY_STRING']);if "POST"==m;inp=r.read(e[
-'CONTENT_LENGTH'].to_i);if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)\"\
-?|n.match(e['CONTENT_TYPE']);b="--#$1";inp.split(/(?:\r?\n|\A)#{Regexp::quote(
+'HTTP_COOKIE']||e['COOKIE']);qs=C.qs_parse(e['QUERY_STRING']);if "POST"==m;inp=r.read(e[
+'CONTENT_LENGTH'].to_i);if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.
+match(e['CONTENT_TYPE']);b="--#$1";inp.split(/(?:\r?\n|\A)#{Regexp::quote(
 b)}(?:--)?\r\n/m).each{|pt|h,v=pt.split("\r\n\r\n",2);fh={};[:name,:filename].
-each{|x|fh[x]=$1 if h=~/Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")\
-/m};fn=fh[:name];if fh[:filename];fh[:type]=$1 if h =~ /Content-Type: (.+?)(\
+each{|x|fh[x]=$1 if h=~/^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")\
+/m};fn=fh[:name];if fh[:filename];fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\
 \r\n|\Z)/m;fh[:tempfile]=Tempfile.new("#{C}").instance_eval{binmode;write v
 rewind;self};else;fh=v;end;qs[fn]=fh if fn};else;qs.merge!(C.qs_parse(inp));end
 end;@cookies,@input=[cook,qs].map{|_|OpenStruct.new(_)};@body=method(m.downcase
@@ -23,10 +23,10 @@ escape(v)}; path=/" if v != cook[k]}.compact;self;end;def to_s;"Status: #{
 @status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|v.to_a.map{
 |v2|"#{k}: #{v2}"}}.flatten.join("\n")}\n\n#{@body}";end;def markaby;Mab.new(
 instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]},{});end;def 
-markaview(m,*args,&blk);markaby.instance_eval{Views.instance_method(m).bind(
-self).call(*args, &blk);self}.to_s;end;end;class R;include Base end;class 
+markaview(m,*args,&blk);b=markaby;b.method(m).call(*args, &blk);b.to_s
+end;end;class R;include Base end;class 
 NotFound;def get(p);r(404,div{h1("#{C} Problem!")+h2("#{p} not found")});end
-end;class ServerError<R;def get(k,m,e);r(500,markaby.div{h1 "#{C} Problem!"
+end;class ServerError;include Base;def get(k,m,e);r(500,markaby.div{h1 "#{C} Problem!"
 h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{e.backtrace.each{|bt|li(bt)}}}
 )end end;class<<self;def R(*urls);Class.new(R){meta_def(:inherited){|c|c.
 meta_def(:urls){urls}}};end;def D(path);constants.inject(nil){|d,c|k=
