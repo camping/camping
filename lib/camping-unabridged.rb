@@ -90,7 +90,7 @@ module Camping
     #
     #   self / "/view/1"    #=> "/blog/view/1"
     #   self / "styles.css" #=> "styles.css"
-    #   self / R(Edit, 1)
+    #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
     def /(p); p[/^\//]?@root+p:p end
   end
@@ -184,7 +184,8 @@ module Camping
 
       # Formulate a redirect response: a 302 status with <tt>Location</tt> header
       # and a blank body.  If +c+ is a string, the root path will be added.  If
-      # +c+ is a controller class, Helpers::R will be used to route the redirect.
+      # +c+ is a controller class, Helpers::R will be used to route the redirect
+      # and the root path will be added.
       #
       # So, given a root of <tt>/articles</tt>:
       #
