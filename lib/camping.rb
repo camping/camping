@@ -2,8 +2,9 @@
 module Camping;C=self;S=File.read(__FILE__).gsub(/_{2}FILE_{2}/,__FILE__.dump)
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.detect{|x|x.scan(p
 ).size==args.size}.dup){|str,a|str.sub(p,(a.method(a.class.primary_key)[]rescue
-a).to_s)};end;def / p;p[/^\//]?@root+p:p end;end;module Controllers;module Base
-include Helpers;attr_accessor :input,:cookies,:headers,:body,:status,:root;def
+a).to_s)};end;def / p;p[/^\//]?@root+p:p end; def errors_for(o); ul.errors { 
+o.errors.each_full { |er| li er } } unless o.errors.empty?; end; end; module Controllers;
+module Base; include Helpers;attr_accessor :input,:cookies,:headers,:body,:status,:root;def
 method_missing(m,*args,&blk);str=m==:render ? markaview(*args,&blk):eval(
 "markaby.#{m}(*args,&blk)");str=markaview(:layout){str}rescue nil;r(200,str.
 to_s);end;def r(s,b,h={});@status=s;@headers.merge!(h);@body=b;end;def 
