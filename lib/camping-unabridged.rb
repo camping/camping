@@ -66,6 +66,25 @@ module Camping
         str.sub(p,(a.method(a.class.primary_key)[] rescue a).to_s)
       }
     end
+    # Shows AR validation errors for the object passed. 
+    # There is no output if there are no errors.
+    #
+    # An example might look like:
+    #
+    #   errors_for @post
+    #
+    # Might (depending on actual data) render something like this in Markaby:
+    #
+    #   ul.errors do
+    #     li "Body can't be empty"
+    #     li "Title must be unique"
+    #   end
+    #
+    # Add a simple ul.errors {color:red; font-weight:bold;} CSS rule and you
+    # have built-in, usable error checking in only one line of code. :-)
+    #
+    # See AR validation documentation for details on validations.
+    def errors_for(o); ul.errors { o.errors.each_full { |er| li er } } unless o.errors.empty?; end
     # Simply builds the complete URL from a relative or absolute path +p+.  If your
     # application is running from <tt>/blog</tt>:
     #
