@@ -8,7 +8,7 @@ module Base; include Helpers;attr_accessor :input,:cookies,:headers,:body,:statu
 method_missing(m,*args,&blk);str=m==:render ? markaview(*args,&blk):eval(
 "markaby.#{m}(*args,&blk)");str=markaview(:layout){str}rescue nil;r(200,str.
 to_s);end;def r(s,b,h={});@status=s;@headers.merge!(h);@body=b;end;def 
-redirect(c,*args);c=R(c,*args);r(302,'','Location'=>self/c);end;def service(r,
+redirect(c,*args);c=R(c,*args)if c.respond_to?:urls;r(302,'','Location'=>self/c);end;def service(r,
 e,m,a)@status,@headers,@root=200,{},e['SCRIPT_NAME'];cook=C.cookie_parse(e[
 'HTTP_COOKIE']||e['COOKIE']);qs=C.qs_parse(e['QUERY_STRING']);if "POST"==m;inp=r.read(e[
 'CONTENT_LENGTH'].to_i);if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.

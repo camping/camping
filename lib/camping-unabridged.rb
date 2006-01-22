@@ -192,7 +192,7 @@ module Camping
       #   redirect View, 12     # redirects to "/articles/view/12"
       #
       def redirect(c, *args)
-        c = R(c,*args)
+        c = R(c,*args) if c.respond_to? :urls
         r(302, '', 'Location' => self/c)
       end
 
