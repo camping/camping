@@ -1,13 +1,22 @@
-#!/bin/env ruby
+#!/usr/bin/env ruby
 #
 # Serves all examples, mounted into Webrick.
 #
 require 'stringio'
 require 'webrick/httpserver'
+
+dir = Dir.pwd
 apps = 
     Dir['*'].select do |d|
+        Dir.chdir(dir)
         if File.exists? "#{d}/#{d}.rb"
-            load "#{d}/#{d}.rb"
+            begin
+                Dir.chdir("#{dir}/#{d}")
+                load "#{d}.rb"
+                true
+            rescue Exception => e
+                puts "Camping app `#{d}' will not load: #{e.class} #{e.message}"
+            end
         end
     end
 apps.map! do |app|
@@ -30,19 +39,16 @@ apps.each do |app, klass|
                 self.status = $1.to_i
                 header.delete('status')
               end
-              if header.has_key?('set-cookie')
-                header['set-cookie'].each{|k|
-                  self.cookies << WEBrick::Cookie.parse_set_cookie(k)
-                }
-                header.delete('set-cookie')
-              end
               header.each{|key, val| self[key] = val.join(", ") }
             rescue => ex
               raise WEBrick::HTTPStatus::InternalServerError, ex.message
             end
             self.body = body
         end
+        Dir.chdir("#{dir}/#{app}")
         klass.run((req.body and StringIO.new(req.body)), resp)
+        Dir.chdir(dir)
+        nil
     end
 end
 trap(:INT) do
