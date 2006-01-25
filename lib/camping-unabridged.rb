@@ -371,14 +371,26 @@ module Camping
     #
     def unescape(s); s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%')].pack('H*')} end
 
-    # Parses a query string into an OpenStruct object.
+    # Parses a query string into an Camping::H object.
     #
     #   input = Camping.qs_parse("name=Philarp+Tremain&hair=sandy+blonde")
     #   input.name
     #     #=> "Philarp Tremaine"
     #
-    def qs_parse(qs, d = '&;'); (qs||'').split(/[#{d}] */n).
-        inject(H[]){|hsh, p|k, v = p.split('=',2).map{|v|unescape(v)};k=k.split(/[\]\[]+/);l=k.pop;k.inject(hsh){|h,k|h[k]||={}}[l] = v unless v.blank?; hsh} end
+    # Also parses out the Hash-like syntax used in PHP and Rails and builds
+    # nested hashes from it.
+    #
+    #   input = Camping.qs_parse("post[id]=1&post[user]=_why")
+    #     #=> {'post' => {'id' => '1', 'user' => '_why'}}
+    #
+    def qs_parse(qs, d = '&;')
+        (qs||'').
+            split(/[#{d}] */n).
+            inject(H[]) { |h,p| k, v=unescape(p).split('=',2)
+                h.merge(k.split(/[\]\[]+/).reverse.
+                   inject(v) { |x,i| H[i,x] }){|_,o,n|o.merge(n)}
+            } 
+    end
 
     # Parses a string of cookies from the <tt>Cookie</tt> header.
     def cookie_parse(s); c = qs_parse(s, ';,'); end
