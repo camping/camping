@@ -11,6 +11,7 @@ require 'camping'
 Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'serve.db'
 Camping::Models::Base.logger = Logger.new('camping.log')
 
+# Find the working applications
 apps = 
     Dir['*'].select do |d|
         if File.directory? "#{d}"
@@ -34,7 +35,45 @@ end
 apps.compact!
 
 s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
+
+# Root mount displays applications mounted
+s.mount_proc("/") do |req, resp|
+    welcome = "Welcome to the Camping Example Server"
+    b = Markaby::Builder.new({}, {})
+    b = b.instance_eval do
+        html do
+            head { title welcome }
+            body do
+                h1 welcome
+                p %{
+                    Good day.  These are the Camping sample applications.  The code
+                    for each of these applications is available in its own folder
+                    under examples.  A link to the application's source code is 
+                    also given next to each one.
+                }
+                p %{Well, click on the application's name to give a try.}
+                ul do
+                    apps.each do |app, klass|
+                        li do
+                            h3(:style => "display: inline") { a app, :href => "/#{app}" }
+                            small { text " / " ; a "View Source", :href => "/code/#{app}" }
+                        end
+                    end
+                end
+            end
+        end
+    end
+    resp.body = b.to_s
+end
+
+# Mount which handles each application
 apps.each do |app, klass|
+    # Mount for view source
+    s.mount_proc("/code/#{app}") do |req, resp|
+        resp.header['Content-Type'] = 'text/plain'
+        resp.body = File.read("#{app}/#{app}.rb")
+    end
+
     s.mount_proc("/#{app}") do |req, resp|
         Object.instance_eval do
             remove_const :ENV
@@ -59,6 +98,8 @@ apps.each do |app, klass|
         nil
     end
 end
+
+# Server up
 trap(:INT) do
     s.shutdown
 end
