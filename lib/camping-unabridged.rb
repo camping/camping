@@ -442,7 +442,13 @@ module Camping
   #   end
   #
   # Models cannot be referred to in Views at this time.
-  module Models; end
+  module Models
+      A = ActiveRecord
+      Base = A::Base
+      def Base.table_name_prefix
+          "#{name[/^(\w+)/,1]}_".downcase.sub(/^(#{A}|camping)_/i,'')
+      end
+  end
 
   # Views is an empty module for storing methods which create HTML.  The HTML is described
   # using the Markaby language.
@@ -452,7 +458,6 @@ module Camping
   # If your Views module has a <tt>layout</tt> method defined, it will be called with a block
   # which will insert content from your view.
   module Views; include Controllers; include Helpers end
-  Models::Base = ActiveRecord::Base
   
   # The Mab class wraps Markaby, allowing it to run methods from Camping::Views
   # and also to replace :href and :action attributes in tags by prefixing the root

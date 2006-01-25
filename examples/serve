@@ -2,17 +2,20 @@
 #
 # Serves all examples, mounted into Webrick.
 #
+$:.unshift File.expand_path(File.dirname(__FILE__) + "/../lib")
 require 'stringio'
 require 'webrick/httpserver'
+require 'camping'
 
-dir = Dir.pwd
+# All applications share a single database
+Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'serve.db'
+Camping::Models::Base.logger = Logger.new('camping.log')
+
 apps = 
     Dir['*'].select do |d|
-        Dir.chdir(dir)
-        if File.exists? "#{d}/#{d}.rb"
+        if File.directory? "#{d}"
             begin
-                Dir.chdir("#{dir}/#{d}")
-                load "#{d}.rb"
+                load "#{d}/#{d}.rb"
                 true
             rescue Exception => e
                 puts "Camping app `#{d}' will not load: #{e.class} #{e.message}"
@@ -20,8 +23,15 @@ apps =
         end
     end
 apps.map! do |app|
-    [app, (Object.const_get(Object.constants.grep(/^#{app}$/i)[0]) rescue nil)]
+    begin
+        klass = Object.const_get(Object.constants.grep(/^#{app}$/i)[0])
+        klass.create if klass.respond_to? :create
+        [app, klass]
+    rescue Exception => e
+        puts "Camping app `#{app}' will not load: #{e.class} #{e.message}"
+    end
 end
+apps.compact!
 
 s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
 apps.each do |app, klass|
@@ -45,9 +55,7 @@ apps.each do |app, klass|
             end
             self.body = body
         end
-        Dir.chdir("#{dir}/#{app}")
         klass.run((req.body and StringIO.new(req.body)), resp)
-        Dir.chdir(dir)
         nil
     end
 end

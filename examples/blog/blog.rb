@@ -18,10 +18,24 @@ module Blog::Models
 end
 
 Blog::Models.schema do
-#  create_table :posts, :force => true do |t|
-#    t.column :title, :string, :limit => 255
-#    t.column :body, :text
-#  end
+    create_table :blog_posts, :force => true do |t|
+      t.column :id,       :integer, :null => false
+      t.column :user_id,  :integer, :null => false
+      t.column :title,    :string,  :limit => 255
+      t.column :body,     :text
+    end
+    create_table :blog_users, :force => true do |t|
+      t.column :id,       :integer, :null => false
+      t.column :username, :string
+      t.column :password, :string
+    end
+    create_table :blog_comments, :force => true do |t|
+      t.column :id,       :integer, :null => false
+      t.column :post_id,  :integer, :null => false
+      t.column :username, :string
+      t.column :body,     :text
+    end
+    execute "INSERT INTO blog_users (username, password) VALUES ('admin', 'camping')"
 end
 
 module Blog::Controllers
@@ -41,7 +55,8 @@ module Blog::Controllers
             render :add
         end
         def post
-            post = Post.create :title => input.post_title, :body => input.post_body
+            post = Post.create :title => input.post_title, :body => input.post_body,
+                               :user_id => @cookies.user_id
             redirect View, post
         end
     end
@@ -109,10 +124,21 @@ module Blog::Controllers
         end
     end
      
-    class Style < R '/styles.css', '/view/styles.css'
+    class Style < R '/styles.css'
         def get
             @headers["Content-Type"] = "text/css; charset=utf-8"
-            @body = File.read('styles.css')
+            @body = %{
+                body {
+                    font-family: Utopia, Georga, serif;
+                }
+                h1.header {
+                    background-color: #fef;
+                    margin: 0; padding: 10px;
+                }
+                div.content {
+                    padding: 10px;
+                }
+            }
         end
     end
 end
@@ -232,11 +258,15 @@ module Blog::Views
     end
 end
  
-db_exists = File.exists?('blog3.db')
-Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
-Blog::Models::Base.logger = Logger.new('camping.log')
-ActiveRecord::Schema.define(&Blog::Models.schema) unless db_exists
+def Blog.create
+    unless Blog::Models::Post.table_exists?
+        ActiveRecord::Schema.define(&Blog::Models.schema)
+    end
+end
 
 if __FILE__ == $0
+    Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
+    Blog::Models::Base.logger = Logger.new('camping.log')
+    Blog.create
     Blog.run
 end

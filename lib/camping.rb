@@ -43,7 +43,9 @@ def run(r=$stdin,w=$stdout);w<<begin;k,a=Controllers.D "/#{ENV['PATH_INFO']}".
 gsub(%r!/+!,'/');m=ENV['REQUEST_METHOD']||"GET";k.class_eval{include C
 include Controllers::Base;include Models};o=k.new;o.service(r,ENV,m,a);rescue\
 =>e;Controllers::ServerError.new.service(r,ENV,"GET",[k,m,e]);end;end;end
-module Views; include Controllers; include Helpers end;module Models;end
-Models::Base=ActiveRecord::Base;class Mab<Markaby::Builder;include Views
+module Views; include Controllers; include Helpers end;module Models
+A=ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
+downcase.sub(/^(#{A}|camping)_/i,'');end;end
+class Mab<Markaby::Builder;include Views
 def tag!(*g,&b);h=g[-1];[:href,:action].each{|a|(h[a]=self/h[a])rescue 0}
 super;end;end;end

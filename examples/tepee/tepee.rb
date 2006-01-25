@@ -19,7 +19,7 @@ module Tepee::Models
 end
 
 Tepee::Models.schema do
-  create_table :pages, :force => true do |t|
+  create_table :tepee_pages, :force => true do |t|
     t.column :title, :string, :limit => 255
     t.column :body, :text
   end
@@ -127,11 +127,15 @@ module Tepee::Views
   end
 end
 
-db_exists = File.exists?('tepee.db')
-Tepee::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'tepee.db'
-Tepee::Models::Base.logger = Logger.new('camping.log')
-ActiveRecord::Schema.define(&Tepee::Models.schema) unless db_exists
+def Tepee.create
+  unless Tepee::Models::Page.table_exists?
+    ActiveRecord::Schema.define(&Tepee::Models.schema)
+  end
+end
 
 if __FILE__ == $0
+  Tepee::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'tepee.db'
+  Tepee::Models::Base.logger = Logger.new('camping.log')
+  Tepee.create
   Tepee.run
 end
