@@ -1,10 +1,11 @@
 #!/usr/bin/env ruby
-require 'rubygems'
+require 'stringio'
+require 'webrick/httpserver'
 require 'camping'
 
 (puts <<USAGE; exit) if ARGV.length == 0
-#$0, microframework ON-button on ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
-Usage: #$0 your.camping.rb [your.camping.db]
+#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
+Usage: #{File.basename($0)} your.camping.rb [your.camping.db]
 USAGE
 
 script, db = ARGV[0..-1]
@@ -22,7 +23,7 @@ Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => d
 
 # Load the script, locate the module
 load script
-klass = Object.const_get(Object.constants.grep(/^#{script}$/i)[0])
+klass = Object.const_get(Object.constants.grep(/^#{File.basename(script)[/^(\w+)/,1]}$/i)[0])
 klass ||= Camping
 klass.create if klass.respond_to? :create
 
