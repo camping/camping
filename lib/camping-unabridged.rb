@@ -378,7 +378,7 @@ module Camping
     #     #=> "Philarp Tremaine"
     #
     def qs_parse(qs, d = '&;'); (qs||'').split(/[#{d}] */n).
-        inject(H[]){|hsh, p|k, v = p.split('=',2).map {|v| unescape(v)}; hsh[k] = v unless v.blank?; hsh} end
+        inject(H[]){|hsh, p|k, v = p.split('=',2).map{|v|unescape(v)};k=k.split(/[\]\[]+/);l=k.pop;k.inject(hsh){|h,k|h[k]||={}}[l] = v unless v.blank?; hsh} end
 
     # Parses a string of cookies from the <tt>Cookie</tt> header.
     def cookie_parse(s); c = qs_parse(s, ';,'); end
