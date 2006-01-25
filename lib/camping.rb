@@ -1,4 +1,4 @@
-%w[rubygems active_record markaby metaid ostruct tempfile].each{|l|require l}
+%w[rubygems active_record markaby metaid tempfile].each{|l|require l}
 module Camping;C=self;S=File.read(__FILE__).gsub(/_{2}FILE_{2}/,__FILE__.dump)
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.detect{|x|x.scan(p
 ).size==args.size}.dup){|str,a|str.sub(p,(a.method(a.class.primary_key)[]rescue
@@ -18,8 +18,8 @@ each{|x|fh[x]=$1 if h=~/^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")\
 /m};fn=fh[:name];if fh[:filename];fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\
 \r\n|\Z)/m;fh[:tempfile]=Tempfile.new("#{C}").instance_eval{binmode;write v
 rewind;self};else;fh=v;end;qs[fn]=fh if fn};else;qs.merge!(C.qs_parse(inp));end
-end;@cookies,@input=[cook,qs].map{|_|OpenStruct.new(_)};@body=method(m.downcase
-).call(*a);@headers["Set-Cookie"]=@cookies.marshal_dump.map{|k,v|"#{k}=#{C.
+end;@cookies, @input = cook.dup, qs.dup;@body=method(m.downcase
+).call(*a);@headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.
 escape(v)}; path=/" if v != cook[k]}.compact;self;end;def to_s;"Status: #{
 @status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|v.to_a.map{
 |v2|"#{k}: #{v2}"}}.flatten.join("\n")}\n\n#{@body}";end;def markaby;Mab.new(
@@ -37,7 +37,7 @@ class<<self;def goes m;eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)end;def
 escape s;s.to_s.gsub(/([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join(
 '%').upcase}.tr(' ','+') end;def unescape(s);s.tr('+', ' ').gsub(/((?:%[0-9a-f\
 A-F]{2})+)/n){[$1.delete('%')].pack('H*')} end;def qs_parse(qs,d ='&;');(qs||''
-).split(/[#{d}] */n).inject({}){|hsh, p|k,v=p.split('=',2).map{|v|unescape(v)}
+).split(/[#{d}] */n).inject(H[]){|hsh, p|k,v=p.split('=',2).map{|v|unescape(v)}
 hsh[k]=v unless v.blank?;hsh} end; def kp(s);c=qs_parse(s,';,') end
 def run(r=$stdin,w=$stdout);w<<begin;k,a=Controllers.D "/#{ENV['PATH_INFO']}".
 gsub(%r!/+!,'/');m=ENV['REQUEST_METHOD']||"GET";k.class_eval{include C
@@ -48,4 +48,5 @@ A=ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
 downcase.sub(/^(#{A}|camping)_/i,'');end;end
 class Mab<Markaby::Builder;include Views
 def tag!(*g,&b);h=g[-1];[:href,:action].each{|a|(h[a]=self/h[a])rescue 0}
-super;end;end;end
+super;end;end;class H<HashWithIndifferentAccess;def method_missing(m);self[m]
+end;end;end

@@ -1,4 +1,4 @@
-%w[rubygems active_record markaby metaid ostruct tempfile].each { |lib| require lib }
+%w[rubygems active_record markaby metaid tempfile].each { |lib| require lib }
 
 # == Camping 
 #
@@ -35,6 +35,12 @@
 module Camping
   C = self
   S = File.read(__FILE__).gsub(/_{2}FILE_{2}/,__FILE__.dump)
+
+  # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
+  # All Camping query string and cookie variables are loaded as this.
+  class H < HashWithIndifferentAccess
+      def method_missing(m); self[m] end
+  end
 
   # Helpers contains methods available in your controllers and views.
   module Helpers
@@ -234,21 +240,20 @@ module Camping
             qs.merge!(C.qs_parse(inp))
           end
         end
-        @cookies, @input = [cook, qs].map{|_|OpenStruct.new(_)}
+        @cookies, @input = cook.dup, qs.dup
 
         @body = method( m.downcase ).call(*a)
-        @headers['Set-Cookie'] = @cookies.marshal_dump.map { |k,v| "#{k}=#{C.escape(v)}; path=/" if v != cook[k] }.compact
+        @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=/" if v != cook[k] }.compact
         self
       end
       def to_s #:nodoc:
         "Status: #{@status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|v.to_a.map{|v2|"#{k}: #{v2}"}}.flatten.join("\n")}\n\n#{@body}"
       end
-      private
-      def markaby
+      def markaby #:nodoc:
           Mab.new( instance_variables.map { |iv| 
             [iv[1..-1], instance_variable_get(iv)] }, {} )
       end
-      def markaview(m, *args, &blk)
+      def markaview(m, *args, &blk) #:nodoc:
         b=markaby
         b.method(m).call(*args, &blk)
         b.to_s
@@ -373,7 +378,7 @@ module Camping
     #     #=> "Philarp Tremaine"
     #
     def qs_parse(qs, d = '&;'); (qs||'').split(/[#{d}] */n).
-        inject({}){|hsh, p|k, v = p.split('=',2).map {|v| unescape(v)}; hsh[k] = v unless v.blank?; hsh} end
+        inject(H[]){|hsh, p|k, v = p.split('=',2).map {|v| unescape(v)}; hsh[k] = v unless v.blank?; hsh} end
 
     # Parses a string of cookies from the <tt>Cookie</tt> header.
     def cookie_parse(s); c = qs_parse(s, ';,'); end
@@ -444,7 +449,17 @@ module Camping
   # Models cannot be referred to in Views at this time.
   module Models
       A = ActiveRecord
+      # Base is an alias for ActiveRecord::Base.  The big warning I'm going to give you
+      # about this: *Base overloads table_name_prefix.*  This means that if you have a
+      # model class Blog::Models::Post, it's table name will be <tt>blog_posts</tt>.
       Base = A::Base
+
+      # The default prefix for Camping model classes is the topmost module name lowercase
+      # and followed with an underscore.
+      #
+      #   Tepee::Models::Page.table_name_prefix
+      #     #=> "tepee_pages"
+      #
       def Base.table_name_prefix
           "#{name[/^(\w+)/,1]}_".downcase.sub(/^(#{A}|camping)_/i,'')
       end
