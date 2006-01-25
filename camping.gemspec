@@ -19,6 +19,7 @@ spec = Gem::Specification.new do |s|
                     "--exclude" << "^examples\/" << 
                     "--exclude" << "lib/camping.rb"
   s.require_path = 'lib'
+  s.bindir = 'bin'
   s.autorequire = 'camping'
   s.author = "why the lucky stiff"
   s.email = "why@ruby-lang.org"

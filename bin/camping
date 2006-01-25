@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'camping'
+
+(puts <<USAGE; exit) if ARGV.length == 0
+#$0, microframework ON-button on ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
+Usage: #$0 your.camping.rb [your.camping.db]
+USAGE
+
+script, db = ARGV[0..-1]
+
+unless db
+    homes = []
+    homes << File.join( ENV['HOME'], '.camping.db' ) if ENV['HOME']
+    homes << File.join( ENV['APPDATA'], 'Camping.db' ) if ENV['APPDATA']
+    homes.each do |db|
+        break if File.exists?( db )
+    end
+end
+
+Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => db
+
+# Load the script, locate the module
+load script
+klass = Object.const_get(Object.constants.grep(/^#{script}$/i)[0])
+klass ||= Camping
+klass.create if klass.respond_to? :create
+
+# Mount the root
+s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
+s.mount_proc("/") do |req, resp|
+    Object.instance_eval do
+        remove_const :ENV
+        const_set :ENV, req.meta_vars
+    end
+    def resp.<<(data)
+        raw_header, body = "#{data}".split(/^[\xd\xa]+/on, 2) 
+
+        begin
+          header = WEBrick::HTTPUtils::parse_header(raw_header)
+          if /^(\d+)/ =~ header['status'][0]
+            self.status = $1.to_i
+            header.delete('status')
+          end
+          header.each{|key, val| self[key] = val.join(", ") }
+        rescue => ex
+          raise WEBrick::HTTPStatus::InternalServerError, ex.message
+        end
+        self.body = body
+    end
+    klass.run((req.body and StringIO.new(req.body)), resp)
+    nil
+end
+
+# Server up
+trap(:INT) do
+    s.shutdown
+end
+s.start
