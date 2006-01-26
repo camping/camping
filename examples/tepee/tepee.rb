@@ -135,7 +135,7 @@ def Tepee.create
 end
 
 if __FILE__ == $0
-  Tepee::Models::Base.establish_connection :adapter => 'sqlite', :database => 'tepee.db'
+  Tepee::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'tepee.db'
   Tepee::Models::Base.logger = Logger.new('camping.log')
   Tepee.create
   Tepee.run

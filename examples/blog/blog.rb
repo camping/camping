@@ -48,7 +48,7 @@ module Blog::Controllers
      
     class Add
         def get
-            if cookies.user_id
+            unless cookies.user_id.blank?
                 @session = User.find cookies.user_id
                 @post = Post.new
             end
@@ -81,7 +81,7 @@ module Blog::Controllers
      
     class Edit < R '/edit/(\d+)', '/edit'
         def get post_id 
-            if cookies.user_id
+            unless cookies.user_id.blank?
                 @session = User.find cookies.user_id
             end
             @post = Post.find post_id

@@ -51,7 +51,16 @@ module Camping
   # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
   # All Camping query string and cookie variables are loaded as this.
   class H < HashWithIndifferentAccess
-      def method_missing(m); self[m] end
+    def method_missing(*a)
+        m = a.shift
+        if m.to_s =~ /=$/
+            self[$`] = a[0]
+        elsif a.empty?
+            self[m]
+        else
+            raise NoMethodError, "#{m}"
+        end
+    end
   end
 
   # Helpers contains methods available in your controllers and views.
@@ -228,7 +237,7 @@ module Camping
 
       def service(r, e, m, a) #:nodoc:
         @status, @headers, @root = 200, {}, e['SCRIPT_NAME']
-        cook = C.cookie_parse(e['HTTP_COOKIE'] || e['COOKIE'])
+        cook = C.kp(e['HTTP_COOKIE'] || e['COOKIE'])
         qs = C.qs_parse(e['QUERY_STRING'])
         if "POST" == m
           inp = r.read(e['CONTENT_LENGTH'].to_i)
@@ -406,7 +415,7 @@ module Camping
     end
 
     # Parses a string of cookies from the <tt>Cookie</tt> header.
-    def cookie_parse(s); c = qs_parse(s, ';,'); end
+    def kp(s); c = qs_parse(s, ';,'); end
 
     # Fields a request through Camping.  For traditional CGI applications, the method can be
     # executed without arguments.

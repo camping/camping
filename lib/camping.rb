@@ -9,7 +9,7 @@ module Base; include Helpers;attr_accessor :input,:cookies,:headers,:body,
 &blk):eval("markaby.#{m}(*args,&blk)");str=markaview(:layout){str}rescue nil;r(
 200,str.to_s);end;def r(s,b,h={});@status=s;@headers.merge!(h);@body=b;end;def 
 redirect(c,*args);c=R(c,*args)if c.respond_to?:urls;r(302,'','Location'=>self/c)
-end;def service(r,e,m,a)@status,@headers,@root=200,{},e['SCRIPT_NAME'];cook=C.cookie_parse(
+end;def service(r,e,m,a)@status,@headers,@root=200,{},e['SCRIPT_NAME'];cook=C.kp(
 e['HTTP_COOKIE']);qs=C.qs_parse(e['QUERY_STRING']);if "POST"==m;inp=r.read(e[
 'CONTENT_LENGTH'].to_i);if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.
 match(e['CONTENT_TYPE']);b="--#$1";inp.split(/(?:\r?\n|\A)#{Regexp::quote(
@@ -39,7 +39,7 @@ escape s;s.to_s.gsub(/([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join(
 A-F]{2})+)/n){[$1.delete('%')].pack('H*')} end;def qs_parse qs,d='&;';m=proc{
 |_,o,n|o.merge(n,&m)rescue(o.to_a<<n)};qs.to_s.split(/[#{d}] */n).inject(H[]){
 |h,p|k,v=unescape(p).split('=',2);h.merge(k.split(/[\]\[]+/).reverse.inject(v){
-|x,i|H[i,x]},&m)}end
+|x,i|H[i,x]},&m)}end;def kp(s);c=qs_parse(s,';,');end
 def run(r=$stdin,w=$stdout);w<<begin;k,a=Controllers.D "/#{ENV['PATH_INFO']}".
 gsub(%r!/+!,'/');m=ENV['REQUEST_METHOD']||"GET";k.class_eval{include C
 include Controllers::Base;include Models};o=k.new;o.service(r,ENV,m,a);rescue\
@@ -49,5 +49,6 @@ A=ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
 downcase.sub(/^(#{A}|camping)_/i,'');end;end
 class Mab<Markaby::Builder;include Views
 def tag!(*g,&b);h=g[-1];[:href,:action].each{|a|(h[a]=self/h[a])rescue 0}
-super;end;end;class H<HashWithIndifferentAccess;def method_missing(m);self[m]
-end;end;end
+super;end;end;class H<HashWithIndifferentAccess;def method_missing(*a);m=a.shift
+if m.to_s=~/=$/;self[$`]=a[0];elsif a.empty?;self[m];else;raise NoMethodError,
+"#{m}";end;end;end;end
