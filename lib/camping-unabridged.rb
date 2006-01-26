@@ -1,3 +1,14 @@
+# == About camping.rb
+#
+# Camping comes with two versions of its source code.  The code contained in
+# lib/camping.rb is compressed, stripped of whitespace, using compact algorithms
+# to keep it tight.  The unspoken rule is that camping.rb should be flowed with
+# no more than 80 characters per line and must not exceed four kilobytes.
+#
+# On the other hand, lib/camping-unabridged.rb contains the same code, laid out
+# nicely with piles of documentation everywhere.  This documentation is entirely
+# generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
+# found in the extras directory of any camping distribution.
 %w[rubygems active_record markaby metaid tempfile].each { |lib| require lib }
 
 # == Camping 
@@ -385,11 +396,12 @@ module Camping
     #     #=> {'post' => {'id' => '1', 'user' => '_why'}}
     #
     def qs_parse(qs, d = '&;')
+        m = proc {|_,o,n|o.merge(n,&m)rescue(o.to_a<<n)}
         (qs||'').
             split(/[#{d}] */n).
             inject(H[]) { |h,p| k, v=unescape(p).split('=',2)
                 h.merge(k.split(/[\]\[]+/).reverse.
-                   inject(v) { |x,i| H[i,x] }){|_,o,n|o.merge(n)}
+                    inject(v) { |x,i| H[i,x] },&m)
             } 
     end
 

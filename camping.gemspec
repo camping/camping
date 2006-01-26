@@ -13,7 +13,7 @@ spec = Gem::Specification.new do |s|
             end.flatten.delete_if {|item| item.include?(".svn")}
   s.extra_rdoc_files = ['README']
   s.rdoc_options << "--quiet" <<
-                    "--title" << "Camping Documentation" << 
+                    "--title" << "Camping, the Documentation" << 
                     "--one-file" << 
                     "--template" << "extras/flipbook_rdoc.rb" <<
                     "--opname" << "index.html" <<

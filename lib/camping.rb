@@ -36,10 +36,10 @@ const_get(c);k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R);d||([k, $~[1..-1]
 class<<self;def goes m;eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)end;def 
 escape s;s.to_s.gsub(/([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join(
 '%').upcase}.tr(' ','+') end;def unescape(s);s.tr('+', ' ').gsub(/((?:%[0-9a-f\
-A-F]{2})+)/n){[$1.delete('%')].pack('H*')} end;def qs_parse(qs,d='&;');(qs||'').
-split(/[#{d}] */n).inject(H[]){|h,p|k,v=unescape(p).split('=',2);h.merge(k.
-split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]}){|_,o,n|o.merge(n)}} end;def kp(
-s);c=qs_parse(s,';,') end
+A-F]{2})+)/n){[$1.delete('%')].pack('H*')} end;def qs_parse qs,d='&;';m=proc{
+|_,o,n|o.merge(n,&m)rescue(o.to_a<<n)};qs.to_s.split(/[#{d}] */n).inject(H[]){
+|h,p|k,v=unescape(p).split('=',2);h.merge(k.split(/[\]\[]+/).reverse.inject(v){
+|x,i|H[i,x]},&m)}end
 def run(r=$stdin,w=$stdout);w<<begin;k,a=Controllers.D "/#{ENV['PATH_INFO']}".
 gsub(%r!/+!,'/');m=ENV['REQUEST_METHOD']||"GET";k.class_eval{include C
 include Controllers::Base;include Models};o=k.new;o.service(r,ENV,m,a);rescue\

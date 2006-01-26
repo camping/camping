@@ -101,6 +101,7 @@ ONE_PAGE = %{
     body, th, td {
         font: normal 14px verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;
         line-height: 160%;
+        padding: 0; margin: 0;
         margin-bottom: 30px;
         /* background-color: #402; */
         background-color: #694;
@@ -166,21 +167,33 @@ ONE_PAGE = %{
         color: white;
     }
     #logo { float: left; }
+    #menu { background-color: #dfa; padding: 4px 12px; margin: 0; }
+    #menu h3 { padding: 0; margin: 0; }
+    #menu #links { float: right; }
   </style>
   <script type="text/javascript" language="JavaScript">
     var current = 'README';
     function showPage(id) {
         var ele = document.getElementById(id);
         var c = document.getElementById(current);
-        ele.style.display = 'block';
         c.style.display = 'none';
+        ele.style.display = 'block';
         current = id;
     }
   </script>
 </head>
 <body>
+<div id="menu">
+<div id="links">
+    <a href="http://redhanded.hobix.com/bits/campingAMicroframework.html">backstory</a> |
+    <a href="http://code.whytheluckystiff.net/camping/">wiki</a> |
+    <a href="http://code.whytheluckystiff.net/camping/newticket">bugs</a> |
+    <a href="http://code.whytheluckystiff.net/svn/camping/">svn</a>
+</div>
+<h3 class="title">Camping, the Documentation</h3>
+</div>
 <div id="fullpage">
-<div id="logo"><img src="file:///home/why/cvs/camping/images/Camping.gif" /></div>
+<div id="logo"><img src="/Camping.gif" /></div>
 <div id="pager">
 <strong>Files:</strong>
 START:files
