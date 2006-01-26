@@ -44,7 +44,8 @@ A skeleton might be:
   end
 
   if __FILE__ == $0
-    Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
+    Camping::Models::Base.establish_connection :adapter => 'sqlite3', 
+        :database => 'blog3.db'
     Camping::Models::Base.logger = Logger.new('camping.log')
     Camping.run
   end

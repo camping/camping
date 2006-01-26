@@ -20,7 +20,8 @@
 # in motion.
 #
 #   if __FILE__ == $0
-#     Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
+#     Camping::Models::Base.establish_connection :adapter => 'sqlite3',
+#         :database => 'blog3.db'
 #     Camping::Models::Base.logger = Logger.new('camping.log')
 #     Camping.run
 #   end
@@ -399,7 +400,8 @@ module Camping
     # executed without arguments.
     #
     #   if __FILE__ == $0
-    #     Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
+    #     Camping::Models::Base.establish_connection :adapter => 'sqlite3',
+    #         :database => 'blog3.db'
     #     Camping::Models::Base.logger = Logger.new('camping.log')
     #     Camping.run
     #   end
@@ -410,7 +412,8 @@ module Camping
     #
     #   if __FILE__ == $0
     #     require 'fcgi'
-    #       Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog3.db'
+    #       Camping::Models::Base.establish_connection :adapter => 'sqlite3',
+    #           :database => 'blog3.db'
     #       Camping::Models::Base.logger = Logger.new('camping.log')
     #       FCGI.each do |req|
     #         ENV.replace req.env

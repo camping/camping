@@ -8,15 +8,18 @@ spec = Gem::Specification.new do |s|
   s.add_dependency('markaby')
   s.add_dependency('metaid')
   s.has_rdoc = true
-  s.files = ['README', 'examples/**/*', 'lib/**/*', 'bin/**/*'].collect do |dirglob|
+  s.files = ['README', 'examples/**/*', 'lib/**/*', 'bin/**/*', 'extras/**/*'].collect do |dirglob|
                 Dir.glob(dirglob)
             end.flatten.delete_if {|item| item.include?(".svn")}
   s.extra_rdoc_files = ['README']
-  s.rdoc_options << "--title" << "Camping Documentation" << 
+  s.rdoc_options << "--quiet" <<
+                    "--title" << "Camping Documentation" << 
+                    "--one-file" << 
+                    "--template" << "extras/flipbook_rdoc.rb" <<
+                    "--opname" << "index.html" <<
                     "--line-numbers" << 
                     "--inline-source" << 
-                    "--main" << "README" <<
-                    "--exclude" << "^examples\/" << 
+                    "--exclude" << "^(examples|extras)\/" << 
                     "--exclude" << "lib/camping.rb"
   s.require_path = 'lib'
   s.executables << 'camping'
