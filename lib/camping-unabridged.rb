@@ -237,7 +237,7 @@ module Camping
 
       def service(r, e, m, a) #:nodoc:
         @status, @headers, @root = 200, {}, e['SCRIPT_NAME']
-        cook = C.kp(e['HTTP_COOKIE'] || e['COOKIE'])
+        cook = C.kp(e['HTTP_COOKIE'])
         qs = C.qs_parse(e['QUERY_STRING'])
         if "POST" == m
           inp = r.read(e['CONTENT_LENGTH'].to_i)
@@ -251,7 +251,7 @@ module Camping
               fn = fh[:name]
               if fh[:filename]
                 fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\r\n|\Z)/m
-                fh[:tempfile]=Tempfile.new("#{C}").instance_eval {binmode;write v;rewind;self}
+                fh[:tempfile]=Tempfile.new("C").instance_eval {binmode;write v;rewind;self}
               else
                 fh=v
               end
@@ -299,7 +299,7 @@ module Camping
     #     end
     #   end
     #
-    class NotFound; def get(p); r(404, div{h1("#{C} Problem!")+h2("#{p} not found")}); end end
+    class NotFound; def get(p); r(404, div{h1("Cam\ping Problem!")+h2("#{p} not found")}); end end
 
     # The ServerError class is a special controller class for handling many (but not all) 500 errors.
     # If there is a parse error in Camping or in your application's source code, it will not be caught
@@ -324,7 +324,7 @@ module Camping
     #     end
     #   end
     #
-    class ServerError; include Base; def get(k,m,e); r(500, markaby.div{ h1 "#{C} Problem!"; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }) end end
+    class ServerError; include Base; def get(k,m,e); r(500, markaby.div{ h1 "Cam\ping Problem!"; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }) end end
 
     class << self
       # Add routes to a controller class by piling them into the R method.
@@ -346,7 +346,7 @@ module Camping
       #
       # Most of the time the rules inferred by dispatch method Controllers::D will get you
       # by just fine.
-      def R(*urls); Class.new(R) { meta_def(:inherited) { |c| c.meta_def(:urls) { urls } } }; end
+      def R(*urls); Class.new(R) { meta_def(:urls) { urls } }; end
 
       # Dispatch routes to controller classes.  Classes are searched in no particular order.
       # For each class, routes are checked for a match based on their order in the routing list

@@ -16,7 +16,7 @@ match(e['CONTENT_TYPE']);b="--#$1";inp.split(/(?:\r?\n|\A)#{Regexp::quote(
 b)}(?:--)?\r\n/m).each{|pt|h,v=pt.split("\r\n\r\n",2);fh={};[:name,:filename].
 each{|x|fh[x]=$1 if h=~/^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")\
 /m};fn=fh[:name];if fh[:filename];fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\
-\r\n|\Z)/m;fh[:tempfile]=Tempfile.new("#{C}").instance_eval{binmode;write v
+\r\n|\Z)/m;fh[:tempfile]=Tempfile.new("C").instance_eval{binmode;write v
 rewind;self};else;fh=v;end;qs[fn]=fh if fn};else;qs.merge!(C.qs_parse(inp));end
 end;@cookies, @input = cook.dup, qs.dup;@body=method(m.downcase
 ).call(*a);@headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.
@@ -26,11 +26,11 @@ escape(v)}; path=/" if v != cook[k]}.compact;self;end;def to_s;"Status: #{
 instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]},{});end;def 
 markaview(m,*args,&blk);b=markaby;b.method(m).call(*args, &blk);b.to_s
 end;end;class R;include Base end;class 
-NotFound;def get(p);r(404,div{h1("#{C} Problem!")+h2("#{p} not found")});end
-end;class ServerError;include Base;def get(k,m,e);r(500,markaby.div{h1 "#{C} Problem!"
+NotFound;def get(p);r(404,div{h1("Cam\ping Problem!")+h2("#{p} not found")});end
+end;class ServerError;include Base;def get(k,m,e);r(500,markaby.div{h1 "Cam\ping Problem!"
 h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{e.backtrace.each{|bt|li(bt)}}}
-)end end;class<<self;def R(*urls);Class.new(R){meta_def(:inherited){|c|c.
-meta_def(:urls){urls}}};end;def D(path);constants.inject(nil){|d,c|k=
+)end end;class<<self;def R(*urls);Class.new(R){meta_def(:urls){urls}};end;def 
+D(path);constants.inject(nil){|d,c|k=
 const_get(c);k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R);d||([k, $~[1..-1]
 ] if k.urls.find { |x| path =~ /^#{x}\/?$/ })}||[NotFound, [path]];end end end
 class<<self;def goes m;eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)end;def 
