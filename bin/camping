@@ -1,4 +1,9 @@
 #!/usr/bin/env ruby
+
+# this line prevents other db adapters from being loaded (oci8 was
+# causing some pain.)
+RAILS_CONNECTION_ADAPTERS = %w[sqlite]
+
 require 'stringio'
 require 'webrick/httpserver'
 require 'camping'

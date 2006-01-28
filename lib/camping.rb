@@ -21,7 +21,7 @@ rewind;self};else;fh=v;end;qs[fn]=fh if fn};else;qs.merge!(C.qs_parse(inp));end
 end;@cookies, @input = cook.dup, qs.dup;@body=method(m.downcase
 ).call(*a);@headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.
 escape(v)}; path=/" if v != cook[k]}.compact;self;end;def to_s;"Status: #{
-@status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|v.to_a.map{
+@status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|[*v].map{
 |v2|"#{k}: #{v2}"}}.flatten.join("\n")}\n\n#{@body}";end;def markaby;Mab.new(
 instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]},{});end;def 
 markaview(m,*args,&blk);b=markaby;b.method(m).call(*args, &blk);b.to_s
@@ -37,7 +37,7 @@ class<<self;def goes m;eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)end;def
 escape s;s.to_s.gsub(/([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join(
 '%').upcase}.tr(' ','+') end;def unescape(s);s.tr('+', ' ').gsub(/((?:%[0-9a-f\
 A-F]{2})+)/n){[$1.delete('%')].pack('H*')} end;def qs_parse qs,d='&;';m=proc{
-|_,o,n|o.merge(n,&m)rescue(o.to_a<<n)};qs.to_s.split(/[#{d}] */n).inject(H[]){
+|_,o,n|o.merge(n,&m)rescue([*o]<<n)};qs.to_s.split(/[#{d}] */n).inject(H[]){
 |h,p|k,v=unescape(p).split('=',2);h.merge(k.split(/[\]\[]+/).reverse.inject(v){
 |x,i|H[i,x]},&m)}end;def kp(s);c=qs_parse(s,';,');end
 def run(r=$stdin,w=$stdout);w<<begin;k,a=Controllers.D "/#{ENV['PATH_INFO']}".

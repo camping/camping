@@ -268,7 +268,7 @@ module Camping
         self
       end
       def to_s #:nodoc:
-        "Status: #{@status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|v.to_a.map{|v2|"#{k}: #{v2}"}}.flatten.join("\n")}\n\n#{@body}"
+        "Status: #{@status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|[*v].map{|v2|"#{k}: #{v2}"}}.flatten.join("\n")}\n\n#{@body}"
       end
       def markaby #:nodoc:
           Mab.new( instance_variables.map { |iv| 
@@ -405,7 +405,7 @@ module Camping
     #     #=> {'post' => {'id' => '1', 'user' => '_why'}}
     #
     def qs_parse(qs, d = '&;')
-        m = proc {|_,o,n|o.merge(n,&m)rescue(o.to_a<<n)}
+        m = proc {|_,o,n|o.merge(n,&m)rescue([*o]<<n)}
         (qs||'').
             split(/[#{d}] */n).
             inject(H[]) { |h,p| k, v=unescape(p).split('=',2)
