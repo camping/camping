@@ -34,7 +34,7 @@
 #     Camping::Models::Base.establish_connection :adapter => 'sqlite3',
 #         :database => 'blog3.db'
 #     Camping::Models::Base.logger = Logger.new('camping.log')
-#     Camping.run
+#     puts Camping.run
 #   end
 #
 # In the postamble, your job is to setup Camping::Models::Base (see: ActiveRecord::Base) 
@@ -177,7 +177,7 @@ module Camping
     #
     module Base
       include Helpers
-      attr_accessor :input, :cookies, :headers, :body, :status, :root
+      attr_accessor :input, :cookies, :env, :headers, :body, :status, :root
       # Display a view, calling it by its method name +m+.  If a <tt>layout</tt>
       # method is found in Camping::Views, it will be used to wrap the HTML.
       #
@@ -197,7 +197,7 @@ module Camping
       #
       #   module Camping::Controllers
       #     class Info
-      #       def get; code ENV.inspect end
+      #       def get; code @env.inspect end
       #     end
       #   end
       #
@@ -236,7 +236,7 @@ module Camping
       def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
 
       def service(r, e, m, a) #:nodoc:
-        @status, @headers, @root = 200, {}, e['SCRIPT_NAME']
+        @status, @env, @headers, @root = 200, e, {}, e['SCRIPT_NAME']
         cook = C.kp(e['HTTP_COOKIE'])
         qs = C.qs_parse(e['QUERY_STRING'])
         if "POST" == m
@@ -424,12 +424,16 @@ module Camping
     #     Camping::Models::Base.establish_connection :adapter => 'sqlite3',
     #         :database => 'blog3.db'
     #     Camping::Models::Base.logger = Logger.new('camping.log')
-    #     Camping.run
+    #     puts Camping.run
     #   end
+    #
+    # The Camping controller returned from <tt>run</tt> has a <tt>to_s</tt> method in case you
+    # are running from CGI or want to output the full HTTP output.  In the above example, <tt>puts</tt>
+    # will call <tt>to_s</tt> for you.
     #
     # For FastCGI and Webrick-loaded applications, you will need to use a request loop, with <tt>run</tt>
     # at the center, passing in the read +r+ and write +w+ streams.  You will also need to mimick or
-    # replace <tt>ENV</tt> as part of your wrapper.
+    # pass in the <tt>ENV</tt> replacement as part of your wrapper.
     #
     #   if __FILE__ == $0
     #     require 'fcgi'
@@ -437,24 +441,22 @@ module Camping
     #           :database => 'blog3.db'
     #       Camping::Models::Base.logger = Logger.new('camping.log')
     #       FCGI.each do |req|
-    #         ENV.replace req.env
-    #         Camping.run req.in, req.out
+    #         req.out << Camping.run req.in, req.env
     #         req.finish
     #       end
     #     end
     #   end
     #
-    def run(r=$stdin,w=$stdout)
-      w <<
-        begin
-          k, a = Controllers.D "/#{ENV['PATH_INFO']}".gsub(%r!/+!,'/')
-          m = ENV['REQUEST_METHOD']||"GET"
-          k.class_eval { include C; include Controllers::Base; include Models }
-          o = k.new
-          o.service(r, ENV, m, a)
-        rescue => e
-          Controllers::ServerError.new.service(r, ENV, "GET", [k,m,e])
-        end
+    def run(r=$stdin)
+      begin
+        k, a = Controllers.D "/#{e['PATH_INFO']}".gsub(%r!/+!,'/')
+        m = e['REQUEST_METHOD']||"GET"
+        k.class_eval { include C; include Controllers::Base; include Models }
+        o = k.new
+        o.service(r, e, m, a)
+      rescue => e
+        Controllers::ServerError.new.service(r, e, "GET", [k,m,e])
+      end
     end
   end
 

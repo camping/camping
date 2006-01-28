@@ -35,26 +35,14 @@ klass.create if klass.respond_to? :create
 # Mount the root
 s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
 s.mount_proc("/") do |req, resp|
-    Object.instance_eval do
-        remove_const :ENV
-        const_set :ENV, req.meta_vars
-    end
-    def resp.<<(data)
-        raw_header, body = "#{data}".split(/^[\xd\xa]+/on, 2) 
-
-        begin
-          header = WEBrick::HTTPUtils::parse_header(raw_header)
-          if /^(\d+)/ =~ header['status'][0]
-            self.status = $1.to_i
-            header.delete('status')
-          end
-          header.each{|key, val| self[key] = val.join(", ") }
-        rescue => ex
-          raise WEBrick::HTTPStatus::InternalServerError, ex.message
+    controller = klass.run((req.body and StringIO.new(req.body)), req.meta_vars)
+    resp.status = controller.status
+    controller.headers.each do |k, v|
+        [*v].each do |vi|
+            resp[k] = vi
         end
-        self.body = body
     end
-    klass.run((req.body and StringIO.new(req.body)), resp)
+    resp.body = controller.body
     nil
 end
 

@@ -8,10 +8,10 @@ spec = Gem::Specification.new do |s|
   s.add_dependency('markaby')
   s.add_dependency('metaid')
   s.has_rdoc = true
-  s.files = ['README', 'examples/**/*', 'lib/**/*', 'bin/**/*', 'extras/**/*'].collect do |dirglob|
+  s.files = ['README', 'CHANGELOG', 'examples/**/*', 'lib/**/*', 'bin/**/*', 'extras/**/*'].collect do |dirglob|
                 Dir.glob(dirglob)
             end.flatten.delete_if {|item| item.include?(".svn")}
-  s.extra_rdoc_files = ['README']
+  s.extra_rdoc_files = ['README', 'CHANGELOG']
   s.rdoc_options << "--quiet" <<
                     "--title" << "Camping, the Documentation" << 
                     "--one-file" << 

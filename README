@@ -51,7 +51,7 @@ A skeletal Camping blog could look like this:
     Blog::Models::Base.establish_connection :adapter => 'sqlite3', 
         :database => 'blog3.db'
     Blog::Models::Base.logger = Logger.new('camping.log')
-    Blog.run
+    puts Blog.run
   end
 
 Some things you might have noticed:

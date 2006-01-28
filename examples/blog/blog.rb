@@ -268,5 +268,5 @@ if __FILE__ == $0
     Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
     Blog::Models::Base.logger = Logger.new('camping.log')
     Blog.create
-    Blog.run
+    puts Blog.run
 end
