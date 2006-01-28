@@ -1,0 +1,30 @@
+= 1.3
+=== 28th January, 2006
+
+* bin/camping: an application launcher.
+* The input hash now works more like Rails params.  You can call keys
+  like methods or with symbols or strings.
+* Queries are now parsed more like PHP/Rails, in that you can denote
+  structure with brackets: post[user]=_why;post[id]=2
+* Auto-prefix table names, to help prevent name clash.
+* Helpers.errors_for simple validation.
+* Lots of empty :href and :action attributes, a bug.
+* New single-page flipbook RDoc template.
+
+= 1.2
+=== 23rd January, 2006
+
+* Camping.goes allows fresh modules build from all Camping parts.
+* File uploads now supported (multipart/form-data).
+* Helpers.R can rebuild routes.
+* Helpers./ for tracing paths from the root.
+
+= 1.1
+=== 19th January, 2006
+
+* Allowed request and response streams to be passed in, to allow WEBrick and FastCGI support.
+
+= 1.0
+=== 17th January, 2006
+
+* Initial checkin, see announcement at http://redhanded.hobix.com/bits/campingAMicroframework.html.
