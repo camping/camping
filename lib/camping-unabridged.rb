@@ -454,8 +454,8 @@ module Camping
         k.class_eval { include C; include Controllers::Base; include Models }
         o = k.new
         o.service(r, e, m, a)
-      rescue => e
-        Controllers::ServerError.new.service(r, e, "GET", [k,m,e])
+      rescue => x
+        Controllers::ServerError.new.service(r, e, "GET", [k,m,x])
       end
     end
   end

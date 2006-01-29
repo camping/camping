@@ -2,6 +2,9 @@
 === 28th January, 2006
 
 * bin/camping: an application launcher.
+* <tt>Camping.run(request, response)</tt> now changed to <tt>controller = Camping.run(request, env)</tt>
+* This means outputting the response is the wrapper/server's job.  See bin/camping, you can do a controller.to_s at the least.
+* <tt>Controllers::Base.env</tt> is the new thread-safe home for <tt>ENV</tt>.
 * The input hash now works more like Rails params.  You can call keys
   like methods or with symbols or strings.
 * Queries are now parsed more like PHP/Rails, in that you can denote

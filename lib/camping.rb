@@ -43,7 +43,7 @@ A-F]{2})+)/n){[$1.delete('%')].pack('H*')} end;def qs_parse qs,d='&;';m=proc{
 def run(r=$stdin,e=ENV);begin;k,a=Controllers.D "/#{e['PATH_INFO']}".
 gsub(%r!/+!,'/');m=e['REQUEST_METHOD']||"GET";k.class_eval{include C
 include Controllers::Base;include Models};o=k.new;o.service(r,e,m,a);rescue\
-=>e;Controllers::ServerError.new.service(r,e,"GET",[k,m,e]);end;end;end
+=>x;Controllers::ServerError.new.service(r,e,"GET",[k,m,x]);end;end;end
 module Views; include Controllers; include Helpers end;module Models
 A=ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
 downcase.sub(/^(#{A}|camping)_/i,'');end;end
