@@ -1,7 +1,7 @@
 require 'rubygems'
 spec = Gem::Specification.new do |s|
   s.name = 'camping'
-  s.version = "1.2.53"
+  s.version = "1.2"
   s.platform = Gem::Platform::RUBY
   s.summary = "miniature rails for stay-at-home moms"
   s.add_dependency('activerecord')
@@ -23,7 +23,6 @@ spec = Gem::Specification.new do |s|
                     "--exclude" << "lib/camping.rb"
   s.require_path = 'lib'
   s.executables << 'camping'
-  s.autorequire = 'camping'
   s.author = "why the lucky stiff"
   s.email = "why@ruby-lang.org"
   s.rubyforge_project = "camping"

@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+RAILS_CONNECTION_ADAPTERS = %w[sqlite]
+
 #
 # Serves all examples, mounted into Webrick.
 #

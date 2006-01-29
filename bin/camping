@@ -27,14 +27,24 @@ end
 Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => db
 
 # Load the script, locate the module
-load script
-klass = Object.const_get(Object.constants.grep(/^#{File.basename(script)[/^(\w+)/,1]}$/i)[0]) rescue nil
-klass ||= Camping
-klass.create if klass.respond_to? :create
+def camp_load(script, klass = nil)
+    Object.instance_eval { remove_const klass.name } if klass
+    mtime = File.mtime(script)
+    load script
+    klass = Object.const_get(Object.constants.grep(/^#{File.basename(script)[/^(\w+)/,1]}$/i)[0]) rescue nil
+    klass ||= Camping
+    klass.create if klass.respond_to? :create
+    [klass, mtime]
+end
 
 # Mount the root
+klass, mtime = camp_load( script )
 s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
 s.mount_proc("/") do |req, resp|
+    newtime = File.mtime( script )
+    if newtime > mtime
+        klass, mtime = camp_load( script, klass )
+    end
     controller = klass.run((req.body and StringIO.new(req.body)), req.meta_vars)
     resp.status = controller.status
     controller.headers.each do |k, v|
