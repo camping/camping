@@ -6,7 +6,7 @@ a).to_s)};end;def / p;p[/^\//]?@root+p:p end;def errors_for(o);ul.errors{o.
 errors.each_full{|er|li er}}unless o.errors.empty?;end;end;module Controllers
 module Base; include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 :status,:root;def method_missing(m,*args,&blk);str=m==:render ? markaview(*args,
-&blk):eval("markaby.#{m}(*args,&blk)");str=markaview(:layout){str}rescue nil;r(
+&blk):eval("markaby.#{m}(*args,&blk)");str=markaview(:layout){str} if Views.method_defined? :layout;r(
 200,str.to_s);end;def r(s,b,h={});@status=s;@headers.merge!(h);@body=b;end;def 
 redirect(c,*args);c=R(c,*args)if c.respond_to?:urls;r(302,'','Location'=>self/c)
 end;def service(r,e,m,a)@status,@env,@headers,@root=200,e,{},e['SCRIPT_NAME'];cook=C.kp(
@@ -27,8 +27,8 @@ instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]},{});end;def
 markaview(m,*args,&blk);b=markaby;b.method(m).call(*args, &blk);b.to_s
 end;end;class R;include Base end;class 
 NotFound;def get(p);r(404,div{h1("Cam\ping Problem!")+h2("#{p} not found")});end
-end;class ServerError;include Base;def get(k,m,e);r(500,markaby.div{h1 "Cam\ping Problem!"
-h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{e.backtrace.each{|bt|li(bt)}}}
+end;class ServerError;include Base;def get(k,m,e);r(500,Mab.new{h1 "Cam\ping Problem!"
+h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{e.backtrace.each{|bt|li(bt)}}}.to_s
 )end end;class<<self;def R(*urls);Class.new(R){meta_def(:urls){urls}};end;def 
 D(path);constants.inject(nil){|d,c|k=
 const_get(c);k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R);d||([k, $~[1..-1]

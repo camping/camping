@@ -1,11 +1,11 @@
 require 'rubygems'
 spec = Gem::Specification.new do |s|
   s.name = 'camping'
-  s.version = "1.2"
+  s.version = "1.2.53"
   s.platform = Gem::Platform::RUBY
   s.summary = "miniature rails for stay-at-home moms"
   s.add_dependency('activerecord')
-  s.add_dependency('markaby')
+  s.add_dependency('markaby', '>0.2')
   s.add_dependency('metaid')
   s.has_rdoc = true
   s.files = ['README', 'CHANGELOG', 'examples/**/*', 'lib/**/*', 'bin/**/*', 'extras/**/*'].collect do |dirglob|

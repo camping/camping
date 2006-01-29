@@ -205,7 +205,7 @@ module Camping
       # wrap the HTML.
       def method_missing(m, *args, &blk)
         str = m==:render ? markaview(*args, &blk):eval("markaby.#{m}(*args, &blk)")
-        str = markaview(:layout) { str } rescue nil
+        str = markaview(:layout) { str } if Views.method_defined? :layout
         r(200, str.to_s)
       end
 
@@ -324,7 +324,7 @@ module Camping
     #     end
     #   end
     #
-    class ServerError; include Base; def get(k,m,e); r(500, markaby.div{ h1 "Cam\ping Problem!"; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }) end end
+    class ServerError; include Base; def get(k,m,e); r(500, Mab.new { h1 "Cam\ping Problem!"; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }.to_s) end end
 
     class << self
       # Add routes to a controller class by piling them into the R method.
