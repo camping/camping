@@ -451,7 +451,7 @@ module Camping
       begin
         k, a = Controllers.D "/#{e['PATH_INFO']}".gsub(%r!/+!,'/')
         m = e['REQUEST_METHOD']||"GET"
-        k.class_eval { include C; include Controllers::Base; include Models }
+        k.send :include, C, Controllers::Base, Models
         o = k.new
         o.service(r, e, m, a)
       rescue => x
@@ -510,7 +510,7 @@ module Camping
   #
   # If your Views module has a <tt>layout</tt> method defined, it will be called with a block
   # which will insert content from your view.
-  module Views; include Controllers; include Helpers end
+  module Views; include Controllers, Helpers end
   
   # The Mab class wraps Markaby, allowing it to run methods from Camping::Views
   # and also to replace :href and :action attributes in tags by prefixing the root

@@ -41,10 +41,10 @@ A-F]{2})+)/n){[$1.delete('%')].pack('H*')} end;def qs_parse qs,d='&;';m=proc{
 |h,p|k,v=unescape(p).split('=',2);h.merge(k.split(/[\]\[]+/).reverse.inject(v){
 |x,i|H[i,x]},&m)}end;def kp(s);c=qs_parse(s,';,');end
 def run(r=$stdin,e=ENV);begin;k,a=Controllers.D "/#{e['PATH_INFO']}".
-gsub(%r!/+!,'/');m=e['REQUEST_METHOD']||"GET";k.class_eval{include C
-include Controllers::Base;include Models};o=k.new;o.service(r,e,m,a);rescue\
+gsub(%r!/+!,'/');m=e['REQUEST_METHOD']||"GET";k.send :include,C,Controllers::Base,
+Models;o=k.new;o.service(r,e,m,a);rescue\
 =>x;Controllers::ServerError.new.service(r,e,"GET",[k,m,x]);end;end;end
-module Views; include Controllers; include Helpers end;module Models
+module Views; include Controllers,Helpers end;module Models
 A=ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
 downcase.sub(/^(#{A}|camping)_/i,'');end;end
 class Mab<Markaby::Builder;include Views
