@@ -148,7 +148,7 @@ module CampSh::Controllers
 
     class Style < R '/styles.css'
         def get
-            header['Content-Type'] = 'text/css'
+            @headers['Content-Type'] = 'text/css'
             %Q[
                 h1#pageName, .newWikiWord a, a.existingWikiWord, .newWikiWord a:hover, 
                 #TextileHelp h3 { color: #003B76; }

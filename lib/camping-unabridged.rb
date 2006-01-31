@@ -46,13 +46,13 @@
 # http://code.whytheluckystiff.net/camping/wiki/PostAmbles
 module Camping
   C = self
-  S = File.read(__FILE__).gsub(/_{2}FILE_{2}/,__FILE__.dump)
+  F = __FILE__
+  S = IO.read(F).gsub(/_+FILE_+/,F.dump)
 
   # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
   # All Camping query string and cookie variables are loaded as this.
   class H < HashWithIndifferentAccess
-    def method_missing(*a)
-        m = a.shift
+    def method_missing(m,*a)
         if m.to_s =~ /=$/
             self[$`] = a[0]
         elsif a.empty?
@@ -89,8 +89,8 @@ module Camping
     # you will need to use <tt>/</tt> (the slash method above).
     def R(c,*args)
       p = /\(.+?\)/
-      args.inject(c.urls.detect{|x|x.scan(p).size==args.size}.dup){|str,a|
-        str.sub(p,(a.method(a.class.primary_key)[] rescue a).to_s)
+      args.inject(c.urls.find{|x|x.scan(p).size==args.size}.dup){|str,a|
+        str.sub(p,(a.__send__(a.class.primary_key) rescue a).to_s)
       }
     end
     # Shows AR validation errors for the object passed. 
@@ -203,8 +203,8 @@ module Camping
       #
       # If you have a <tt>layout</tt> method in Camping::Views, it will be used to
       # wrap the HTML.
-      def method_missing(m, *args, &blk)
-        str = m==:render ? markaview(*args, &blk):eval("markaby.#{m}(*args, &blk)")
+      def method_missing(m, *a, &b)
+        str = m==:render ? markaview(*a, &b):eval("markaby.#{m}(*a, &b)")
         str = markaview(:layout) { str } if Views.method_defined? :layout
         r(200, str.to_s)
       end
@@ -236,10 +236,10 @@ module Camping
       def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
 
       def service(r, e, m, a) #:nodoc:
-        @status, @env, @headers, @root = 200, e, {}, e['SCRIPT_NAME']
+        @status, @env, @headers, @root = 200, e, {'Content-Type'=>'text/html'}, e['SCRIPT_NAME']
         cook = C.kp(e['HTTP_COOKIE'])
         qs = C.qs_parse(e['QUERY_STRING'])
-        if "POST" == m
+        if "post" == m
           inp = r.read(e['CONTENT_LENGTH'].to_i)
           if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e['CONTENT_TYPE'])
             b = "--#$1"
@@ -263,21 +263,21 @@ module Camping
         end
         @cookies, @input = cook.dup, qs.dup
 
-        @body = method( m.downcase ).call(*a)
-        @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=/" if v != cook[k] }.compact
+        @body = send(m, *a) if respond_to? m
+        @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != cook[k] }.compact
         self
       end
       def to_s #:nodoc:
-        "Status: #{@status}\n#{{'Content-Type'=>'text/html'}.merge(@headers).map{|k,v|[*v].map{|v2|"#{k}: #{v2}"}}.flatten.join("\n")}\n\n#{@body}"
+        "Status: #{@status}\n#{@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}*"\n"}*"\n"}\n\n#{@body}"
       end
       def markaby #:nodoc:
           Mab.new( instance_variables.map { |iv| 
-            [iv[1..-1], instance_variable_get(iv)] }, {} )
+            [iv[1..-1], instance_variable_get(iv)] } )
       end
-      def markaview(m, *args, &blk) #:nodoc:
-        b=markaby
-        b.method(m).call(*args, &blk)
-        b.to_s
+      def markaview(m, *a, &b) #:nodoc:
+        h=markaby
+        h.send(m, *a, &b)
+        h.to_s
       end
     end
 
@@ -453,9 +453,9 @@ module Camping
         m = e['REQUEST_METHOD']||"GET"
         k.send :include, C, Controllers::Base, Models
         o = k.new
-        o.service(r, e, m, a)
+        o.service(r, e, m.downcase, a)
       rescue => x
-        Controllers::ServerError.new.service(r, e, "GET", [k,m,x])
+        Controllers::ServerError.new.service(r, e, "get", [k,m,x])
       end
     end
   end
