@@ -9,13 +9,32 @@
 # nicely with piles of documentation everywhere.  This documentation is entirely
 # generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
 # found in the extras directory of any camping distribution.
+#
+# == Requirements
+#
+# Camping requires at least Ruby 1.8.2.
+#
+# Camping depends on the following libraries.  If you install through RubyGems,
+# these will be automatically installed for you.
+#
+# * ActiveRecord, used in your models.
+#   ActiveRecord is an object-to-relational database mapper with adapters
+#   for SQLite3, MySQL, PostgreSQL, SQL Server and more.
+# * Markaby, used in your views to describe HTML in plain Ruby.
+# * MetAid, a few metaprogramming methods which Camping uses.
+# * Tempfile, for storing file uploads.
+#
+# Camping also works well with Mongrel, the swift Ruby web server.
+# http://rubyforge.org/projects/mongrel  Mongrel comes with examples
+# in its <tt>examples/camping</tt> directory. 
+#
 %w[rubygems active_record markaby metaid tempfile].each { |lib| require lib }
 
 # == Camping 
 #
 # The camping module contains three modules for separating your application:
 #
-# * Camping::Models for storing classes derived from ActiveRecord::Base.
+# * Camping::Models for your database interaction classes, all derived from ActiveRecord::Base.
 # * Camping::Controllers for storing controller classes, which map URLs to code.
 # * Camping::Views for storing methods which generate HTML.
 #
@@ -34,6 +53,7 @@
 #     Camping::Models::Base.establish_connection :adapter => 'sqlite3',
 #         :database => 'blog3.db'
 #     Camping::Models::Base.logger = Logger.new('camping.log')
+#     Camping.create if Camping.respond_to? :create
 #     puts Camping.run
 #   end
 #
@@ -44,6 +64,27 @@
 #
 # For other configurations, see 
 # http://code.whytheluckystiff.net/camping/wiki/PostAmbles
+#
+# == The <tt>create</tt> method
+#
+# Many postambles will check for your application's <tt>create</tt> method and will run it
+# when the web server starts up.  This is a good place to check for database tables and create
+# those tables to save users of your application from needing to manually set them up.
+#
+#   def Blog.create
+#     unless Blog::Models::Post.table_exists?
+#       ActiveRecord::Schema.define do
+#         create_table :blog_posts, :force => true do |t|
+#           t.column :id,       :integer, :null => false
+#           t.column :user_id,  :integer, :null => false
+#           t.column :title,    :string,  :limit => 255
+#           t.column :body,     :text
+#         end
+#       end
+#     end
+#   end 
+#
+# For more tips, see http://code.whytheluckystiff.net/camping/wiki/GiveUsTheCreateMethod.
 module Camping
   C = self
   F = __FILE__
@@ -51,6 +92,26 @@ module Camping
 
   # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
   # All Camping query string and cookie variables are loaded as this.
+  # 
+  # To access the query string, for instance, use the <tt>@input</tt> variable.
+  #
+  #   module Blog::Models
+  #     class Index < R '/'
+  #       def get
+  #         if page = @input.page.to_i > 0
+  #           page -= 1
+  #         end
+  #         @posts = Post.find :all, :offset => page * 20, :limit => 20
+  #         render :index
+  #       end
+  #     end
+  #   end
+  #
+  # In the above example if you visit <tt>/?page=2</tt>, you'll get the second
+  # page of twenty posts.  You can also use <tt>@input[:page]</tt> or <tt>@input['page']</tt>
+  # to get the value for the <tt>page</tt> query variable.
+  #
+  # Use the <tt>@cookies</tt> variable in the same fashion to access cookie variables.
   class H < HashWithIndifferentAccess
     def method_missing(m,*a)
         if m.to_s =~ /=$/
@@ -63,7 +124,23 @@ module Camping
     end
   end
 
-  # Helpers contains methods available in your controllers and views.
+  # Helpers contains methods available in your controllers and views.  You may add
+  # methods of your own to this module, including many helper methods from Rails.
+  # This is analogous to Rails' <tt>ApplicationHelper</tt> module.
+  #
+  # == Using ActionPack Helpers
+  #
+  # If you'd like to include helpers from Rails' modules, you'll need to look up the
+  # helper module in the Rails documentation at http://api.rubyonrails.org/.
+  #
+  # For example, if you look up the <tt>ActionView::Helpers::FormHelper</tt> class,
+  # you'll find that it's loaded from the <tt>action_view/helpers/form_helper.rb</tt>
+  # file.  You'll need to have the ActionPack gem installed for this to work.
+  #
+  #   require 'action_view/helpers/form_helper.rb'
+  #
+  #   # This example is unfinished.. soon..
+  #
   module Helpers
     # From inside your controllers and views, you will often need to figure out
     # the route used to get to a certain controller +c+.  Pass the controller class
