@@ -44,7 +44,19 @@ s.mount_proc("/") do |req, resp|
     b = Markaby::Builder.new({}, {})
     b = b.instance_eval do
         html do
-            head { title welcome }
+            head do
+                title welcome
+                style <<-END, :type => 'text/css'
+                    body { 
+                        font-family: verdana, arial, sans-serif; 
+                        padding: 10px 40px; 
+                        margin: 0; 
+                    }
+                    h1, h2, h3, h4, h5, h6 {
+                        font-family: utopia, georgia, serif;
+                    }
+                END
+            end
             body do
                 h1 welcome
                 p %{

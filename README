@@ -90,7 +90,7 @@ Or for the bleeding edge:
 You are encourage to install Camping and SQLite3, since it is a small database
 which fits perfectly with our compact bylaws, works well with the examples.
 
-* See http://rysa.inetz.com/camping/wiki/BeAlertWhenOnSqlite3 for instructions.
+* See http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for instructions.
 
 == Running Camping Apps
 
@@ -108,7 +108,7 @@ If your application isn't working with the <tt>camping</tt> tool, keep in mind
 that the tool expects the following conventions to be used:
 
 1. You must have SQLite3 and SQLite3-ruby installed.  (Once again, please see
-   http://rysa.inetz.com/camping/wiki/BeAlertWhenOnSqlite3 for instructions.)
+   http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for instructions.)
 2. If your script is called <tt>test.rb</tt>, Camping expects your application to
    be stored in a module called <tt>Test</tt>.  Case is not imporant, though.  The
    module can be called <tt>TeSt</tt> or any other permuation.
@@ -122,5 +122,5 @@ that the tool expects the following conventions to be used:
 
 Once you've started writing your own Camping app, I'd highly recommend becoming familiar
 with the Camping Rules of Thumb which are listed on the wiki: 
-http://rysa.inetz.com/camping/wiki/CampingRulesOfThumb
+http://code.whytheluckystiff.net/camping/wiki/CampingRulesOfThumb
 
