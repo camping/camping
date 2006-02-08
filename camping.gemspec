@@ -1,7 +1,7 @@
 require 'rubygems'
 spec = Gem::Specification.new do |s|
   s.name = 'camping'
-  s.version = "1.2"
+  s.version = "1.3"
   s.platform = Gem::Platform::RUBY
   s.summary = "miniature rails for stay-at-home moms"
   s.add_dependency('activerecord', '>=1.13')
@@ -14,10 +14,10 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files = ['README', 'CHANGELOG']
   s.rdoc_options << "--quiet" <<
                     "--title" << "Camping, the Documentation" << 
-                    "--one-file" << 
                     "--template" << "extras/flipbook_rdoc.rb" <<
                     "--opname" << "index.html" <<
                     "--line-numbers" << 
+                    "--main" << "README" <<
                     "--inline-source" << 
                     "--exclude" << "^(examples|extras)\/" << 
                     "--exclude" << "lib/camping.rb"
