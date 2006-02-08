@@ -1,17 +1,5 @@
 CAMPING_EXTRAS_DIR = File.expand_path(File.dirname(__FILE__))
-# module Generators
-#   class ContextUser
-#     def as_href(from_path)
-#       "javascript:showPage('#{path}')"
-#     end
-#     def aref_to(target)
-#       "javascript:showPage('#{target}')"
-#     end
-#     def url(target)
-#       HTMLGenerator.gen_url(path, target)
-#     end
-#   end
-# end
+
 module Generators
 class HTMLGenerator
     def generate_html
@@ -41,11 +29,6 @@ class HTMLGenerator
           item.instance_variable_set("@values", hsh)
           File.makedirs(File.dirname(op_file))
           File.open(op_file, "w") { |file| item.write_on(file) }
-          # if item.index_name == (@options.main_page || "README")
-          #     hsh['root'] = '.'
-          #     item.instance_variable_set("@values", hsh)
-          #     File.open('index.html', "w") { |file| item.write_on(file) }
-          # end
         end
       end
     end
@@ -103,7 +86,9 @@ STYLE = %{
     h1 { font-size: 24px; margin: .15em 1em 0 0 }
     h2 { font-size: 24px }
     h3 { font-size: 19px }
-    h4 { font-size: 17px }
+    h4 { font-size: 17px; font-weight: normal; }
+    h4.ruled { border-bottom: solid 1px #CC9; }
+    h2.ruled { padding-top: 35px; border-top: solid 1px #AA5; }
 
     /* Link styles */
     :link, :visited {
@@ -153,6 +138,22 @@ STYLE = %{
     #menu { background-color: #dfa; padding: 4px 12px; margin: 0; }
     #menu h3 { padding: 0; margin: 0; }
     #menu #links { float: right; }
+    .dyn-source { background-color: #f3f3e5; border: solid 1px #99C; padding: 4px 8px; margin: 0; display: none; }
+    .dyn-source pre  { font-size: 8pt; }
+    .source-link     { text-align: right; font-size: 8pt; }
+    .ruby-comment    { color: green; font-style: italic }
+    .ruby-constant   { color: #4433aa; font-weight: bold; }
+    .ruby-identifier { color: #222222;  }
+    .ruby-ivar       { color: #2233dd; }
+    .ruby-keyword    { color: #3333FF; font-weight: bold }
+    .ruby-node       { color: #777777; }
+    .ruby-operator   { color: #111111;  }
+    .ruby-regexp     { color: #662222; }
+    .ruby-value      { color: #662222; font-style: italic }
+    .kw { color: #3333FF; font-weight: bold }
+    .cmt { color: green; font-style: italic }
+    .str { color: #662222; font-style: italic }
+    .re  { color: #662222; }
 }
 
 CONTENTS_XML = %{
@@ -165,7 +166,7 @@ IF:requires
 <ul>
 START:requires
 IF:aref
-<li><a href="javascript:showPage('%full_name%)">%name%</a></li>
+<li><a href="%aref%">%name%</a></li>
 ENDIF:aref
 IFNOT:aref
 <li>%name%</li>
@@ -188,7 +189,7 @@ IF:includes
 <ul>
 START:includes
 IF:aref
-<li><a href="javascript:showPage('%full_name%')">%name%</a></li>
+<li><a href="%aref%">%name%</a></li>
 ENDIF:aref
 IFNOT:aref
 <li>%name%</li>
@@ -197,17 +198,18 @@ END:includes
 </ul>
 ENDIF:includes
 
+START:sections
 IF:method_list
-<h3>Methods</h3>
+<h2 class="ruled">Methods</h2>
 START:method_list
 IF:methods
 START:methods
-<h4>%type% %category% method: 
+<h4 class="ruled">%type% %category% method: 
 IF:callseq
-<a name="%aref%">%callseq%</a>
+<strong><a name="%aref%">%callseq%</a></strong>
 ENDIF:callseq
 IFNOT:callseq
-<a name="%aref%">%name%%params%</a></h4>
+<strong><a name="%aref%">%name%%params%</a></strong></h4>
 ENDIF:callseq
 
 IF:m_desc
@@ -215,42 +217,20 @@ IF:m_desc
 ENDIF:m_desc
 
 IF:sourcecode
-<blockquote><pre>
+<div class="sourcecode">
+  <p class="source-link">[ <a href="javascript:toggleSource('%aref%_source')" id="l_%aref%_source">show source</a> ]</p>
+  <div id="%aref%_source" class="dyn-source">
+<pre>
 %sourcecode%
-</pre></blockquote>
+</pre>
+  </div>
+</div>
 ENDIF:sourcecode
 END:methods
 ENDIF:methods
 END:method_list
 ENDIF:method_list
-}
-
-########################## Source code ##########################
-
-SRC_PAGE = %{
-<html>
-<head><title>%title%</title>
-<meta http-equiv="Content-Type" content="text/html; charset=%charset%">
-<style>
-.ruby-comment    { color: green; font-style: italic }
-.ruby-constant   { color: #4433aa; font-weight: bold; }
-.ruby-identifier { color: #222222;  }
-.ruby-ivar       { color: #2233dd; }
-.ruby-keyword    { color: #3333FF; font-weight: bold }
-.ruby-node       { color: #777777; }
-.ruby-operator   { color: #111111;  }
-.ruby-regexp     { color: #662222; }
-.ruby-value      { color: #662222; font-style: italic }
-  .kw { color: #3333FF; font-weight: bold }
-  .cmt { color: green; font-style: italic }
-  .str { color: #662222; font-style: italic }
-  .re  { color: #662222; }
-</style>
-</head>
-<body bgcolor="white">
-<pre>%code%</pre>
-</body>
-</html>
+END:sections
 }
 
 ############################################################################
@@ -263,6 +243,45 @@ BODY = %{
   <title>%title%</title>
   <meta http-equiv="Content-Type" content="text/html; charset=%charset%" />
   <link rel="stylesheet" href="%style_url%" type="text/css" media="screen" />
+    <script language="JavaScript" type="text/javascript">
+    // <![CDATA[
+
+    function toggleSource( id )
+    {
+    var elem
+    var link
+
+    if( document.getElementById )
+    {
+    elem = document.getElementById( id )
+    link = document.getElementById( "l_" + id )
+    }
+    else if ( document.all )
+    {
+    elem = eval( "document.all." + id )
+    link = eval( "document.all.l_" + id )
+    }
+    else
+    return false;
+
+    if( elem.style.display == "block" )
+    {
+    elem.style.display = "none"
+    link.innerHTML = "show source"
+    }
+    else
+    {
+    elem.style.display = "block"
+    link.innerHTML = "hide source"
+    }
+    }
+
+    function openCode( url )
+    {
+    window.open( url, "SOURCE_CODE", "width=400,height=400,scrollbars=yes" )
+    }
+    // ]]>
+    </script>
 </head>
 <body>
 <div id="menu">
@@ -382,9 +401,14 @@ END:aka
 </div>
 ENDIF:aka
 IF:sourcecode
-<pre class="source">
+<div class="sourcecode">
+  <p class="source-link">[ <a href="javascript:toggleSource('%aref%_source')" id="l_%aref%_source">show source</a> ]</p>
+  <div id="%aref%_source" class="dyn-source">
+<pre>
 %sourcecode%
 </pre>
+  </div>
+</div>
 ENDIF:sourcecode
 END:methods
 ENDIF:methods
