@@ -7,7 +7,7 @@ RAILS_CONNECTION_ADAPTERS = %w[sqlite]
 $:.unshift File.expand_path(File.dirname(__FILE__) + "/../lib")
 require 'stringio'
 require 'webrick/httpserver'
-require 'camping'
+require 'camping/webrick'
 
 # All applications share a single database
 Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'serve.db'
@@ -88,17 +88,7 @@ apps.each do |app, klass|
         resp.body = File.read("#{app}/#{app}.rb")
     end
 
-    s.mount_proc("/#{app}") do |req, resp|
-        controller = klass.run((req.body and StringIO.new(req.body)), req.meta_vars)
-        resp.status = controller.status
-        controller.headers.each do |k, v|
-            [*v].each do |vi|
-                resp[k] = vi
-            end
-        end
-        resp.body = controller.body
-        nil
-    end
+    s.mount("/#{app}", WEBrick::CampingHandler, klass)
 end
 
 # Server up
