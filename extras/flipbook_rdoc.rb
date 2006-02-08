@@ -7,7 +7,7 @@ class HTMLGenerator
         'allfiles'     => gen_into_index(@files),
         'allclasses'   => gen_into_index(@classes),
         "initial_page" => main_url,
-        'title'        => CGI.escapeHTML(@options.title),
+        'realtitle'    => CGI.escapeHTML(@options.title),
         'charset'      => @options.charset
       }
 
@@ -53,8 +53,10 @@ class HTMLGenerator
         end
         template.write_html_on(f, values)
       end
-      camping_gif = File.join(CAMPING_EXTRAS_DIR, 'Camping.gif')
-      File.copy(camping_gif, 'Camping.gif')
+      ['Camping.gif', 'permalink.gif'].each do |img|
+          ipath = File.join(CAMPING_EXTRAS_DIR, img)
+          File.copy(ipath, img)
+      end
     end
 end
 end
@@ -138,6 +140,8 @@ STYLE = %{
     #menu { background-color: #dfa; padding: 4px 12px; margin: 0; }
     #menu h3 { padding: 0; margin: 0; }
     #menu #links { float: right; }
+    pre { font-weight: bold; color: #730; }
+    tt { color: #703; font-size: 12pt; }
     .dyn-source { background-color: #f3f3e5; border: solid 1px #99C; padding: 4px 8px; margin: 0; display: none; }
     .dyn-source pre  { font-size: 8pt; }
     .source-link     { text-align: right; font-size: 8pt; }
@@ -206,10 +210,10 @@ IF:methods
 START:methods
 <h4 class="ruled">%type% %category% method: 
 IF:callseq
-<strong><a name="%aref%">%callseq%</a></strong>
+<strong><a name="%aref%">%callseq%</a></strong> <a href="#%aref%"><img src="%root%/permalink.gif" border="0" title="Permalink to %callseq%" /></a>
 ENDIF:callseq
 IFNOT:callseq
-<strong><a name="%aref%">%name%%params%</a></strong></h4>
+<strong><a name="%aref%">%name%%params%</a></strong> <a href="#%aref%"><img src="%root%/permalink.gif" border="0" title="Permalink to %type% %category% method: %name%" /></a></h4>
 ENDIF:callseq
 
 IF:m_desc
@@ -240,7 +244,14 @@ BODY = %{
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <title>%title%</title>
+  <title>
+IF:title
+  %realtitle% &raquo; %title%
+ENDIF:title
+IFNOT:title
+  %realtitle%
+ENDIF:title
+  </title>
   <meta http-equiv="Content-Type" content="text/html; charset=%charset%" />
   <link rel="stylesheet" href="%style_url%" type="text/css" media="screen" />
     <script language="JavaScript" type="text/javascript">
@@ -468,7 +479,7 @@ INDEX = %{
 <HTML>
 <HEAD>
 <META HTTP-EQUIV="refresh" content="0;URL=%initial_page%">
-<TITLE>%title%</TITLE>
+<TITLE>%realtitle%</TITLE>
 </HEAD>
 <BODY>
 Click <a href="%initial_page%">here</a> to open the Camping docs.
