@@ -312,15 +312,15 @@ module Camping
       #
       def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
 
-      def service(r, e, m, a) #:nodoc:
-        @status, @env, @headers, @root = 200, e, {'Content-Type'=>'text/html'}, e['SCRIPT_NAME']
-        cook = C.kp(e['HTTP_COOKIE'])
+      def initialize(r, e, m) #:nodoc:
+        @status, @method, @env, @headers, @root = 200, m.downcase, H.new(e), {'Content-Type'=>'text/html'}, e['SCRIPT_NAME']
+        @ck = C.kp(e['HTTP_COOKIE'])
         qs = C.qs_parse(e['QUERY_STRING'])
-        if "post" == m
-          inp = r.read(e['CONTENT_LENGTH'].to_i)
+        if "post" == @method
+          @inp = r.read(e['CONTENT_LENGTH'].to_i)
           if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e['CONTENT_TYPE'])
             b = "--#$1"
-            inp.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
+            @inp.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
               h,v=pt.split("\r\n\r\n",2);fh={}
               [:name, :filename].each { |x|
                 fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
@@ -335,13 +335,15 @@ module Camping
               qs[fn]=fh if fn
             }
           else
-            qs.merge!(C.qs_parse(inp))
+            qs.merge!(C.qs_parse(@inp))
           end
         end
-        @cookies, @input = cook.dup, qs.dup
+        @cookies, @input = @ck.dup, qs.dup
+      end
 
-        @body = send(m, *a) if respond_to? m
-        @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != cook[k] }.compact
+      def service(*a) #:nodoc:
+        @body = send(@method, *a) if respond_to? @method
+        @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @ck[k] }.compact
         self
       end
       def to_s #:nodoc:
@@ -524,16 +526,12 @@ module Camping
     #     end
     #   end
     #
-    def run(r=$stdin)
-      begin
-        k, a = Controllers.D "/#{e['PATH_INFO']}".gsub(%r!/+!,'/')
-        m = e['REQUEST_METHOD']||"GET"
-        k.send :include, C, Controllers::Base, Models
-        o = k.new
-        o.service(r, e, m.downcase, a)
-      rescue => x
-        Controllers::ServerError.new.service(r, e, "get", [k,m,x])
-      end
+    def run(r=$stdin,e=ENV)
+      k, a = Controllers.D "/#{e['PATH_INFO']}".gsub(%r!/+!,'/')
+      k.send :include, C, Controllers::Base, Models
+      k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
+    rescue => x
+      Controllers::ServerError.new(r,e,m).service(:get,k,m,x)
     end
   end
 

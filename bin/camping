@@ -6,7 +6,7 @@ RAILS_CONNECTION_ADAPTERS = %w[sqlite]
 
 require 'stringio'
 require 'webrick/httpserver'
-require 'camping'
+require 'camping/webrick'
 
 (puts <<USAGE; exit) if ARGV.length == 0
 #{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
@@ -26,33 +26,33 @@ end
 
 Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => db
 
+class WEBrick::CampingHandler
+    attr_accessor :klass, :mtime
+end
+
 # Load the script, locate the module
-def camp_load(script, klass = nil)
+def camp_load(server, script, klass = nil)
     Object.instance_eval { remove_const klass.name } if klass
     mtime = File.mtime(script)
     load script
     klass = Object.const_get(Object.constants.grep(/^#{File.basename(script)[/^(\w+)/,1]}$/i)[0]) rescue nil
     klass ||= Camping
     klass.create if klass.respond_to? :create
-    [klass, mtime]
+
+    brick = WEBrick::CampingHandler.new(server, klass)
+    brick.mtime = mtime
+    brick
 end
 
 # Mount the root
-klass, mtime = camp_load( script )
 s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
+brick = camp_load( s, script )
 s.mount_proc("/") do |req, resp|
     newtime = File.mtime( script )
-    if newtime > mtime
-        klass, mtime = camp_load( script, klass )
+    if newtime > brick.mtime
+        brick = camp_load( s, script, brick.klass )
     end
-    controller = klass.run((req.body and StringIO.new(req.body)), req.meta_vars)
-    resp.status = controller.status
-    controller.headers.each do |k, v|
-        [*v].each do |vi|
-            resp[k] = vi
-        end
-    end
-    resp.body = controller.body
+    brick.do_GET(req, resp)
     nil
 end
 

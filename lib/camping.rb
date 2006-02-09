@@ -9,17 +9,17 @@ module Base; include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 &b):eval("markaby.#{m}(*a,&b)");str=markaview(:layout){str} if Views.method_defined? :layout;r(
 200,str.to_s);end;def r(s,b,h={});@status=s;@headers.merge!(h);@body=b;end;def 
 redirect(c,*args);c=R(c,*args)if c.respond_to?:urls;r(302,'','Location'=>self/c)
-end;def service(r,e,m,a)@status,@env,@headers,@root=200,e,{'Content-Type'=>'text/html'},e['SCRIPT_NAME'];cook=C.kp(
-e['HTTP_COOKIE']);qs=C.qs_parse(e['QUERY_STRING']);if "post"==m;inp=r.read(e[
+end;def initialize(r,e,m)@status,@method,@env,@headers,@root=200,m.downcase,H.new(e),{'Content-Type'=>'text/html'},e['SCRIPT_NAME'];@ck=C.kp(
+e['HTTP_COOKIE']);qs=C.qs_parse(e['QUERY_STRING']);if "post"==@method;@inp=r.read(e[
 'CONTENT_LENGTH'].to_i);if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.
-match(e['CONTENT_TYPE']);b="--#$1";inp.split(/(?:\r?\n|\A)#{Regexp::quote(
+match(e['CONTENT_TYPE']);b="--#$1";@inp.split(/(?:\r?\n|\A)#{Regexp::quote(
 b)}(?:--)?\r\n/m).each{|pt|h,v=pt.split("\r\n\r\n",2);fh={};[:name,:filename].
 each{|x|fh[x]=$1 if h=~/^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")\
 /m};fn=fh[:name];if fh[:filename];fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\
 \r\n|\Z)/m;fh[:tempfile]=Tempfile.new("C").instance_eval{binmode;write v
-rewind;self};else;fh=v;end;qs[fn]=fh if fn};else;qs.merge!(C.qs_parse(inp));end
-end;@cookies, @input = cook.dup, qs.dup;@body=send(m,*a) if respond_to? m;@headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.
-escape(v)}; path=#{self/"/"}" if v != cook[k]}.compact;self;end;def to_s;"Status: #{
+rewind;self};else;fh=v;end;qs[fn]=fh if fn};else;qs.merge!(C.qs_parse(@inp));end
+end;@cookies,@input=@ck.dup,qs.dup;end;def service(*a);@body=send(@method,*a) if respond_to? @method;@headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.
+escape(v)}; path=#{self/"/"}" if v != @ck[k]}.compact;self;end;def to_s;"Status: #{
 @status}\n#{@headers.map{|k,v|[*v].map{
 |x|"#{k}: #{x}"}*"\n"}*"\n"}\n\n#{@body}";end;def markaby;Mab.new(
 instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]});end;def 
@@ -39,10 +39,9 @@ A-F]{2})+)/n){[$1.delete('%')].pack('H*')} end;def qs_parse qs,d='&;';m=proc{
 |_,o,n|o.merge(n,&m)rescue([*o]<<n)};qs.to_s.split(/[#{d}] */n).inject(H[]){
 |h,p|k,v=unescape(p).split('=',2);h.merge(k.split(/[\]\[]+/).reverse.inject(v){
 |x,i|H[i,x]},&m)}end;def kp(s);c=qs_parse(s,';,');end
-def run(r=$stdin,e=ENV);begin;k,a=Controllers.D "/#{e['PATH_INFO']}".
-gsub(%r!/+!,'/');m=e['REQUEST_METHOD']||"GET";k.send :include,C,Controllers::Base,
-Models;o=k.new;o.service(r,e,m.downcase,a);rescue\
-=>x;Controllers::ServerError.new.service(r,e,"get",[k,m,x]);end;end;end
+def run(r=$stdin,e=ENV);k,a=Controllers.D "/#{e['PATH_INFO']}".gsub(%r!/+!,'/')
+k.send :include,C,Controllers::Base,Models;k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
+rescue=>x;Controllers::ServerError.new(r,e,'get').service(k,m,x);end;end
 module Views; include Controllers,Helpers end;module Models
 A=ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
 downcase.sub(/^(#{A}|camping)_/i,'');end;end
