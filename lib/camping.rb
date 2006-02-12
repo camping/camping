@@ -2,17 +2,18 @@
 module Camping;C=self;F=__FILE__;S=IO.read(F).gsub(/_+FILE_+/,F.dump)
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.find{|x|x.scan(p
 ).size==args.size}.dup){|str,a|str.sub(p,(a.__send__(a.class.primary_key)rescue
-a).to_s)};end;def / p;p[/^\//]?@root+p:p end;def errors_for(o);ul.errors{o.
+a).to_s)};end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls;c=self/c;c=
+"http://"+@env.HTTP_HOST+c if c[/^\//];c;end;def / p;p[/^\//]?@root+p:p end;def errors_for(o);ul.errors{o.
 errors.each_full{|er|li er}}unless o.errors.empty?;end;end;module Controllers
 module Base; include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 :status,:root;def method_missing(m,*a,&b);str=m==:render ? markaview(*a,
 &b):eval("markaby.#{m}(*a,&b)");str=markaview(:layout){str} if Views.method_defined? :layout;r(
 200,str.to_s);end;def r(s,b,h={});@status=s;@headers.merge!(h);@body=b;end;def 
-redirect(c,*args);c=R(c,*args)if c.respond_to?:urls;r(302,'','Location'=>self/c)
-end;def initialize(r,e,m)@status,@method,@env,@headers,@root=200,m.downcase,H.new(e),{'Content-Type'=>'text/html'},e['SCRIPT_NAME'];@ck=C.kp(
-e['HTTP_COOKIE']);qs=C.qs_parse(e['QUERY_STRING']);if "post"==@method;@inp=r.read(e[
-'CONTENT_LENGTH'].to_i);if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.
-match(e['CONTENT_TYPE']);b="--#$1";@inp.split(/(?:\r?\n|\A)#{Regexp::quote(
+redirect(*a);r(302,'','Location'=>URL(*a))
+end;def initialize(r,e,m)e=H.new(e);@status,@method,@env,@headers,@root=200,m.downcase,e,{'Content-Type'=>'text/html'},e.SCRIPT_NAME;@ck=C.kp(
+e.HTTP_COOKIE);qs=C.qs_parse(e.QUERY_STRING);if "post"==@method;@inp=r.read(e.
+CONTENT_LENGTH.to_i);if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.
+match(e.CONTENT_TYPE);b="--#$1";@inp.split(/(?:\r?\n|\A)#{Regexp::quote(
 b)}(?:--)?\r\n/m).each{|pt|h,v=pt.split("\r\n\r\n",2);fh={};[:name,:filename].
 each{|x|fh[x]=$1 if h=~/^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")\
 /m};fn=fh[:name];if fh[:filename];fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\
@@ -46,7 +47,7 @@ module Views; include Controllers,Helpers end;module Models
 A=ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
 downcase.sub(/^(#{A}|camping)_/i,'');end;end
 class Mab<Markaby::Builder;include Views
-def tag!(*g,&b);h=g[-1];[:href,:action].each{|a|(h[a]=self/h[a])rescue 0}
+def tag!(*g,&b);h=g[-1];[:href,:action,:src].each{|a|(h[a]=self/h[a])rescue 0}
 super;end;end;class H<HashWithIndifferentAccess;def method_missing(m,*a)
 if m.to_s=~/=$/;self[$`]=a[0];elsif a.empty?;self[m];else;raise NoMethodError,
 "#{m}";end;end;end;end

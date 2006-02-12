@@ -162,8 +162,38 @@ module Camping
     # If a controller has many routes, the route will be selected if it is the
     # first in the routing list to have the right number of arguments.
     #
-    # Keep in mind that this route doesn't include the root path.  Occassionally
-    # you will need to use <tt>/</tt> (the slash method above).
+    # == Using R in the View
+    #
+    # Keep in mind that this route doesn't include the root path.
+    # You will need to use <tt>/</tt> (the slash method above) in your controllers.
+    # Or, go ahead and use the Helpers#URL method to build a complete URL for a route.
+    #
+    # However, in your views, the :href, :src and :action attributes automatically
+    # pass through the slash method, so you are encouraged to use <tt>R</tt> or
+    # <tt>URL</tt> in your views.
+    #
+    #  module Blog::Views
+    #    def menu
+    #      div.menu! do
+    #        a 'Home', :href => URL()
+    #        a 'Profile', :href => "/profile"
+    #        a 'Logout', :href => R(Logout)
+    #        a 'Google', :href => 'http://google.com'
+    #      end
+    #    end
+    #  end
+    #
+    # Let's say the above example takes place inside an application mounted at
+    # <tt>http://localhost:3301/frodo</tt> and that a controller named <tt>Logout</tt>
+    # is assigned to route <tt>/logout</tt>.  The HTML will come out as:
+    #
+    #   <div id="menu">
+    #     <a href="http://localhost:3301/frodo/">Home</a>
+    #     <a href="/frodo/profile">Profile</a>
+    #     <a href="/frodo/logout">Logout</a>
+    #     <a href="http://google.com">Google</a>
+    #   </div>
+    #
     def R(c,*args)
       p = /\(.+?\)/
       args.inject(c.urls.find{|x|x.scan(p).size==args.size}.dup){|str,a|
@@ -197,6 +227,27 @@ module Camping
     #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
     def /(p); p[/^\//]?@root+p:p end
+    # Builds a complete URL route to a controller or a path.  This way you'll get
+    # the hostname and the port number, a complete URL.
+    #
+    # You can use this to grab URLs for controllers using the R-style syntax.
+    # So, if your application is mounted at <tt>http://test.ing/blog/</tt>
+    # and you have a View controller which routes as <tt>R '/view/(\d+)'</tt>:
+    #
+    #   URL(View, @post.id) #=> "http://test.ing/blog/view/12"
+    #
+    # Or you can use the direct path:
+    #
+    #   self.URL               #=> "http://test.ing/blog/"
+    #   self.URL + "view/12"   #=> "http://test.ing/blog/view/12"
+    #   URL("/view/12")        #=> "http://test.ing/blog/view/12"
+    #
+    def URL c='/',*a
+      c = R(c, *a) if c.respond_to? :urls
+      c = self/c
+      c = "http://"+@env.HTTP_HOST+c if c[/^\//]
+      c
+    end
   end
 
   # Controllers is a module for placing classes which handle URLs.  This is done
@@ -287,18 +338,16 @@ module Camping
       end
 
       # Formulate a redirect response: a 302 status with <tt>Location</tt> header
-      # and a blank body.  If +c+ is a string, the root path will be added.  If
-      # +c+ is a controller class, Helpers::R will be used to route the redirect
-      # and the root path will be added.
+      # and a blank body.  Uses Helpers#URL to build the location from a controller
+      # route or path.
       #
-      # So, given a root of <tt>/articles</tt>:
+      # So, given a root of <tt>http://localhost:3301/articles</tt>:
       #
-      #   redirect "view/12"    # redirects to "/articles/view/12"
-      #   redirect View, 12     # redirects to "/articles/view/12"
+      #   redirect "view/12"    # redirects to "http://localhost:3301/articles/view/12"
+      #   redirect View, 12     # redirects to "http://localhost:3301/articles/view/12"
       #
-      def redirect(c, *args)
-        c = R(c,*args) if c.respond_to? :urls
-        r(302, '', 'Location' => self/c)
+      def redirect(*a)
+        r(302,'','Location'=>URL(*a))
       end
 
       # A quick means of setting this controller's status, body and headers.
@@ -313,12 +362,13 @@ module Camping
       def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
 
       def initialize(r, e, m) #:nodoc:
-        @status, @method, @env, @headers, @root = 200, m.downcase, H.new(e), {'Content-Type'=>'text/html'}, e['SCRIPT_NAME']
-        @ck = C.kp(e['HTTP_COOKIE'])
-        qs = C.qs_parse(e['QUERY_STRING'])
+        e = H.new(e)
+        @status, @method, @env, @headers, @root = 200, m.downcase, e, {'Content-Type'=>'text/html'}, e.SCRIPT_NAME
+        @ck = C.kp(e.HTTP_COOKIE)
+        qs = C.qs_parse(e.QUERY_STRING)
         if "post" == @method
-          @inp = r.read(e['CONTENT_LENGTH'].to_i)
-          if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e['CONTENT_TYPE'])
+          @inp = r.read(e.CONTENT_LENGTH.to_i)
+          if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
             b = "--#$1"
             @inp.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
               h,v=pt.split("\r\n\r\n",2);fh={}
@@ -588,13 +638,13 @@ module Camping
   module Views; include Controllers, Helpers end
   
   # The Mab class wraps Markaby, allowing it to run methods from Camping::Views
-  # and also to replace :href and :action attributes in tags by prefixing the root
+  # and also to replace :href, :action and :src attributes in tags by prefixing the root
   # path.
   class Mab < Markaby::Builder
       include Views
       def tag!(*g,&b)
           h=g[-1]
-          [:href,:action].each{|a|(h[a]=self/h[a])rescue 0}
+          [:href,:action,:src].each{|a|(h[a]=self/h[a])rescue 0}
           super 
       end
   end
