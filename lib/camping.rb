@@ -3,7 +3,7 @@ module Camping;C=self;F=__FILE__;S=IO.read(F).gsub(/_+FILE_+/,F.dump)
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.find{|x|x.scan(p
 ).size==args.size}.dup){|str,a|str.sub(p,(a.__send__(a.class.primary_key)rescue
 a).to_s)};end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls;c=self/c;c=
-"http://"+@env.HTTP_HOST+c if c[/^\//];c;end;def / p;p[/^\//]?@root+p:p end;def errors_for(o);ul.errors{o.
+"http://"+@env.HTTP_HOST+c if c[/^\//];URI(c);end;def / p;p[/^\//]?@root+p:p end;def errors_for(o);ul.errors{o.
 errors.each_full{|er|li er}}unless o.errors.empty?;end;end;module Controllers
 module Base; include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 :status,:root;def method_missing(m,*a,&b);str=m==:render ? markaview(*a,
