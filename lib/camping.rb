@@ -1,4 +1,4 @@
-%w[rubygems active_record markaby metaid tempfile].each{|l|require l}
+%w[rubygems active_record markaby metaid tempfile uri].each{|l|require l}
 module Camping;C=self;F=__FILE__;S=IO.read(F).gsub(/_+FILE_+/,F.dump)
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.find{|x|x.scan(p
 ).size==args.size}.dup){|str,a|str.sub(p,(a.__send__(a.class.primary_key)rescue

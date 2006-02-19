@@ -28,7 +28,7 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[rubygems active_record markaby metaid tempfile].each { |lib| require lib }
+%w[rubygems active_record markaby metaid tempfile uri].each { |lib| require lib }
 
 # == Camping 
 #

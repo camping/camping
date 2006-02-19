@@ -1,7 +1,7 @@
 require 'rubygems'
 spec = Gem::Specification.new do |s|
   s.name = 'camping'
-  s.version = "1.3"
+  s.version = "1.4"
   s.platform = Gem::Platform::RUBY
   s.summary = "miniature rails for stay-at-home moms"
   s.add_dependency('activerecord', '>=1.13')
