@@ -90,6 +90,7 @@ module Camping
   F = __FILE__
   S = IO.read(F).gsub(/_+FILE_+/,F.dump)
 
+  H = HashWithIndifferentAccess
   # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
   # All Camping query string and cookie variables are loaded as this.
   # 
@@ -112,7 +113,7 @@ module Camping
   # to get the value for the <tt>page</tt> query variable.
   #
   # Use the <tt>@cookies</tt> variable in the same fashion to access cookie variables.
-  class H < HashWithIndifferentAccess
+  class H
     def method_missing(m,*a)
         if m.to_s =~ /=$/
             self[$`] = a[0]
@@ -218,7 +219,7 @@ module Camping
     # have built-in, usable error checking in only one line of code. :-)
     #
     # See AR validation documentation for details on validations.
-    def errors_for(o); ul.errors { o.errors.each_full { |er| li er } } unless o.errors.empty?; end
+    def errors_for(o); ul.errors { o.errors.each_full { |er| li er } } if o.errors.any?; end
     # Simply builds the complete URL from a relative or absolute path +p+.  If your
     # application is running from <tt>/blog</tt>:
     #
@@ -256,6 +257,149 @@ module Camping
     end
   end
 
+  # Camping::Base is built into each controller by way of the generic routing
+  # class Camping::R.  In some ways, this class is trying to do too much, but
+  # it saves code for all the glue to stay in one place.
+  #
+  # Forgivable, considering that it's only really a handful of methods and accessors.
+  #
+  # == Treating controller methods like Response objects
+  #
+  # Camping originally came with a barebones Response object, but it's often much more readable
+  # to just use your controller as the response.
+  #
+  # Go ahead and alter the status, cookies, headers and body instance variables as you
+  # see fit in order to customize the response.
+  #
+  #   module Camping::Controllers
+  #     class SoftLink
+  #       def get
+  #         redirect "/"
+  #       end
+  #     end
+  #   end
+  #
+  # Is equivalent to:
+  #
+  #   module Camping::Controllers
+  #     class SoftLink
+  #       def get
+  #         @status = 302
+  #         @headers['Location'] = "/"
+  #       end
+  #     end
+  #   end
+  #
+  module Base
+    include Helpers
+    attr_accessor :input, :cookies, :env, :headers, :body, :status, :root
+    # Display a view, calling it by its method name +m+.  If a <tt>layout</tt>
+    # method is found in Camping::Views, it will be used to wrap the HTML.
+    #
+    #   module Camping::Controllers
+    #     class Show
+    #       def get
+    #         @posts = Post.find :all
+    #         render :index
+    #       end
+    #     end
+    #   end
+    #
+    def render(m); end; undef_method :render
+
+    # Any stray method calls will be passed to Markaby.  This means you can reply
+    # with HTML directly from your controller for quick debugging.
+    #
+    #   module Camping::Controllers
+    #     class Info
+    #       def get; code @env.inspect end
+    #     end
+    #   end
+    #
+    # If you have a <tt>layout</tt> method in Camping::Views, it will be used to
+    # wrap the HTML.
+    def method_missing(m, *a, &b)
+      str = m==:render ? markaview(*a, &b):eval("markaby.#{m}(*a, &b)")
+      str = markaview(:layout) { str } if Views.method_defined? :layout
+      r(200, str.to_s)
+    end
+
+    # Formulate a redirect response: a 302 status with <tt>Location</tt> header
+    # and a blank body.  Uses Helpers#URL to build the location from a controller
+    # route or path.
+    #
+    # So, given a root of <tt>http://localhost:3301/articles</tt>:
+    #
+    #   redirect "view/12"    # redirects to "http://localhost:3301/articles/view/12"
+    #   redirect View, 12     # redirects to "http://localhost:3301/articles/view/12"
+    #
+    def redirect(*a)
+      r(302,'','Location'=>URL(*a))
+    end
+
+    # A quick means of setting this controller's status, body and headers.
+    # Used internally by Camping, but... by all means...
+    #
+    #   r(302, '', 'Location' => self / "/view/12")
+    #
+    # Is equivalent to:
+    #
+    #   redirect "/view/12"
+    #
+    def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
+
+    def initialize(r, e, m) #:nodoc:
+      e = H.new(e)
+      @status, @method, @env, @headers, @root = 200, m.downcase, e, {'Content-Type'=>'text/html'}, e.SCRIPT_NAME
+      @ck = C.kp(e.HTTP_COOKIE)
+      qs = C.qs_parse(e.QUERY_STRING)
+      if "post" == @method
+        @inp = r.read(e.CONTENT_LENGTH.to_i)
+        if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
+          b = "--#$1"
+          @inp.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
+            h,v=pt.split("\r\n\r\n",2);fh={}
+            [:name, :filename].each { |x|
+              fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
+            }
+            fn = fh[:name]
+            if fh[:filename]
+              fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\r\n|\Z)/m
+              fh[:tempfile]=Tempfile.new(:C).instance_eval {binmode;write v;rewind;self}
+            else
+              fh=v
+            end
+            qs[fn]=fh if fn
+          }
+        else
+          qs.merge!(C.qs_parse(@inp))
+        end
+      end
+      @cookies, @input = @ck.dup, qs.dup
+    end
+
+    def service(*a) #:nodoc:
+      @body = send(@method, *a) if respond_to? @method
+      @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @ck[k] }.compact
+      self
+    end
+    def to_s #:nodoc:
+      "Status: #{@status}\n#{@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}*"\n"}*"\n"}\n\n#{@body}"
+    end
+    def markaby #:nodoc:
+        Mab.new( instance_variables.map { |iv| 
+          [iv[1..-1], instance_variable_get(iv)] } )
+    end
+    def markaview(m, *a, &b) #:nodoc:
+      h=markaby
+      h.send(m, *a, &b)
+      h.to_s
+    end
+  end
+
+  # The R class is the parent class for all routed controllers.
+  class R; include Base end
+
   # Controllers is a module for placing classes which handle URLs.  This is done
   # by defining a route to each class using the Controllers::R method.
   #
@@ -276,149 +420,6 @@ module Camping
   # NotFound class handles URLs not found.  The ServerError class handles exceptions
   # uncaught by your application.
   module Controllers
-    # Controllers::Base is built into each controller by way of the generic routing
-    # class Controllers::R.  In some ways, this class is trying to do too much, but
-    # it saves code for all the glue to stay in one place.
-    #
-    # Forgivable, considering that it's only really a handful of methods and accessors.
-    #
-    # == Treating controller methods like Response objects
-    #
-    # Camping originally came with a barebones Response object, but it's often much more readable
-    # to just use your controller as the response.
-    #
-    # Go ahead and alter the status, cookies, headers and body instance variables as you
-    # see fit in order to customize the response.
-    #
-    #   module Camping::Controllers
-    #     class SoftLink
-    #       def get
-    #         redirect "/"
-    #       end
-    #     end
-    #   end
-    #
-    # Is equivalent to:
-    #
-    #   module Camping::Controllers
-    #     class SoftLink
-    #       def get
-    #         @status = 302
-    #         @headers['Location'] = "/"
-    #       end
-    #     end
-    #   end
-    #
-    module Base
-      include Helpers
-      attr_accessor :input, :cookies, :env, :headers, :body, :status, :root
-      # Display a view, calling it by its method name +m+.  If a <tt>layout</tt>
-      # method is found in Camping::Views, it will be used to wrap the HTML.
-      #
-      #   module Camping::Controllers
-      #     class Show
-      #       def get
-      #         @posts = Post.find :all
-      #         render :index
-      #       end
-      #     end
-      #   end
-      #
-      def render(m); end; undef_method :render
-
-      # Any stray method calls will be passed to Markaby.  This means you can reply
-      # with HTML directly from your controller for quick debugging.
-      #
-      #   module Camping::Controllers
-      #     class Info
-      #       def get; code @env.inspect end
-      #     end
-      #   end
-      #
-      # If you have a <tt>layout</tt> method in Camping::Views, it will be used to
-      # wrap the HTML.
-      def method_missing(m, *a, &b)
-        str = m==:render ? markaview(*a, &b):eval("markaby.#{m}(*a, &b)")
-        str = markaview(:layout) { str } if Views.method_defined? :layout
-        r(200, str.to_s)
-      end
-
-      # Formulate a redirect response: a 302 status with <tt>Location</tt> header
-      # and a blank body.  Uses Helpers#URL to build the location from a controller
-      # route or path.
-      #
-      # So, given a root of <tt>http://localhost:3301/articles</tt>:
-      #
-      #   redirect "view/12"    # redirects to "http://localhost:3301/articles/view/12"
-      #   redirect View, 12     # redirects to "http://localhost:3301/articles/view/12"
-      #
-      def redirect(*a)
-        r(302,'','Location'=>URL(*a))
-      end
-
-      # A quick means of setting this controller's status, body and headers.
-      # Used internally by Camping, but... by all means...
-      #
-      #   r(302, '', 'Location' => self / "/view/12")
-      #
-      # Is equivalent to:
-      #
-      #   redirect "/view/12"
-      #
-      def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
-
-      def initialize(r, e, m) #:nodoc:
-        e = H.new(e)
-        @status, @method, @env, @headers, @root = 200, m.downcase, e, {'Content-Type'=>'text/html'}, e.SCRIPT_NAME
-        @ck = C.kp(e.HTTP_COOKIE)
-        qs = C.qs_parse(e.QUERY_STRING)
-        if "post" == @method
-          @inp = r.read(e.CONTENT_LENGTH.to_i)
-          if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
-            b = "--#$1"
-            @inp.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
-              h,v=pt.split("\r\n\r\n",2);fh={}
-              [:name, :filename].each { |x|
-                fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
-              }
-              fn = fh[:name]
-              if fh[:filename]
-                fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\r\n|\Z)/m
-                fh[:tempfile]=Tempfile.new("C").instance_eval {binmode;write v;rewind;self}
-              else
-                fh=v
-              end
-              qs[fn]=fh if fn
-            }
-          else
-            qs.merge!(C.qs_parse(@inp))
-          end
-        end
-        @cookies, @input = @ck.dup, qs.dup
-      end
-
-      def service(*a) #:nodoc:
-        @body = send(@method, *a) if respond_to? @method
-        @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @ck[k] }.compact
-        self
-      end
-      def to_s #:nodoc:
-        "Status: #{@status}\n#{@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}*"\n"}*"\n"}\n\n#{@body}"
-      end
-      def markaby #:nodoc:
-          Mab.new( instance_variables.map { |iv| 
-            [iv[1..-1], instance_variable_get(iv)] } )
-      end
-      def markaview(m, *a, &b) #:nodoc:
-        h=markaby
-        h.send(m, *a, &b)
-        h.to_s
-      end
-    end
-
-    # The R class is the parent class for all controllers and ensures they all get the Base mixin.
-    class R; include Base end
-
     # The NotFound class is a special controller class for handling 404 errors, in case you'd
     # like to alter the appearance of the 404.  The path is passed in as +p+.
     #
@@ -434,7 +435,7 @@ module Camping
     #     end
     #   end
     #
-    class NotFound; def get(p); r(404, div{h1("Cam\ping Problem!")+h2("#{p} not found")}); end end
+    class NotFound; def get(p); r(404, div{h1("Cam\ping Problem!");h2("#{p} not found")}); end end
 
     # The ServerError class is a special controller class for handling many (but not all) 500 errors.
     # If there is a parse error in Camping or in your application's source code, it will not be caught
@@ -584,10 +585,10 @@ module Camping
     #
     def run(r=$stdin,e=ENV)
       k, a = Controllers.D "/#{e['PATH_INFO']}".gsub(%r!/+!,'/')
-      k.send :include, C, Controllers::Base, Models
+      k.send :include, C, Base, Models
       k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
     rescue => x
-      Controllers::ServerError.new(r,e,m).service(:get,k,m,x)
+      Controllers::ServerError.new(r,e,'get').service(k,m,x)
     end
   end
 

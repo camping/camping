@@ -142,22 +142,22 @@ STYLE = %{
     #menu #links { float: right; }
     pre { font-weight: bold; color: #730; }
     tt { color: #703; font-size: 12pt; }
-    .dyn-source { background-color: #f3f3e5; border: solid 1px #99C; padding: 4px 8px; margin: 0; display: none; }
-    .dyn-source pre  { font-size: 8pt; }
+    .dyn-source { background-color: #775915; padding: 4px 8px; margin: 0; display: none; }
+    .dyn-source pre  { color: #DDDDDD; font-size: 8pt; }
     .source-link     { text-align: right; font-size: 8pt; }
     .ruby-comment    { color: green; font-style: italic }
-    .ruby-constant   { color: #4433aa; font-weight: bold; }
-    .ruby-identifier { color: #222222;  }
-    .ruby-ivar       { color: #2233dd; }
-    .ruby-keyword    { color: #3333FF; font-weight: bold }
-    .ruby-node       { color: #777777; }
-    .ruby-operator   { color: #111111;  }
-    .ruby-regexp     { color: #662222; }
-    .ruby-value      { color: #662222; font-style: italic }
-    .kw { color: #3333FF; font-weight: bold }
-    .cmt { color: green; font-style: italic }
-    .str { color: #662222; font-style: italic }
-    .re  { color: #662222; }
+    .ruby-constant   { color: #CCDDFF; font-weight: bold; }
+    .ruby-identifier { color: #CCCCCC;  }
+    .ruby-ivar       { color: #BBCCFF; }
+    .ruby-keyword    { color: #EEEEFF; font-weight: bold }
+    .ruby-node       { color: #FFFFFF; }
+    .ruby-operator   { color: #CCCCCC;  }
+    .ruby-regexp     { color: #DDFFDD; }
+    .ruby-value      { color: #FFAAAA; font-style: italic }
+    .kw { color: #DDDDFF; font-weight: bold }
+    .cmt { color: #CCFFCC; font-style: italic }
+    .str { color: #EECCCC; font-style: italic }
+    .re  { color: #EECCCC; }
 }
 
 CONTENTS_XML = %{

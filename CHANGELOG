@@ -1,3 +1,15 @@
+= 1.4
+=== 17th February, 2006
+
+* Moved Camping::Controllers::Base to Camping::Base.
+* Moved Camping::Controllers::R to Camping::R.
+* New session library (lib/camping/session.rb).
+* WEBrick handler (lib/camping/webrick.rb) and Mongrel handler (lib/camping/mongrel.rb).
+* Helpers#URL, builds a complete URL for a route.  Returns a URI object. This way relative links could just return self.URL.path.
+* Base#initialize takes over some of Base#service's duties.
+* ENV now available as @env in controllers and views.
+* Beautiful multi-page docs without frames!
+
 = 1.3
 === 28th January, 2006
 
