@@ -10,8 +10,8 @@ module Base;include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 "markaby.#{m}(*a,&b)");s=markaview(:layout){s} if Views.method_defined?:layout
 r 200,s.to_s end;def r s,b,h={};@status=s;@headers.merge!(h);@body=b end;def 
 redirect *a;r 302,'','Location'=>URL(*a) end;def initialize r,e,m;e=H.new e
-@status,@method,@env,@headers,@root=200,m.downcase,e,{'Content-Type'=>'text/htm\
-l'},e.SCRIPT_NAME;@ck=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING;if "post"==
+@status,@method,@env,@headers,@root=200,m.downcase,e,{'Content-Type'=>"text/htm\
+l"},e.SCRIPT_NAME;@ck=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING;if "post"==
 @method;@in=r.read e.CONTENT_LENGTH.to_i;if %r|\Amultipart/form-data.*boundary\
 =\"?([^\";,]+)|n.match e.CONTENT_TYPE;b="--#$1";@in.split(/(?:\r?\n|\A)#{Regexp.
 quote(b)}(?:--)?\r\n/m).map{|y|h,v=y.split "\r\n\r\n",2;fh={};[:name,:filename].
