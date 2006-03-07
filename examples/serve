@@ -14,32 +14,31 @@ Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => '
 Camping::Models::Base.logger = Logger.new('camping.log')
 
 # Find the working applications
-apps = 
-    Dir['*'].select do |d|
-        if File.directory? "#{d}"
-            begin
-                load "#{d}/#{d}.rb"
-                true
-            rescue Exception => e
-                puts "Camping app `#{d}' will not load: #{e.class} #{e.message}"
+def find_apps
+    apps = 
+        Dir['*'].select do |d|
+            if File.directory? "#{d}"
+                begin
+                    load "#{d}/#{d}.rb"
+                    true
+                rescue Exception => e
+                    puts "Camping app `#{d}' will not load: #{e.class} #{e.message}"
+                end
             end
         end
+    apps.map! do |app|
+        begin
+            klass = Object.const_get(Object.constants.grep(/^#{app}$/i)[0])
+            klass.create if klass.respond_to? :create
+            [app, klass]
+        rescue Exception => e
+            puts "Camping app `#{app}' will not load: #{e.class} #{e.message}"
+        end
     end
-apps.map! do |app|
-    begin
-        klass = Object.const_get(Object.constants.grep(/^#{app}$/i)[0])
-        klass.create if klass.respond_to? :create
-        [app, klass]
-    rescue Exception => e
-        puts "Camping app `#{app}' will not load: #{e.class} #{e.message}"
-    end
+    apps.compact
 end
-apps.compact!
 
-s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
-
-# Root mount displays applications mounted
-s.mount_proc("/") do |req, resp|
+def index_page req, resp, apps
     welcome = "Welcome to the Camping Example Server"
     b = Markaby::Builder.new({}, {})
     b = b.instance_eval do
@@ -78,6 +77,14 @@ s.mount_proc("/") do |req, resp|
         end
     end
     resp.body = b.to_s
+end
+
+apps = find_apps
+s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
+
+# Root mount displays applications mounted
+s.mount_proc("/") do |req, resp|
+    index_page req, resp, apps
 end
 
 # Mount which handles each application

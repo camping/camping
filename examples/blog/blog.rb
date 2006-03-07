@@ -271,8 +271,13 @@ def Blog.create
 end
 
 if __FILE__ == $0
+    require 'mongrel/camping'
     Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
     Blog::Models::Base.logger = Logger.new('camping.log')
-    Blog.create
-    puts Blog.run
+    Blog::Models::Base.threaded_connections = false
+
+    server = Mongrel::Camping::start("0.0.0.0", 3000, "/", Blog)
+    puts "** Blog example is running at http://localhost:3000/"
+    puts "** Default user is `admin', password is `camping'"
+    server.join
 end

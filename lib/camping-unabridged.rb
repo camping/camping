@@ -235,17 +235,17 @@ module Camping
     # So, if your application is mounted at <tt>http://test.ing/blog/</tt>
     # and you have a View controller which routes as <tt>R '/view/(\d+)'</tt>:
     #
-    #   URL(View, @post.id) #=> "http://test.ing/blog/view/12"
+    #   URL(View, @post.id)    #=> #<URI:http://test.ing/blog/view/12>
     #
     # Or you can use the direct path:
     #
-    #   self.URL               #=> "http://test.ing/blog/"
-    #   self.URL + "view/12"   #=> "http://test.ing/blog/view/12"
-    #   URL("/view/12")        #=> "http://test.ing/blog/view/12"
+    #   self.URL               #=> #<URI:http://test.ing/blog/>
+    #   self.URL + "view/12"   #=> #<URI:http://test.ing/blog/view/12>
+    #   URL("/view/12")        #=> #<URI:http://test.ing/blog/view/12>
     #
     # It's okay to pass URL strings through this method as well:
     #
-    #   URL("http://google.com")  #=> "http://google.com"
+    #   URL("http://google.com")  #=> #<URI:http://google.com>
     #
     # Any string which doesn't begin with a slash will pass through
     # unscathed.
