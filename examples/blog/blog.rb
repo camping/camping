@@ -2,7 +2,7 @@
 
 $:.unshift File.dirname(__FILE__) + "/../../lib"
 require 'rubygems'
-require 'camping'
+require_gem 'camping', '>=1.4'
 require 'camping/session'
   
 Camping.goes :Blog
@@ -271,13 +271,15 @@ def Blog.create
 end
 
 if __FILE__ == $0
-    require 'mongrel/camping'
-    Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
-    Blog::Models::Base.logger = Logger.new('camping.log')
-    Blog::Models::Base.threaded_connections = false
+  require 'mongrel/camping'
 
-    server = Mongrel::Camping::start("0.0.0.0", 3000, "/", Blog)
-    puts "** Blog example is running at http://localhost:3000/"
-    puts "** Default user is `admin', password is `camping'"
-    server.join
+  Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
+  Blog::Models::Base.logger = Logger.new('camping.log')
+  Blog::Models::Base.threaded_connections=false
+  Blog.create
+
+  server = Mongrel::Camping::start("0.0.0.0",3002,"/blog",Blog)
+  puts "** Blog example is running at http://localhost:3002/blog"
+  puts "** Default username is `admin', password is `camping'"
+  server.join
 end

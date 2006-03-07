@@ -135,8 +135,14 @@ def Tepee.create
 end
 
 if __FILE__ == $0
+  require 'mongrel/camping'
+
   Tepee::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'tepee.db'
   Tepee::Models::Base.logger = Logger.new('camping.log')
+  Tepee::Models::Base.threaded_connections=false
   Tepee.create
-  puts Tepee.run
+  
+  server = Mongrel::Camping::start("0.0.0.0",3001,"/tepee",Tepee)
+  puts "** Tepee example is running at http://localhost:3000/tepee"
+  server.join
 end
