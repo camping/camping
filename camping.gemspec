@@ -5,7 +5,7 @@ spec = Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.summary = "miniature rails for stay-at-home moms"
   s.add_dependency('activerecord', '>=1.13')
-  s.add_dependency('markaby', '>0.2')
+  s.add_dependency('markaby', '>0.3.1')
   s.add_dependency('metaid')
   s.has_rdoc = true
   s.files = ['README', 'CHANGELOG', 'examples/**/*', 'lib/**/*', 'bin/**/*', 'extras/**/*'].collect do |dirglob|
