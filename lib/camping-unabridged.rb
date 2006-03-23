@@ -349,7 +349,7 @@ module Camping
     def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
 
     def initialize(r, e, m) #:nodoc:
-      e = H.new(e)
+      e = H[e.to_hash]
       @status, @method, @env, @headers, @root = 200, m.downcase, e, {'Content-Type'=>'text/html'}, e.SCRIPT_NAME
       @ck = C.kp(e.HTTP_COOKIE)
       qs = C.qs_parse(e.QUERY_STRING)
