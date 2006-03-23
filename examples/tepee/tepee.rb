@@ -40,7 +40,7 @@ module Tepee::Controllers
     end
   end
 
-  class Show < R '/s/(\w+)', '/s/(\w+)/(\d+)'
+  class Show < R '/s/([\w ]+)', '/s/([\w ]+)/(\d+)'
     def get page_name, version = nil
       redirect(Edit, page_name, 1) and return unless @page = Page.find_by_title(page_name)
       @version = (version.nil? or version == @page.version.to_s) ? @page : @page.versions.find_by_version(version)
@@ -48,7 +48,7 @@ module Tepee::Controllers
     end
   end
 
-  class Edit < R '/e/(\w+)/(\d+)', '/e/(\w+)'
+  class Edit < R '/e/([\w ]+)/(\d+)', '/e/([\w ]+)'
     def get page_name, version = nil
       @page = Page.find_or_create_by_title(page_name)
       @page = @page.versions.find_by_version(version) unless version.nil? or version == @page.version.to_s
@@ -115,12 +115,13 @@ module Tepee::Views
   def _markup body
     return '' if body.blank?
     body.gsub!(Tepee::Models::Page::PAGE_LINK) do
-      page = title = $1.underscore
+      title = $1.underscore
       title = $2 unless $2.empty?
+      page = title.gsub /\s/, '_'
       if Tepee::Models::Page.find(:all, :select => 'title').collect { |p| p.title }.include?(page)
-        %Q{<a href="#{R Show, page}">#{title}</a>}
+        %Q{<a href="#{self/R(Show, page)}">#{title}</a>}
       else
-        %Q{<span>#{title}<a href="#{R Edit, page, 1}">?</a></span>}
+        %Q{<span>#{title}<a href="#{self/R(Edit, page, 1)}">?</a></span>}
       end
     end
     RedCloth.new(body, [ :hard_breaks ]).to_html
