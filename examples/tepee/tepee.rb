@@ -40,7 +40,7 @@ module Tepee::Controllers
     end
   end
 
-  class Show < R '/s/([\w ]+)', '/s/([\w ]+)/(\d+)'
+  class Show < R '/s/(\w+)', '/s/(\w+)/(\d+)'
     def get page_name, version = nil
       redirect(Edit, page_name, 1) and return unless @page = Page.find_by_title(page_name)
       @version = (version.nil? or version == @page.version.to_s) ? @page : @page.versions.find_by_version(version)
@@ -48,7 +48,7 @@ module Tepee::Controllers
     end
   end
 
-  class Edit < R '/e/([\w ]+)/(\d+)', '/e/([\w ]+)'
+  class Edit < R '/e/(\w+)/(\d+)', '/e/(\w+)'
     def get page_name, version = nil
       @page = Page.find_or_create_by_title(page_name)
       @page = @page.versions.find_by_version(version) unless version.nil? or version == @page.version.to_s
