@@ -352,36 +352,34 @@ module Camping
       e = H[e.to_hash]
       @status, @method, @env, @headers, @root = 200, m.downcase, e, 
           {'Content-Type'=>'text/html'}, e.SCRIPT_NAME.sub(/\/$/,'')
-      @ck = C.kp(e.HTTP_COOKIE)
+      @k = C.kp(e.HTTP_COOKIE)
       qs = C.qs_parse(e.QUERY_STRING)
-      if e.CONTENT_LENGTH.to_i > 0
-        @in = r.read(e.CONTENT_LENGTH.to_i)
-        if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
-          b = "--#$1"
-          @in.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
-            h,v=pt.split("\r\n\r\n",2);fh={}
-            [:name, :filename].each { |x|
-              fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
-            }
-            fn = fh[:name]
-            if fh[:filename]
-              fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\r\n|\Z)/m
-              fh[:tempfile]=Tempfile.new(:C).instance_eval {binmode;write v;rewind;self}
-            else
-              fh=v
-            end
-            qs[fn]=fh if fn
+      @in = r.read rescue ''
+      if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
+        b = "--#$1"
+        @in.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
+          h,v=pt.split("\r\n\r\n",2);fh={}
+          [:name, :filename].each { |x|
+            fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
           }
-        elsif @method == "post"
-          qs.merge!(C.qs_parse(@in))
-        end
+          fn = fh[:name]
+          if fh[:filename]
+            fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\r\n|\Z)/m
+            fh[:tempfile]=Tempfile.new(:C).instance_eval {binmode;write v;rewind;self}
+          else
+            fh=v
+          end
+          qs[fn]=fh if fn
+        }
+      elsif @method == "post"
+        qs.merge!(C.qs_parse(@in))
       end
-      @cookies, @input = @ck.dup, qs.dup
+      @cookies, @input = @k.dup, qs.dup
     end
 
     def service(*a) #:nodoc:
       @body = send(@method, *a) if respond_to? @method
-      @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @ck[k] }.compact
+      @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @k[k] }.compact
       self
     end
     def to_s #:nodoc:

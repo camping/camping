@@ -11,17 +11,17 @@ module Base;include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 r 200,s.to_s end;def r s,b,h={};@status=s;@headers.merge!(h);@body=b end;def 
 redirect *a;r 302,'','Location'=>URL(*a) end;def initialize r,e,m;e=H[e.to_hash]
 @status,@method,@env,@headers,@root=200,m.downcase,e,{'Content-Type'=>"text/htm\
-l"},e.SCRIPT_NAME.sub(/\/$/,'');@ck=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING;if e.CONTENT_LENGTH.to_i > 0
-@in=r.read e.CONTENT_LENGTH.to_i;if %r|\Amultipart/form-data.*boundary\
-=\"?([^\";,]+)|n.match e.CONTENT_TYPE;b="--#$1";@in.split(/(?:\r?\n|\A)#{Regexp.
-quote(b)}(?:--)?\r\n/m).map{|y|h,v=y.split "\r\n\r\n",2;fh={};[:name,:filename].
-map{|x|fh[x]=$1 if h=~/^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m}
-fn=fh[:name];if fh[:filename];fh[:type]=$1 if h=~/^Content-Type:(.+?)(\r\n|\Z)/m
-fh[:tempfile]=Tempfile.new(:C).instance_eval{binmode;write v;rewind;self}else
-fh=v end;q[fn]=fh if fn}elsif @method=="post";q.merge! C.qs_parse(@in) end end;@cookies,@input=
-@ck.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method
+l"},e.SCRIPT_NAME.sub(/\/$/,'');@k=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING
+@in=r.read rescue '';if %r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n.match \
+e.CONTENT_TYPE;b="--#$1";@in.split(/(?:\r?\n|\A)#{Regexp.quote b}(?:--)?\r\n/m).
+map{|y|h,v=y.split "\r\n\r\n",2;fh={};[:name,:filename].map{|x|fh[x]=$1 if h=~
+/^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m};fn=fh[:name];if fh[
+:filename];fh[:type]=$1 if h=~/^Content-Type:(.+?)(\r\n|\Z)/m;fh[:tempfile]=
+Tempfile.new(:C).instance_eval{binmode;write v;rewind;self}else;fh=v end;q[fn]=
+fh if fn}elsif @method=="post";q.merge! C.qs_parse(@in) end;@cookies,@input=
+@k.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/"/"}\
-" if v != @ck[k]}.compact;self end;def to_s;"Status: #{@status}\n#{@headers.map{
+" if v != @k[k]}.compact;self end;def to_s;"Status: #{@status}\n#{@headers.map{
 |k,v|[*v].map{|x|"#{k}: #{x}"}*"\n"}*"\n"}\n\n#{@body}" end;def markaby;Mab.new(
 instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]}) end;def 
 markaview m,*a,&b;h=markaby;h.send m,*a,&b;h.to_s end end;class R;include Base
