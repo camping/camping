@@ -354,11 +354,11 @@ module Camping
           {'Content-Type'=>'text/html'}, e.SCRIPT_NAME.sub(/\/$/,'')
       @ck = C.kp(e.HTTP_COOKIE)
       qs = C.qs_parse(e.QUERY_STRING)
-      if "post" == @method
-        @inp = r.read(e.CONTENT_LENGTH.to_i)
+      if e.CONTENT_LENGTH.to_i > 0
+        @in = r.read(e.CONTENT_LENGTH.to_i)
         if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
           b = "--#$1"
-          @inp.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
+          @in.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
             h,v=pt.split("\r\n\r\n",2);fh={}
             [:name, :filename].each { |x|
               fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
@@ -372,8 +372,8 @@ module Camping
             end
             qs[fn]=fh if fn
           }
-        else
-          qs.merge!(C.qs_parse(@inp))
+        elsif @method == "post"
+          qs.merge!(C.qs_parse(@in))
         end
       end
       @cookies, @input = @ck.dup, qs.dup
@@ -524,10 +524,10 @@ module Camping
     def escape(s); s.to_s.gsub(/([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join('%').upcase}.tr(' ', '+') end
     # Unescapes a URL-encoded string.
     #
-    #   Camping.unescape("I%27d+go+to+the+museum+straightway%21") 
+    #   Camping.un("I%27d+go+to+the+museum+straightway%21") 
     #     #=> "I'd go to the museum straightway!"
     #
-    def unescape(s); s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%')].pack('H*')} end
+    def un(s); s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%')].pack('H*')} end
 
     # Parses a query string into an Camping::H object.
     #
@@ -545,7 +545,7 @@ module Camping
         m = proc {|_,o,n|o.merge(n,&m)rescue([*o]<<n)}
         (qs||'').
             split(/[#{d}] */n).
-            inject(H[]) { |h,p| k, v=unescape(p).split('=',2)
+            inject(H[]) { |h,p| k, v=un(p).split('=',2)
                 h.merge(k.split(/[\]\[]+/).reverse.
                     inject(v) { |x,i| H[i,x] },&m)
             } 
@@ -585,7 +585,7 @@ module Camping
     #   end
     #
     def run(r=$stdin,e=ENV)
-      k, a = Controllers.D "/#{e['PATH_INFO']}".gsub(%r!/+!,'/')
+      k, a = Controllers.D un("/#{e['PATH_INFO']}".gsub(%r!/+!,'/'))
       k.send :include, C, Base, Models
       k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
     rescue => x

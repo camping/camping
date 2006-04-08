@@ -11,14 +11,14 @@ module Base;include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 r 200,s.to_s end;def r s,b,h={};@status=s;@headers.merge!(h);@body=b end;def 
 redirect *a;r 302,'','Location'=>URL(*a) end;def initialize r,e,m;e=H[e.to_hash]
 @status,@method,@env,@headers,@root=200,m.downcase,e,{'Content-Type'=>"text/htm\
-l"},e.SCRIPT_NAME.sub(/\/$/,'');@ck=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING;if "post"==
-@method;@in=r.read e.CONTENT_LENGTH.to_i;if %r|\Amultipart/form-data.*boundary\
+l"},e.SCRIPT_NAME.sub(/\/$/,'');@ck=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING;if e.CONTENT_LENGTH.to_i > 0
+@in=r.read e.CONTENT_LENGTH.to_i;if %r|\Amultipart/form-data.*boundary\
 =\"?([^\";,]+)|n.match e.CONTENT_TYPE;b="--#$1";@in.split(/(?:\r?\n|\A)#{Regexp.
 quote(b)}(?:--)?\r\n/m).map{|y|h,v=y.split "\r\n\r\n",2;fh={};[:name,:filename].
 map{|x|fh[x]=$1 if h=~/^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m}
 fn=fh[:name];if fh[:filename];fh[:type]=$1 if h=~/^Content-Type:(.+?)(\r\n|\Z)/m
 fh[:tempfile]=Tempfile.new(:C).instance_eval{binmode;write v;rewind;self}else
-fh=v end;q[fn]=fh if fn}else q.merge! C.qs_parse(@in) end end;@cookies,@input=
+fh=v end;q[fn]=fh if fn}elsif @method=="post";q.merge! C.qs_parse(@in) end end;@cookies,@input=
 @ck.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/"/"}\
 " if v != @ck[k]}.compact;self end;def to_s;"Status: #{@status}\n#{@headers.map{
@@ -34,12 +34,12 @@ k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R);d||([k,$~[1..-1]]if k.urls.find{
 |x|path=~/^#{x}\/?$/})}||[NotFound,[path]] end end end;class<<self;def goes m
 eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)end;def escape s;s.to_s.gsub(
 /([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join('%').upcase}.tr ' ','+'
-end;def unescape s;s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%'
+end;def un s;s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%'
 )].pack('H*')} end;def qs_parse q,d='&;';m=proc{|_,o,n|o.merge(n,&m)rescue([*o
-]<<n)};q.to_s.split(/[#{d}] */n).inject(H[]){|h,p|k,v=unescape(p).split('=',2)
+]<<n)};q.to_s.split(/[#{d}] */n).inject(H[]){|h,p|k,v=un(p).split('=',2)
 h.merge k.split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]},&m}end;def kp(s);c=
-qs_parse(s,';,')end;def run r=$stdin,e=ENV;k,a=Controllers.D "/#{e['PATH_INFO']
-}".gsub(/\/+/,'/');k.send:include,C,Base,Models;k.new(r,e,(m=e['REQUEST_METHOD'
+qs_parse(s,';,')end;def run r=$stdin,e=ENV;k,a=Controllers.D un("/#{e['PATH_INFO']
+}".gsub(/\/+/,'/'));k.send:include,C,Base,Models;k.new(r,e,(m=e['REQUEST_METHOD'
 ]||"GET")).service *a;rescue=>x;Controllers::ServerError.new(r,e,'get').service(
 k,m,x)end end;module Views;include Controllers,Helpers end;module Models;A=
 ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
