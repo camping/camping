@@ -354,10 +354,10 @@ module Camping
           {'Content-Type'=>'text/html'}, e.SCRIPT_NAME.sub(/\/$/,'')
       @k = C.kp(e.HTTP_COOKIE)
       qs = C.qs_parse(e.QUERY_STRING)
-      @in = r.read rescue ''
+      @in = r
       if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
         b = "--#$1"
-        @in.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
+        @in.read.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
           h,v=pt.split("\r\n\r\n",2);fh={}
           [:name, :filename].each { |x|
             fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
@@ -372,7 +372,7 @@ module Camping
           qs[fn]=fh if fn
         }
       elsif @method == "post"
-        qs.merge!(C.qs_parse(@in))
+        qs.merge!(C.qs_parse(@in.read))
       end
       @cookies, @input = @k.dup, qs.dup
     end
