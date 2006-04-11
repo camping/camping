@@ -29,7 +29,7 @@ class Session < Base
     # Generates a new session ID and creates a row for the new session in the database.
     def self.generate cookies
         rand_max = RAND_CHARS.size
-        sid = (0..32).inject("") { |ret,_| ret << RAND_CHARS[rand(rand_max)] }
+        sid = (0...32).inject("") { |ret,_| ret << RAND_CHARS[rand(rand_max)] }
         sess = Session.create :hashid => sid, :ivars => Camping::H[]
         cookies.camping_sid = sess.hashid
         sess
