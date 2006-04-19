@@ -18,7 +18,7 @@ split "\r\n\r\n",2;fh={};[:name,:filename].map{|x|fh[x]=$1 if h=~/^Content-Di.+\
 : form-data;.*(?:\s#{x}="([^"]+)")/m};fn=fh[:name];if fh[:filename];fh[:type]=
 $1 if h=~/^Content-Type: (.+?)(\r\n|\Z)/m;fh[:tempfile]=Tempfile.new(:C).
 instance_eval{binmode;write v;rewind;self}else;fh=v end;q[fn]=fh if fn}elsif 
-@method=="post";q.merge! C.qs_parse(@in.read) end;@cookies,@input=
+@method=="post";q.u C.qs_parse(@in.read) end;@cookies,@input=
 @k.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/"/"}\
 " if v != @k[k]}.compact;self end;def to_s;"Status: #{@status}\n#{@headers.map{
@@ -35,9 +35,9 @@ k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R);d||([k,$~[1..-1]]if k.urls.find{
 eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)end;def escape s;s.to_s.gsub(
 /([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join('%').upcase}.tr ' ','+'
 end;def un s;s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%'
-)].pack('H*')} end;def qs_parse q,d='&;';m=proc{|_,o,n|o.merge(n,&m)rescue([*o
+)].pack('H*')} end;def qs_parse q,d='&;';m=proc{|_,o,n|o.u(n,&m)rescue([*o
 ]<<n)};q.to_s.split(/[#{d}] */n).inject(H[]){|h,p|k,v=un(p).split('=',2)
-h.merge k.split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]},&m}end;def kp(s);c=
+h.u k.split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]},&m}end;def kp(s);c=
 qs_parse(s,';,')end;def run r=$stdin,e=ENV;k,a=Controllers.D un("/#{e['PATH_INFO']
 }".gsub(/\/+/,'/'));k.send:include,C,Base,Models;k.new(r,e,(m=e['REQUEST_METHOD'
 ]||"GET")).service *a;rescue=>x;Controllers::ServerError.new(r,e,'get').service(
@@ -47,4 +47,4 @@ downcase.sub(/^(#{A}|camping)_/i,'')end end;class Mab<Markaby::Builder;include \
 Views;def tag! *g,&b;h=g[-1];[:href,:action,:src].map{|a|(h[a]=self/h[a])rescue
 0};super end end;H=HashWithIndifferentAccess;class H;def method_missing m,*a
 if m.to_s=~/=$/;self[$`]=a[0];elsif a.empty?;self[m];else;raise NoMethodError,
-"#{m}" end end end end
+"#{m}" end end;alias_method:u,:regular_update;end end

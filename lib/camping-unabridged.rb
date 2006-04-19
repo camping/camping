@@ -123,6 +123,7 @@ module Camping
             raise NoMethodError, "#{m}"
         end
     end
+    alias_method :u, :regular_update
   end
 
   # Helpers contains methods available in your controllers and views.  You may add
@@ -372,7 +373,7 @@ module Camping
           qs[fn]=fh if fn
         }
       elsif @method == "post"
-        qs.merge!(C.qs_parse(@in.read))
+        qs.u(C.qs_parse(@in.read))
       end
       @cookies, @input = @k.dup, qs.dup
     end
@@ -540,11 +541,11 @@ module Camping
     #     #=> {'post' => {'id' => '1', 'user' => '_why'}}
     #
     def qs_parse(qs, d = '&;')
-        m = proc {|_,o,n|o.merge(n,&m)rescue([*o]<<n)}
+        m = proc {|_,o,n|o.u(n,&m)rescue([*o]<<n)}
         (qs||'').
             split(/[#{d}] */n).
             inject(H[]) { |h,p| k, v=un(p).split('=',2)
-                h.merge(k.split(/[\]\[]+/).reverse.
+                h.u(k.split(/[\]\[]+/).reverse.
                     inject(v) { |x,i| H[i,x] },&m)
             } 
     end
