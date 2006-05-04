@@ -1,5 +1,10 @@
+= 1.4.1
+=== 3rd May, 2006
+
+* Streaming HTTP support.  If body is IO, will simply pass to the controller.  Mongrel, in particular, supports this nicely.
+
 = 1.4
-=== 17th February, 2006
+=== 11th April, 2006
 
 * Moved Camping::Controllers::Base to Camping::Base.
 * Moved Camping::Controllers::R to Camping::R.
