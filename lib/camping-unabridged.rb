@@ -357,23 +357,38 @@ module Camping
       qs = C.qs_parse(e.QUERY_STRING)
       @in = r
       if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
-        b = "--#$1"
-        @in.read.split(/(?:\r?\n|\A)#{ Regexp::quote( b ) }(?:--)?\r\n/m).each { |pt|
-          h,v=pt.split("\r\n\r\n",2);fh={}
-          [:name, :filename].each { |x|
-            fh[x] = $1 if h =~ /^Content-Disposition: form-data;.*(?:\s#{x}="([^"]+)")/m
-          }
-          fn = fh[:name]
-          if fh[:filename]
-            fh[:type]=$1 if h =~ /^Content-Type: (.+?)(\r\n|\Z)/m
-            fh[:tempfile]=Tempfile.new(:C).instance_eval {binmode;write v;rewind;self}
+        b = /(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/
+        until @in.eof?
+          fh=H[]
+          for l in @in
+            case l
+            when "\r\n": break
+            when /^Content-Disposition: form-data;/
+              fh.u H[*$'.scan(/(?:\s(\w+)="([^"]+)")/).flatten]
+            when /^Content-Type: (.+?)(\r$|\Z)/m
+              puts "=> fh[type] = #$1"
+              fh[:type] = $1
+            end
+          end
+          fn=fh[:name]
+          o=if fh[:filename]
+            fh[:tempfile]=Tempfile.new(:C).binmode
           else
-            fh=v
+            fh=""
+          end
+          while l=@in.read(16384)
+            if l=~b
+              o<<$`.chomp
+              @in.seek(-$'.size,IO::SEEK_CUR)
+              break
+            end
+            o<<l
           end
           qs[fn]=fh if fn
-        }
+          fh[:tempfile].rewind if fh.is_a?H
+        end
       elsif @method == "post"
-        qs.u(C.qs_parse(@in.read))
+        qs.merge!(C.qs_parse(@in.read))
       end
       @cookies, @input = @k.dup, qs.dup
     end

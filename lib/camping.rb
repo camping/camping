@@ -13,12 +13,13 @@ redirect *a;r 302,'','Location'=>URL(*a) end;def initialize r,e,m;e=H[e.to_hash]
 @status,@method,@env,@headers,@root=200,m.downcase,e,{'Content-Type'=>"text/htm\
 l"},e.SCRIPT_NAME.sub(/\/$/,'');@k=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING
 @in=r;if %r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n.match e.CONTENT_TYPE;b=
-"--#$1";@in.read.split(/(?:\r?\n|\A)#{Regexp.quote b}(?:--)?\r\n/m).map{|y|h,v=y.
-split "\r\n\r\n",2;fh={};[:name,:filename].map{|x|fh[x]=$1 if h=~/^Content-Di.+\
-: form-data;.*(?:\s#{x}="([^"]+)")/m};fn=fh[:name];if fh[:filename];fh[:type]=
-$1 if h=~/^Content-Type: (.+?)(\r\n|\Z)/m;fh[:tempfile]=Tempfile.new(:C).
-instance_eval{binmode;write v;rewind;self}else;fh=v end;q[fn]=fh if fn}elsif 
-@method=="post";q.u C.qs_parse(@in.read) end;@cookies,@input=
+/(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/;until @in.eof?;fh=H[];for l in
+@in;case l;when "\r\n":break;when /^Content-Disposition: form-data;/:fh.u H[*$'.
+scan(/(?:\s(\w+)="([^"]+)")/).flatten];when /^Content-Type: (.+?)(\r$|\Z)/m;fh[
+:type]=$1;end;end;fn=fh[:name];o=if fh[:filename];fh[:tempfile]=Tempfile.new(:C).
+binmode;else;fh="";end;while l=@in.read(16384);if l=~b;o<<$`.chomp;@in.seek(-$'.
+size,IO::SEEK_CUR);break;end;o<<l;end;q[fn]=fh if fn;fh[:tempfile].rewind if
+fh.is_a?H;end;elsif @method=="post";q.u C.qs_parse(@in.read) end;@cookies,@input=
 @k.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/"/"}\
 " if v != @k[k]}.compact;self end;def to_s;"Status: #{@status}\n#{@headers.map{
