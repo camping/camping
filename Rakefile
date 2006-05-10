@@ -6,7 +6,7 @@ require 'fileutils'
 include FileUtils
 
 NAME = "camping"
-VERS = "1.4.1.87"
+VERS = "1.4.2"
 CLEAN.include ['**/.*.sw?', '*.gem', '.config']
 RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
     "--template", "extras/flipbook_rdoc.rb",

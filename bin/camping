@@ -4,16 +4,20 @@
 # causing some pain.)
 RAILS_CONNECTION_ADAPTERS = %w[sqlite]
 
+require 'delegate'
 require 'stringio'
-require 'webrick/httpserver'
-require 'camping/webrick'
+require 'rubygems'
+require 'camping'
 
 (puts <<USAGE; exit) if ARGV.length == 0
 #{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
-Usage: #{File.basename($0)} your.camping.rb [your.camping.db]
+Usage: #{File.basename($0)} your.camping.rb [your.camping.db] [host] [port]
+    (host defaults to 0.0.0.0; port defaults to 3301)
 USAGE
 
 script, db = ARGV[0..-1]
+host = ARGV[1] || '0.0.0.0'
+port = (ARGV[2] || 3301).to_i
 
 unless db
     homes = []
@@ -26,38 +30,61 @@ end
 
 Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => db
 
-class WEBrick::CampingHandler
+class CampingReloader
     attr_accessor :klass, :mtime
-end
 
-# Load the script, locate the module
-def camp_load(server, script, klass = nil)
-    Object.instance_eval { remove_const klass.name } if klass
-    mtime = File.mtime(script)
-    load script
-    klass = Object.const_get(Object.constants.grep(/^#{File.basename(script)[/^(\w+)/,1]}$/i)[0]) rescue nil
-    klass ||= Camping
-    klass.create if klass.respond_to? :create
-
-    brick = WEBrick::CampingHandler.new(server, klass)
-    brick.mtime = mtime
-    brick
-end
-
-# Mount the root
-s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3301)
-brick = camp_load( s, script )
-s.mount_proc("/") do |req, resp|
-    newtime = File.mtime( script )
-    if newtime > brick.mtime
-        brick = camp_load( s, script, brick.klass )
+    def initialize(script)
+        @script = script
+        load_app
     end
-    brick.do_GET(req, resp)
-    nil
+
+    def load_app
+        @mtime = File.mtime(@script)
+        load @script
+        @klass = Object.const_get(Object.constants.grep(/^#{File.basename(@script)[/^(\w+)/,1]}$/i)[0]) rescue nil
+        @klass.create if @klass.respond_to? :create
+        @klass
+    end
+
+    # Load the script, locate the module
+    def reload_app 
+        newtime = File.mtime( @script )
+        return if @mtime and newtime <= @mtime
+
+        k = @klass
+        Object.instance_eval { remove_const k.name } if k
+        load_app
+    end
+
+    def run(*a)
+        reload_app
+        @klass.run(*a)
+    end
 end
 
-# Server up
-trap(:INT) do
-    s.shutdown
+begin
+    require 'mongrel'
+    require 'mongrel/camping'
+    config = Mongrel::Configurator.new :host => host do
+        listener :port => port do
+            uri "/", :handler => Mongrel::Camping::CampingHandler.new(CampingReloader.new(script))
+            uri "/favicon.ico", :handler => Mongrel::Error404Handler.new("")
+            trap("INT") { stop }
+            run
+        end
+    end
+    config.join
+rescue LoadError
+    require 'webrick/httpserver'
+    require 'camping/webrick'
+
+    # Mount the root
+    s = WEBrick::HTTPServer.new(:BindAddress => host, :Port => port)
+    s.mount "/", WEBrick::CampingHandler, CampingReloader.new(script)
+
+    # Server up
+    trap(:INT) do
+        s.shutdown
+    end
+    s.start
 end
-s.start
