@@ -253,7 +253,7 @@ module Camping
     def URL c='/',*a
       c = R(c, *a) if c.respond_to? :urls
       c = self/c
-      c = "http://"+@env.HTTP_HOST+c if c[/^\//]
+      c = "//"+@env.HTTP_HOST+c if c[/^\//]
       URI(c)
     end
   end
