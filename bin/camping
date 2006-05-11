@@ -2,7 +2,7 @@
 
 # this line prevents other db adapters from being loaded (oci8 was
 # causing some pain.)
-RAILS_CONNECTION_ADAPTERS = %w[sqlite]
+(RAILS_CONNECTION_ADAPTERS ||= []).replace %w[sqlite]
 
 require 'delegate'
 require 'stringio'
@@ -40,8 +40,14 @@ class CampingReloader
 
     def load_app
         @mtime = File.mtime(@script)
-        load @script
-        @klass = Object.const_get(Object.constants.grep(/^#{File.basename(@script)[/^(\w+)/,1]}$/i)[0]) rescue nil
+        title = File.basename(@script)[/^(\w+)/,1]
+        begin
+            load @script
+        rescue Exception => e
+            puts "!! trouble loading #{title}: [#{e.class}] #{e.message}"
+            return
+        end
+        @klass = Object.const_get(Object.constants.grep(/^#{title}$/i)[0]) rescue nil
         @klass.create if @klass.respond_to? :create
         @klass
     end
@@ -49,7 +55,7 @@ class CampingReloader
     # Load the script, locate the module
     def reload_app 
         newtime = File.mtime( @script )
-        return if @mtime and newtime <= @mtime
+        return if @klass and @mtime and newtime <= @mtime
 
         k = @klass
         Object.instance_eval { remove_const k.name } if k
@@ -58,7 +64,11 @@ class CampingReloader
 
     def run(*a)
         reload_app
-        @klass.run(*a)
+        if @klass
+            @klass.run(*a) 
+        else
+            Camping.run(*a)
+        end
     end
 end
 
