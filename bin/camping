@@ -85,9 +85,16 @@ class CampingReloader
             load @script
         rescue Exception => e
             puts "!! trouble loading #{title}: [#{e.class}] #{e.message}"
+            @klass = nil
             return
         end
+
         @klass = Object.const_get(Object.constants.grep(/^#{title}$/i)[0]) rescue nil
+        unless @klass.const_defined? :C
+            puts "!! trouble loading #{title}: not a Camping app"
+            @klass = nil
+            return
+        end
         @klass.create if @klass.respond_to? :create
         @klass
     end
@@ -109,6 +116,10 @@ class CampingReloader
         else
             Camping.run(*a)
         end
+    end
+
+    def view_source
+        File.read(@script)
     end
 end
 
@@ -137,6 +148,7 @@ def apps.index_page
                 p %{Good day.  These are the Camping apps you've mounted.}
                 ul do
                     apps.each do |app|
+                        next unless app.klass
                         li do
                             h3(:style => "display: inline") { a app.klass.name, :href => "/#{app.mount}" }
                             small { text " / " ; a "View Source", :href => "/code/#{app.mount}" }
@@ -162,10 +174,22 @@ begin
             end
         end
     end
+    class ViewSource < Mongrel::HttpHandler
+        def initialize(app)
+            @app = app
+        end
+        def process(req, res)
+            res.start(200) do |head, out|
+                head['Content-Type'] = 'text/plain'
+                out << @app.view_source
+            end
+        end
+    end
     config = Mongrel::Configurator.new :host => host do
         listener :port => port do
             apps.each do |app|
                 uri "/#{app.mount}", :handler => Mongrel::Camping::CampingHandler.new(app)
+                uri "/code/#{app.mount}", :handler => ViewSource.new(app)
             end
             uri "/", :handler => IndexHandler.new(apps)
             uri "/favicon.ico", :handler => Mongrel::Error404Handler.new("")
@@ -182,6 +206,10 @@ rescue LoadError
     s = WEBrick::HTTPServer.new(:BindAddress => host, :Port => port)
     apps.each do |app|
         s.mount "/#{app.mount}", WEBrick::CampingHandler, app
+        s.mount_proc("/code/#{app.mount}") do |req, resp|
+            resp['Content-Type'] = 'text/plain'
+            resp.body = app.view_source
+        end
     end
     s.mount_proc("/") { |req, resp| resp.body = apps.index_page }
 
