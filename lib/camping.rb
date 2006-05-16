@@ -16,8 +16,8 @@ l"},e.SCRIPT_NAME.sub(/\/$/,'');@k=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRIN
 /(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/;until @in.eof?;fh=H[];for l in
 @in;case l;when "\r\n":break;when /^Content-Disposition: form-data;/:fh.u H[*$'.
 scan(/(?:\s(\w+)="([^"]+)")/).flatten];when /^Content-Type: (.+?)(\r$|\Z)/m;fh[
-:type]=$1;end;end;fn=fh[:name];o=if fh[:filename];fh[:tempfile]=Tempfile.new(:C).
-binmode;else;fh="";end;while l=@in.read(16384);if l=~b;o<<$`.chomp;@in.seek(-$'.
+:type]=$1;end;end;fn=fh[:name];o=if fh[:filename];o=fh[:tempfile]=Tempfile.new(:C)
+o.binmode;else;fh="";end;while l=@in.read(16384);if l=~b;o<<$`.chomp;@in.seek(-$'.
 size,IO::SEEK_CUR);break;end;o<<l;end;q[fn]=fh if fn;fh[:tempfile].rewind if
 fh.is_a?H;end;elsif @method=="post";q.u C.qs_parse(@in.read) end;@cookies,@input=
 @k.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method

@@ -372,7 +372,8 @@ module Camping
           end
           fn=fh[:name]
           o=if fh[:filename]
-            fh[:tempfile]=Tempfile.new(:C).binmode
+            o=fh[:tempfile]=Tempfile.new(:C)
+            o.binmode
           else
             fh=""
           end
