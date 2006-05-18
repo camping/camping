@@ -1,8 +1,9 @@
 = 1.4.2
-=== 10th May, 2006
+=== 18th May, 2006
 
 * Efficient file uploads for multipart/form-data POSTs.
 * Camping tool now uses Mongrel, if available.  If not, sticks with WEBrick.
+* Multiple apps can be loaded with the camping tool, each mounted according to their file name.
 
 = 1.4.1
 === 3rd May, 2006

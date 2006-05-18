@@ -100,7 +100,7 @@ If you run them from the commandline, you'll probably just see a pile of HTML.
 Camping comes with an tool for launching apps from the commandline:
 
 * Run: <tt>camping blog.rb</tt>
-* Visit http://localhost:3301/ to use the app.
+* Visit http://localhost:3301/blog/ to use the app.
 
 == Debugging Camping Apps
 
