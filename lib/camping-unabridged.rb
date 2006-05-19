@@ -221,8 +221,8 @@ module Camping
     #
     # See AR validation documentation for details on validations.
     def errors_for(o); ul.errors { o.errors.each_full { |er| li er } } if o.errors.any?; end
-    # Simply builds the complete URL from a relative or absolute path +p+.  If your
-    # application is running from <tt>/blog</tt>:
+    # Simply builds a complete path from a path +p+ within the app.  If your application is 
+    # mounted at <tt>/blog</tt>:
     #
     #   self / "/view/1"    #=> "/blog/view/1"
     #   self / "styles.css" #=> "styles.css"
@@ -231,18 +231,23 @@ module Camping
     def /(p); p[/^\//]?@root+p:p end
     # Builds a URL route to a controller or a path, returning a URI object.
     # This way you'll get the hostname and the port number, a complete URL.
+    # No scheme is given (http or https).
     #
     # You can use this to grab URLs for controllers using the R-style syntax.
     # So, if your application is mounted at <tt>http://test.ing/blog/</tt>
     # and you have a View controller which routes as <tt>R '/view/(\d+)'</tt>:
     #
-    #   URL(View, @post.id)    #=> #<URI:http://test.ing/blog/view/12>
+    #   URL(View, @post.id)    #=> #<URL://test.ing/blog/view/12>
     #
     # Or you can use the direct path:
     #
-    #   self.URL               #=> #<URI:http://test.ing/blog/>
-    #   self.URL + "view/12"   #=> #<URI:http://test.ing/blog/view/12>
-    #   URL("/view/12")        #=> #<URI:http://test.ing/blog/view/12>
+    #   self.URL               #=> #<URL://test.ing/blog/>
+    #   self.URL + "view/12"   #=> #<URL://test.ing/blog/view/12>
+    #   URL("/view/12")        #=> #<URL://test.ing/blog/view/12>
+    #
+    # Since no scheme is given, you will need to add the scheme yourself:
+    #
+    #   "http" + URL("/view/12")   #=> "http://test.ing/blog/view/12"
     #
     # It's okay to pass URL strings through this method as well:
     #
