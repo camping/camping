@@ -12,6 +12,7 @@ require 'optparse'
 require 'stringio'
 require 'rubygems'
 require 'camping'
+require 'camping/session'
 
 host = '0.0.0.0'
 port = 3301
@@ -68,6 +69,20 @@ if ARGV.length < 1
 end
 
 Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => db
+begin
+    Camping::Models::Session.create_schema
+rescue MissingSourceFile
+    puts "** #$0 stopped: SQLite3 not found, please install."
+    puts "** See http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for instructions."
+    exit
+end
+
+begin
+    require 'sqlite3_api'
+rescue LoadError
+    puts "!! Your SQLite3 adapter isn't a compiled extension."
+    abort "!! Please check out http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for tips."
+end
 
 class CampingReloader
     attr_accessor :klass, :mtime, :mount

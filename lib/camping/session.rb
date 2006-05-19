@@ -86,7 +86,7 @@ module Camping
 #
 # 1. <tt>require 'camping/session'</tt>
 # 2. Mixin the module: <tt>module YourApp; include Camping::Session end</tt>
-# 3. In your application's <tt>create</tt> method, add a call to <tt>Camping::Models::Schema.create_schema</tt>
+# 3. In your application's <tt>create</tt> method, add a call to <tt>Camping::Models::Session.create_schema</tt>
 # 4. Throughout your application, use the <tt>@state</tt> var like a hash to store your application's data. 
 # 
 # If you are unfamiliar with the <tt>create</tt> method, see 

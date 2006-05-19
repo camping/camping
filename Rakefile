@@ -32,7 +32,7 @@ Rake::RDocTask.new do |rdoc|
     rdoc.template = "extras/flipbook_rdoc.rb"
     rdoc.main = "README"
     rdoc.title = "Camping, the Documentation"
-    rdoc.rdoc_files.add ['README', 'CHANGELOG', 'COPYING', 'lib/camping.rb']
+    rdoc.rdoc_files.add ['README', 'CHANGELOG', 'COPYING', 'lib/camping.rb', 'lib/camping/*.rb']
 end
 
 task :after_doc do

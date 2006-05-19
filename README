@@ -102,7 +102,7 @@ Camping comes with an tool for launching apps from the commandline:
 * Run: <tt>camping blog.rb</tt>
 * Visit http://localhost:3301/blog/ to use the app.
 
-== Debugging Camping Apps
+== How the Camping Tool Works
 
 If your application isn't working with the <tt>camping</tt> tool, keep in mind
 that the tool expects the following conventions to be used:
@@ -111,7 +111,7 @@ that the tool expects the following conventions to be used:
    http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for instructions.)
 2. If your script is called <tt>test.rb</tt>, Camping expects your application to
    be stored in a module called <tt>Test</tt>.  Case is not imporant, though.  The
-   module can be called <tt>TeSt</tt> or any other permuation.
+   module can be called <tt>TeSt</tt> or any other permutation.
 3. Your script's postamble (anything enclosed in <tt>if __FILE__ == $0</tt>) will be
    ignored by the tool, since the tool will create an SQLite3 database at 
    <tt>~/.camping.db</tt>.  Or, on Windows, <tt>$USER/Application Data/Camping.db</tt>.
@@ -120,7 +120,7 @@ that the tool expects the following conventions to be used:
 
 == The Rules of Thumb
 
-Once you've started writing your own Camping app, I'd highly recommend becoming familiar
+Once you've started writing your own Camping app, I'd highly recommend that you become familiar
 with the Camping Rules of Thumb which are listed on the wiki: 
 http://code.whytheluckystiff.net/camping/wiki/CampingRulesOfThumb
 
