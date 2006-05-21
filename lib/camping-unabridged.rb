@@ -199,7 +199,7 @@ module Camping
     def R(c,*args)
       p = /\(.+?\)/
       args.inject(c.urls.find{|x|x.scan(p).size==args.size}.dup){|str,a|
-        str.sub(p,(a.__send__(a.class.primary_key) rescue a).to_s)
+        str.sub(p,C.escape((a.__send__(a.class.primary_key) rescue a)))
       }
     end
     # Shows AR validation errors for the object passed. 
