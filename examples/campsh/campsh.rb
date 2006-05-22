@@ -6,7 +6,7 @@ $:.unshift File.dirname(__FILE__) + "/../../lib"
 Camping.goes :CampSh
 
 module CampSh
-    NAME = 'CampCampSh'
+    NAME = 'CampSh'
     DESCRIPTION = %{
         Script your own URL commands, then run these commands through 
         the proxy with "cmd/CommandName".  All scripts are versioned 
@@ -484,14 +484,13 @@ module CampSh::Views
 
     def _navigation
         form :id => "navigationForm", :class => "navigation", :style => "font-size: 10px" do  
-            a "Command List", :href => R(List), :title => "Alphabetical list of commands", :accesskey => "A"
-            text " | "
-            a "Recently Revised", :href => R(Recent), :title => "Pages sorted by when they were last changed", 
-                                  :accesskey => "U"
-            text " | "
-            a "Authors", :href => R(Authors), :title => "Who wrote what"
-            text " | "
-            a "How To", :href => R(HowTo), :title => "How to use CampShell", :accesskey => "H"
+            [["Command List", R(List), "Alphabetical list of commands", "A"],
+             ["Recently Revised", R(Recent), "Pages sorted by when they were last changed", "U"],
+             ["Authors", R(Authors), "Who wrote what", "W"],
+             ["How To", R(HowTo), "How to use CampShell", "H"]
+            ].map do |txt, link, title, key|
+                a txt, :href => link, :title => title, :accesskey => key
+            end.join(" | ")
         end
     end
 
@@ -522,11 +521,8 @@ module CampSh::Views
         ul.authorList! do
             @authors.each do |author, cmds|
                 li do
-                    strong author
-                    text " worked on: " +
-                        cmds.map { |cmd|
-                            capture { a cmd.name, :href => R(Show, cmd.name) }
-                        }.join(", ")
+                    strong(author) + " worked on: " +
+                        cmds.map { |cmd| a cmd.name, :href => R(Show, cmd.name) }.join(", ")
                 end
             end
         end
