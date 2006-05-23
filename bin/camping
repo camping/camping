@@ -14,10 +14,8 @@ require 'rubygems'
 require 'camping'
 require 'camping/session'
 
-host = '0.0.0.0'
-port = 3301
+host, port, db, log = '0.0.0.0', 3301
 
-db = nil
 homes = []
 homes << File.join( ENV['HOME'], '.camping.db' ) if ENV['HOME']
 homes << File.join( ENV['APPDATA'], 'Camping.db' ) if ENV['APPDATA']
@@ -32,17 +30,10 @@ opts = OptionParser.new do |opts|
     opts.separator ""
     opts.separator "Specific options:"
 
-    opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") do |h|
-        host = h
-    end
-
-    opts.on("-p", "--port NUM", "Port for web server (defaults to #{port})") do |p|
-        port = p
-    end
-
-    opts.on("-d", "--database FILE", "Database file (defaults to #{db})") do |d|
-        db = d
-    end
+    opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") { |host| }
+    opts.on("-p", "--port NUM", "Port for web server (defaults to #{port})") { |port| }
+    opts.on("-d", "--database FILE", "Database file (defaults to #{db})") { |db| }
+    opts.on("-l", "--log FILE", "Start a database log ('-' for STDOUT)") { |log| }
 
     opts.separator ""
     opts.separator "Common options:"
@@ -69,6 +60,9 @@ if ARGV.length < 1
 end
 
 Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => db
+if log
+    Camping::Models::Base.logger = Logger.new(log == "-" ? STDOUT : log)
+end
 begin
     Camping::Models::Session.create_schema
 rescue MissingSourceFile
