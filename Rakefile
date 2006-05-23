@@ -27,7 +27,7 @@ task :before_doc do
 end
 
 Rake::RDocTask.new do |rdoc|
-    rdoc.rdoc_dir = 'doc'
+    rdoc.rdoc_dir = 'doc/rdoc'
     rdoc.options += RDOC_OPTS
     rdoc.template = "extras/flipbook_rdoc.rb"
     rdoc.main = "README"
@@ -38,9 +38,9 @@ end
 task :after_doc do
     mv "lib/camping.rb", "lib/camping-unabridged.rb"
     mv "lib/camping-mural.rb", "lib/camping.rb"
-    cp "extras/Camping.gif", "doc/"
-    cp "extras/permalink.gif", "doc/"
-    sh %{scp -r doc/* #{ENV['USER']}@rubyforge.org:/var/www/gforge-projects/camping/}
+    cp "extras/Camping.gif", "doc/rdoc/"
+    cp "extras/permalink.gif", "doc/rdoc/"
+    sh %{scp -r doc/rdoc/* #{ENV['USER']}@rubyforge.org:/var/www/gforge-projects/camping/}
 end
 
 spec =
@@ -64,7 +64,7 @@ spec =
         s.required_ruby_version = '>= 1.8.2'
 
         s.files = %w(COPYING README Rakefile) +
-          Dir.glob("{bin,doc/rdoc,test,lib,extras}/**/*") + 
+          Dir.glob("{bin,doc,test,lib,extras}/**/*") + 
           Dir.glob("ext/**/*.{h,c,rb}") +
           Dir.glob("examples/**/*.rb") +
           Dir.glob("tools/*.rb")
