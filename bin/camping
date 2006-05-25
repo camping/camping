@@ -133,6 +133,8 @@ class CampingReloader
 end
 
 apps = ARGV.map { |script| CampingReloader.new(script) }
+abort("** No apps successfully loaded") unless apps.detect { |app| app.klass }
+
 def apps.index_page
     welcome = "You are Camping"
     apps = self
@@ -196,11 +198,15 @@ begin
     end
     config = Mongrel::Configurator.new :host => host do
         listener :port => port do
-            apps.each do |app|
-                uri "/#{app.mount}", :handler => Mongrel::Camping::CampingHandler.new(app)
-                uri "/code/#{app.mount}", :handler => ViewSource.new(app)
+            if apps.length > 1
+                apps.each do |app|
+                    uri "/#{app.mount}", :handler => Mongrel::Camping::CampingHandler.new(app)
+                    uri "/code/#{app.mount}", :handler => ViewSource.new(app)
+                end
+                uri "/", :handler => IndexHandler.new(apps)
+            else
+                uri "/", :handler => Mongrel::Camping::CampingHandler.new(apps.first)
             end
-            uri "/", :handler => IndexHandler.new(apps)
             uri "/favicon.ico", :handler => Mongrel::Error404Handler.new("")
             trap("INT") { stop }
             run
@@ -213,14 +219,18 @@ rescue LoadError
 
     # Mount the root
     s = WEBrick::HTTPServer.new(:BindAddress => host, :Port => port)
-    apps.each do |app|
-        s.mount "/#{app.mount}", WEBrick::CampingHandler, app
-        s.mount_proc("/code/#{app.mount}") do |req, resp|
-            resp['Content-Type'] = 'text/plain'
-            resp.body = app.view_source
+    if apps.length > 1
+        apps.each do |app|
+            s.mount "/#{app.mount}", WEBrick::CampingHandler, app
+            s.mount_proc("/code/#{app.mount}") do |req, resp|
+                resp['Content-Type'] = 'text/plain'
+                resp.body = app.view_source
+            end
         end
+        s.mount_proc("/") { |req, resp| resp.body = apps.index_page }
+    else
+        s.mount "/#{app.mount}", WEBrick::CampingHandler, apps.first
     end
-    s.mount_proc("/") { |req, resp| resp.body = apps.index_page }
 
     # Server up
     trap(:INT) do

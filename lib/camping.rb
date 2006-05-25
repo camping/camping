@@ -1,4 +1,4 @@
-%w[rubygems active_record markaby metaid tempfile uri].each{|l|require l}
+%w[active_record markaby metaid tempfile uri].each{|l|require l}
 module Camping;C=self;F=__FILE__;S=IO.read(F).gsub(/_+FILE_+/,F.dump)
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.find{|x|x.scan(p).
 size==args.size}.dup){|str,a|str.sub(p,C.escape((a.__send__(a.class.primary_key
@@ -41,7 +41,7 @@ end;def un s;s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%'
 h.u k.split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]},&m}end;def kp(s);c=
 qs_parse(s,';,')end;def run r=$stdin,e=ENV;k,a=Controllers.D un("/#{e['PATH_INFO']
 }".gsub(/\/+/,'/'));k.send:include,C,Base,Models;k.new(r,e,(m=e['REQUEST_METHOD'
-]||"GET")).service *a;rescue=>x;Controllers::ServerError.new(r,e,'get').service(
+]||"GET")).service *a;rescue Exception=>x;Controllers::ServerError.new(r,e,'get').service(
 k,m,x)end end;module Views;include Controllers,Helpers end;module Models;A=
 ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
 downcase.sub(/^(#{A}|camping)_/i,'')end end;class Mab<Markaby::Builder;include \

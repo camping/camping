@@ -28,7 +28,7 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[rubygems active_record markaby metaid tempfile uri].each { |lib| require lib }
+%w[active_record markaby metaid tempfile uri].each { |lib| require lib }
 
 # == Camping 
 #
@@ -608,7 +608,7 @@ module Camping
       k, a = Controllers.D un("/#{e['PATH_INFO']}".gsub(%r!/+!,'/'))
       k.send :include, C, Base, Models
       k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
-    rescue => x
+    rescue Exception => x
       Controllers::ServerError.new(r,e,'get').service(k,m,x)
     end
   end
