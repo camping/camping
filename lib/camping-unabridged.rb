@@ -113,7 +113,14 @@ module Camping
   # to get the value for the <tt>page</tt> query variable.
   #
   # Use the <tt>@cookies</tt> variable in the same fashion to access cookie variables.
+  # Also, the <tt>@env</tt> variable is an H containing the HTTP headers and server info.
   class H
+    # Gets or sets keys in the hash.
+    #
+    #   @cookies.my_favorite = :macadamian
+    #   @cookies.my_favorite
+    #   => :macadamian
+    #
     def method_missing(m,*a)
         if m.to_s =~ /=$/
             self[$`] = a[0]
@@ -327,7 +334,7 @@ module Camping
     def method_missing(m, *a, &b)
       str = m==:render ? markaview(*a, &b):eval("markaby.#{m}(*a, &b)")
       str = markaview(:layout) { str } if Views.method_defined? :layout
-      r(200, str.to_s)
+      str
     end
 
     # Formulate a redirect response: a 302 status with <tt>Location</tt> header
@@ -339,6 +346,9 @@ module Camping
     #   redirect "view/12"    # redirects to "http://localhost:3301/articles/view/12"
     #   redirect View, 12     # redirects to "http://localhost:3301/articles/view/12"
     #
+    # <b>NOTE:</b> This method doesn't magically exit your methods and redirect.
+    # You'll need to <tt>return redirect(...)</tt> if this isn't the last statement
+    # in your code.
     def redirect(*a)
       r(302,'','Location'=>URL(*a))
     end
@@ -399,22 +409,26 @@ module Camping
       @cookies, @input = @k.dup, qs.dup
     end
 
-    def service(*a) #:nodoc:
+    # All requests pass through this method before going to the controller.  Some magic
+    # in Camping can be performed by overriding this method.
+    #
+    # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
+    # on before and after overrides with Camping.
+    def service(*a)
       @body = send(@method, *a) if respond_to? @method
       @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @k[k] }.compact
       self
     end
-    def to_s #:nodoc:
+
+    # Used by the web server to convert the current request to a string.  If you need to
+    # alter the way Camping builds HTTP headers, consider overriding this method.
+    def to_s
       "Status: #{@status}\n#{@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}*"\n"}*"\n"}\n\n#{@body}"
     end
+
     def markaby #:nodoc:
         Mab.new( instance_variables.map { |iv| 
           [iv[1..-1], instance_variable_get(iv)] } )
-    end
-    def markaview(m, *a, &b) #:nodoc:
-      h=markaby
-      h.send(m, *a, &b)
-      h.to_s
     end
   end
 

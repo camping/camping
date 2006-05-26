@@ -7,6 +7,8 @@
 require 'camping'
 require 'webrick/httpservlet/abstract.rb'
 
+# Container for the WEBrick::CampingHandler
+module WEBrick
 # WEBrick::CampingHandler is a very simple handle for hosting Camping apps in
 # a WEBrick server.  It's used much like any other WEBrick handler.
 # 
@@ -33,7 +35,6 @@ require 'webrick/httpservlet/abstract.rb'
 #
 # While WEBrick is a bit slower than Mongrel and FastCGI options, it's 
 # a decent choice, for sure!
-module WEBrick # :nodoc:
 class CampingHandler < WEBrick::HTTPServlet::DefaultFileHandler
     # Creates a CampingHandler, which answers for the application within +klass+.
     def initialize(server, klass)

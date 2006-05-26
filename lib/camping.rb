@@ -8,7 +8,7 @@ def errors_for o;ul.errors{o.errors.each_full{|x|li x}}if o.errors.any? end end
 module Base;include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 :status,:root;def method_missing m,*a,&b;s=m==:render ? markaview(*a,&b):eval(
 "markaby.#{m}(*a,&b)");s=markaview(:layout){s} if Views.method_defined?:layout
-r 200,s.to_s end;def r s,b,h={};@status=s;@headers.merge!(h);@body=b end;def 
+s end;def r s,b,h={};@status=s;@headers.merge!(h);@body=b end;def 
 redirect *a;r 302,'','Location'=>URL(*a) end;def initialize r,e,m;e=H[e.to_hash]
 @status,@method,@env,@headers,@root=200,m.downcase,e,{'Content-Type'=>"text/htm\
 l"},e.SCRIPT_NAME.sub(/\/$/,'');@k=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING
