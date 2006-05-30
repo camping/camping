@@ -99,7 +99,7 @@ class CampingReloader
         end
 
         @klass = Object.const_get(Object.constants.grep(/^#{title}$/i)[0]) rescue nil
-        unless @klass.const_defined? :C
+        unless @klass and @klass.const_defined? :C
             puts "!! trouble loading #{title}: not a Camping app"
             @klass = nil
             return
@@ -229,7 +229,7 @@ rescue LoadError
         end
         s.mount_proc("/") { |req, resp| resp.body = apps.index_page }
     else
-        s.mount "/#{app.mount}", WEBrick::CampingHandler, apps.first
+        s.mount "/", WEBrick::CampingHandler, apps.first
     end
 
     # Server up

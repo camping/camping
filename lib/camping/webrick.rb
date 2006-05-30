@@ -42,7 +42,7 @@ class CampingHandler < WEBrick::HTTPServlet::DefaultFileHandler
         @klass = klass
     end
     # Handler for WEBrick requests (also aliased as do_POST).
-    def do_GET(req, resp)
+    def service(req, resp)
         controller = @klass.run((req.body and StringIO.new(req.body)), req.meta_vars)
         resp.status = controller.status
         @local_path = nil
@@ -57,11 +57,10 @@ class CampingHandler < WEBrick::HTTPServlet::DefaultFileHandler
         end
 
         if @local_path
-            super(req, res)
+            do_GET(req, res)
         else
             resp.body = controller.body
         end
     end
-    alias_method :do_POST, :do_GET
 end
 end
