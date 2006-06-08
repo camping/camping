@@ -1,5 +1,5 @@
 %w[active_record markaby metaid tempfile uri].each{|l|require l}
-module Camping;C=self;F=__FILE__;S=IO.read(F).gsub(/_+FILE_+/,F.dump)
+module Camping;Apps=[];C=self;F=__FILE__;S=IO.read(F).gsub(/_+FILE_+/,F.dump)
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.find{|x|x.scan(p).
 size==args.size}.dup){|str,a|str.sub(p,C.escape((a.__send__(a.class.primary_key
 )rescue a)))} end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls;c=self/c;c=
@@ -33,7 +33,7 @@ e.backtrace.each{|bt|li(bt)}}}.to_s)end end;class<<self;def R *urls;Class.new(
 R){meta_def(:urls){urls}}end;def D path;constants.inject(nil){|d,c|k=const_get c
 k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R);d||([k,$~[1..-1]]if k.urls.find{
 |x|path=~/^#{x}\/?$/})}||[NotFound,[path]] end end end;class<<self;def goes m
-eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)end;def escape s;s.to_s.gsub(
+eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);Apps<<const_get(m);end;def escape s;s.to_s.gsub(
 /([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join('%').upcase}.tr ' ','+'
 end;def un s;s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%'
 )].pack('H*')} end;def qs_parse q,d='&;';m=proc{|_,o,n|o.u(n,&m)rescue([*o

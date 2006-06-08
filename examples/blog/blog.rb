@@ -271,7 +271,11 @@ def Blog.create
 end
 
 if __FILE__ == $0
-  require 'mongrel/camping'
+  begin
+    require 'mongrel/camping'
+  rescue LoadError => e
+    abort "** Try running `camping #$0' instead."
+  end
 
   Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
   Blog::Models::Base.logger = Logger.new('camping.log')

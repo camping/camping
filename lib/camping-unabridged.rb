@@ -86,6 +86,14 @@
 #
 # For more tips, see http://code.whytheluckystiff.net/camping/wiki/GiveUsTheCreateMethod.
 module Camping
+  # Stores an +Array+ of all Camping applications modules.  Modules are added
+  # automatically by +Camping.goes+.
+  #
+  #   Camping.goes :Blog
+  #   Camping.goes :Tepee
+  #   Camping::Apps # => [Blog, Tepee]
+  # 
+  Apps = []
   C = self
   F = __FILE__
   S = IO.read(F).gsub(/_+FILE_+/,F.dump)
@@ -547,6 +555,7 @@ module Camping
     #
     def goes(m)
         eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)
+        Apps << const_get(m)
     end
 
     # URL escapes a string.

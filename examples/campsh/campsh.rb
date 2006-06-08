@@ -620,8 +620,18 @@ module CampSh::Views
 end
 
 if __FILE__ == $0
-  CampSh::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'campsh.db'
+  begin
+    require 'mongrel/camping'
+  rescue LoadError => e
+    abort "** Try running `camping #$0' instead."
+  end
+
+  CampSh::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
   CampSh::Models::Base.logger = Logger.new('camping.log')
+  CampSh::Models::Base.threaded_connections=false
   CampSh.create
-  puts CampSh.run
+
+  server = Mongrel::Camping::start("0.0.0.0",3002,"/",CampSh)
+  puts "** CampSh example is running at http://localhost:3002/"
+  server.run.join
 end
