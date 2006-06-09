@@ -136,7 +136,11 @@ def Tepee.create
 end
 
 if __FILE__ == $0
-  require 'mongrel/camping'
+  begin
+    require 'mongrel/camping'
+  rescue LoadError => e
+    abort "** Try running `camping #$0' instead."
+  end
 
   Tepee::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'examples.db'
   Tepee::Models::Base.logger = Logger.new('camping.log')
