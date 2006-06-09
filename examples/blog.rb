@@ -277,7 +277,7 @@ if __FILE__ == $0
     abort "** Try running `camping #$0' instead."
   end
 
-  Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
+  Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'examples.db'
   Blog::Models::Base.logger = Logger.new('camping.log')
   Blog::Models::Base.threaded_connections=false
   Blog.create

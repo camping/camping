@@ -1,6 +1,0 @@
-#!/usr/bin/ruby
-require 'webrick/httpserver'
-s = WEBrick::HTTPServer.new(:BindAddress => '0.0.0.0', :Port => 3000)
-s.mount("/", WEBrick::HTTPServlet::CGIHandler, "tepee.rb")
-trap( :INT ) { s.shutdown }
-s.start

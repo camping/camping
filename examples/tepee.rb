@@ -138,7 +138,7 @@ end
 if __FILE__ == $0
   require 'mongrel/camping'
 
-  Tepee::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'tepee.db'
+  Tepee::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'examples.db'
   Tepee::Models::Base.logger = Logger.new('camping.log')
   Tepee::Models::Base.threaded_connections=false
   Tepee.create

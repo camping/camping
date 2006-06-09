@@ -626,12 +626,12 @@ if __FILE__ == $0
     abort "** Try running `camping #$0' instead."
   end
 
-  CampSh::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'blog.db'
+  CampSh::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'examples.db'
   CampSh::Models::Base.logger = Logger.new('camping.log')
   CampSh::Models::Base.threaded_connections=false
   CampSh.create
 
-  server = Mongrel::Camping::start("0.0.0.0",3002,"/",CampSh)
-  puts "** CampSh example is running at http://localhost:3002/"
+  server = Mongrel::Camping::start("0.0.0.0",3002,"/campsh",CampSh)
+  puts "** CampSh example is running at http://localhost:3002/campsh"
   server.run.join
 end
