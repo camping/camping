@@ -79,25 +79,30 @@ rescue LoadError
 end
 
 class CampingReloader
-    attr_accessor :klass, :mtime, :mount
+    attr_accessor :klass, :mtime, :mount, :requires
 
     def initialize(script)
-        @script = script
+        @script = File.expand_path(script)
         @mount = File.basename(script, '.rb')
+        @requires = nil
         load_app
     end
 
     def load_app
-        @mtime = File.mtime(@script)
         title = File.basename(@script)[/^(\w+)/,1]
         begin
+            all_requires = $LOADED_FEATURES.dup
             load @script
+            @requires = ($LOADED_FEATURES - all_requires).select do |req|
+                req.index(File.basename(@script) + "/") == 0 || req.index(title + "/") == 0
+            end
         rescue Exception => e
             puts "!! trouble loading #{title}: [#{e.class}] #{e.message}"
             @klass = nil
             return
         end
 
+        @mtime = mtime
         @klass = Object.const_get(Object.constants.grep(/^#{title}$/i)[0]) rescue nil
         unless @klass and @klass.const_defined? :C
             puts "!! trouble loading #{title}: not a Camping app"
@@ -108,11 +113,20 @@ class CampingReloader
         @klass
     end
 
+    def mtime
+        ((@requires || []) + [@script]).map do |fname|
+            fname = fname.gsub(/^#{Regexp::quote File.dirname(@script)}\//, '')
+            File.mtime(File.join(File.dirname(@script), fname))
+        end.max
+    end
+
     # Load the script, locate the module
     def reload_app 
-        newtime = File.mtime( @script )
-        return if @klass and @mtime and newtime <= @mtime
+        return if @klass and @mtime and mtime <= @mtime
 
+        if @requires
+            @requires.each { |req| $LOADED_FEATURES.delete(req) }
+        end
         k = @klass
         Object.instance_eval { remove_const k.name } if k
         load_app
@@ -132,7 +146,15 @@ class CampingReloader
     end
 end
 
-apps = ARGV.map { |script| CampingReloader.new(script) }
+apps = ARGV.inject([]) do |apps, script|
+    if File.directory? script
+        apps.push(*Dir[File.join(script, '*.rb')])
+    else
+        apps << script
+    end
+end
+
+apps.map! { |script| CampingReloader.new(script) }
 abort("** No apps successfully loaded") unless apps.detect { |app| app.klass }
 
 def apps.index_page
