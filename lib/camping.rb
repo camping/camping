@@ -1,9 +1,9 @@
 %w[active_record markaby metaid tempfile uri].each{|l|require l}
-module Camping;Apps=[];C=self;F=__FILE__;S=IO.read(F).gsub(/_+FILE_+/,F.dump)
+module Camping;Apps=[];C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.find{|x|x.scan(p).
 size==args.size}.dup){|str,a|str.sub(p,C.escape((a.__send__(a.class.primary_key
 )rescue a)))} end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls;c=self/c;c=
-"//"+@env.HTTP_HOST+c if c[/^\//];URI(c) end;def / p;p[/^\//]?@root+p:p end
+"//"+@env.HTTP_HOST+c if c[/^\//];URI(c) end;def / p;p[/^\//]?@root+p : p end
 def errors_for o;ul.errors{o.errors.each_full{|x|li x}}if o.errors.any? end end
 module Base;include Helpers;attr_accessor :input,:cookies,:env,:headers,:body,
 :status,:root;def method_missing m,*a,&b;s=m==:render ? markaview(*a,&b):eval(

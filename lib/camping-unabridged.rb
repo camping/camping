@@ -95,8 +95,7 @@ module Camping
   # 
   Apps = []
   C = self
-  F = __FILE__
-  S = IO.read(F).gsub(/_+FILE_+/,F.dump)
+  S = IO.read(__FILE__).sub(/S=I.+$/,'')
 
   H = HashWithIndifferentAccess
   # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
