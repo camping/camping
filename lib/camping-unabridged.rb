@@ -430,7 +430,7 @@ module Camping
     # Used by the web server to convert the current request to a string.  If you need to
     # alter the way Camping builds HTTP headers, consider overriding this method.
     def to_s
-      "Status: #{@status}\n#{@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}*"\n"}*"\n"}\n\n#{@body}"
+      "Status: #{@status}\n#{@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}}*"\n"}\n#{@body}"
     end
 
     def markaby #:nodoc:

@@ -6,7 +6,7 @@ require 'fileutils'
 include FileUtils
 
 NAME = "camping"
-VERS = "1.5"
+VERS = "1.4.115"
 CLEAN.include ['**/.*.sw?', '*.gem', '.config']
 RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
     "--template", "extras/flipbook_rdoc.rb",
@@ -59,7 +59,7 @@ spec =
         s.executables = ['camping']
 
         s.add_dependency('activerecord', '>=1.14.2')
-        s.add_dependency('markaby', '>=0.5')
+        s.add_dependency('markaby', '>0.4')
         s.add_dependency('metaid')
         s.required_ruby_version = '>= 1.8.2'
 

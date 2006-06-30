@@ -23,7 +23,7 @@ fh.is_a?H;end;elsif @method=="post";q.u C.qs_parse(@in.read) end;@cookies,@input
 @k.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/"/"}\
 " if v != @k[k]}.compact;self end;def to_s;"Status: #{@status}\n#{@headers.map{
-|k,v|[*v].map{|x|"#{k}: #{x}"}*"\n"}*"\n"}\n\n#{@body}" end;def markaby;Mab.new(
+|k,v|[*v].map{|x|"#{k}: #{x}"}}*"\n"}\n#{@body}" end;def markaby;Mab.new(
 instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]}) end;def 
 markaview m,*a,&b;h=markaby;h.send m,*a,&b;h.to_s end end;class R;include Base
 end;module Controllers;class NotFound;def get p;r(404,div{h1 "Cam\ping Problem!"
