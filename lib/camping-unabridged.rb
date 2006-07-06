@@ -594,6 +594,12 @@ module Camping
     # Parses a string of cookies from the <tt>Cookie</tt> header.
     def kp(s); c = qs_parse(s, ';,'); end
 
+    def method_missing(m, c, *a)
+        k = X.const_get(c)
+        k.send :include, C, Base, Models
+        k.allocate.method(m, *a)
+    end
+
     # Fields a request through Camping.  For traditional CGI applications, the method can be
     # executed without arguments.
     #
@@ -626,10 +632,20 @@ module Camping
     #
     def run(r=$stdin,e=ENV)
       k, a = Controllers.D un("/#{e['PATH_INFO']}".gsub(%r!/+!,'/'))
-      k.send :include, C, Base, Models
+      i k
       k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
     rescue Exception => x
       Controllers::ServerError.new(r,e,'get').service(k,m,x)
+    end
+
+    def method_missing(m, c, *a)
+      k = Controllers.const_get(c)
+      i k
+      k.new(nil,H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s).service(*a)
+    end
+
+    def i k
+      k.send(:include, C, Base, Models) if !(k<C)
     end
   end
 
