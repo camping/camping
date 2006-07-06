@@ -70,7 +70,7 @@ module Tepee::Views
       body do
         p do
           small do
-            span "welcome to " ; a 'tepee', :href => "http://code.whytheluckystiff.net/svn/camping/trunk/examples/tepee/"
+            span "welcome to " ; a 'tepee', :href => "http://code.whytheluckystiff.net/svn/camping/trunk/examples/tepee.rb"
             span '. go ' ;       a 'home',  :href => R(Show, 'home_page')
             span '. list all ' ; a 'pages', :href => R(List)
           end

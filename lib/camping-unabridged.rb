@@ -95,7 +95,7 @@ module Camping
   # 
   Apps = []
   C = self
-  S = IO.read(__FILE__).sub(/S=I.+$/,'')
+  S = IO.read(__FILE__).sub(/^  S = I.+$/,'')
   P="Cam\ping Problem!"
 
   H = HashWithIndifferentAccess
@@ -438,6 +438,12 @@ module Camping
         Mab.new( instance_variables.map { |iv| 
           [iv[1..-1], instance_variable_get(iv)] } )
     end
+    
+    def markaview m,*a,&b #:nodoc:
+      h=markaby
+      h.send m,*a,&b
+      h.to_s
+    end
   end
 
   # Controllers is a module for placing classes which handle URLs.  This is done
@@ -460,48 +466,6 @@ module Camping
   # NotFound class handles URLs not found.  The ServerError class handles exceptions
   # uncaught by your application.
   module Controllers
-    # The NotFound class is a special controller class for handling 404 errors, in case you'd
-    # like to alter the appearance of the 404.  The path is passed in as +p+.
-    #
-    #   module Camping::Controllers
-    #     class NotFound
-    #       def get(p)
-    #         @status = 404
-    #         div do
-    #           h1 'Camping Problem!'
-    #           h2 "#{p} not found"
-    #         end
-    #       end
-    #     end
-    #   end
-    #
-    class NotFound; def get(p); r(404, div{h1(P);h2("#{p} not found")}); end end
-
-    # The ServerError class is a special controller class for handling many (but not all) 500 errors.
-    # If there is a parse error in Camping or in your application's source code, it will not be caught
-    # by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
-    # took place are passed in, along with the Exception +e+ which can be mined for useful info.
-    #
-    #   module Camping::Controllers
-    #     class ServerError
-    #       def get(k,m,e)
-    #         @status = 500
-    #         div do
-    #           h1 'Camping Problem!'
-    #           h2 "in #{k}.#{m}"
-    #           h3 "#{e.class} #{e.message}:"
-    #           ul do
-    #             e.backtrace.each do |bt|
-    #               li bt
-    #             end
-    #           end
-    #         end
-    #       end
-    #     end
-    #   end
-    #
-    class ServerError; include Base; def get(k,m,e); r(500, Mab.new { h1(P); h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }.to_s) end end
-
     class << self
       # Add routes to a controller class by piling them into the R method.
       #
@@ -536,6 +500,61 @@ module Camping
         end||[NotFound, [path]]
       end
     end
+
+    # The NotFound class is a special controller class for handling 404 errors, in case you'd
+    # like to alter the appearance of the 404.  The path is passed in as +p+.
+    #
+    #   module Camping::Controllers
+    #     class NotFound
+    #       def get(p)
+    #         @status = 404
+    #         div do
+    #           h1 'Camping Problem!'
+    #           h2 "#{p} not found"
+    #         end
+    #       end
+    #     end
+    #   end
+    #
+    class NotFound < R()
+      def get(p)
+        r(404, Mab.new{h1(P);h2("#{p} not found")})
+      end
+    end
+
+    # The ServerError class is a special controller class for handling many (but not all) 500 errors.
+    # If there is a parse error in Camping or in your application's source code, it will not be caught
+    # by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
+    # took place are passed in, along with the Exception +e+ which can be mined for useful info.
+    #
+    #   module Camping::Controllers
+    #     class ServerError
+    #       def get(k,m,e)
+    #         @status = 500
+    #         div do
+    #           h1 'Camping Problem!'
+    #           h2 "in #{k}.#{m}"
+    #           h3 "#{e.class} #{e.message}:"
+    #           ul do
+    #             e.backtrace.each do |bt|
+    #               li bt
+    #             end
+    #           end
+    #         end
+    #       end
+    #     end
+    #   end
+    #
+    class ServerError < R()
+      def get(k,m,e)
+        r(500, Mab.new { 
+          h1(P)
+          h2 "#{k}.#{m}"
+          h3 "#{e.class} #{e.message}:"
+          ul { e.backtrace.each { |bt| li bt } }
+        }.to_s)
+      end
+    end
   end
 
   class << self
@@ -560,14 +579,14 @@ module Camping
     #   Camping.escape("I'd go to the museum straightway!")  
     #     #=> "I%27d+go+to+the+museum+straightway%21"
     #
-
     def escape(s); s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.unpack('H2'*$&.size)*'%').upcase}.tr(' ', '+') end
+
     # Unescapes a URL-encoded string.
     #
     #   Camping.un("I%27d+go+to+the+museum+straightway%21") 
     #     #=> "I'd go to the museum straightway!"
     #
-    def un(s); s.tr('+', ' ').gsub(/%([\da-f]){2}/in){[$1].pack('H*')} end
+    def un(s); s.tr('+', ' ').gsub(/%([\da-f]{2})/in){[$1].pack('H*')} end
 
     # Parses a query string into an Camping::H object.
     #
@@ -632,20 +651,19 @@ module Camping
     #
     def run(r=$stdin,e=ENV)
       k, a = Controllers.D un("/#{e['PATH_INFO']}".gsub(%r!/+!,'/'))
-      i k
-      k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
+      i(k).new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
     rescue Exception => x
-      Controllers::ServerError.new(r,e,'get').service(k,m,x)
+      i(Controllers::ServerError).new(r,e,'get').service(k,m,x)
     end
 
     def method_missing(m, c, *a)
       k = Controllers.const_get(c)
-      i k
-      k.new(nil,H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s).service(*a)
+      i(k).new(nil,H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s).service(*a)
     end
 
     def i k
       k.send(:include, C, Base, Models) if !(k<C)
+      k
     end
   end
 
