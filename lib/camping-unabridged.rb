@@ -96,6 +96,7 @@ module Camping
   Apps = []
   C = self
   S = IO.read(__FILE__).sub(/S=I.+$/,'')
+  P="Cam\ping Problem!"
 
   H = HashWithIndifferentAccess
   # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
@@ -439,9 +440,6 @@ module Camping
     end
   end
 
-  # The R class is the parent class for all routed controllers.
-  class R; include Base end
-
   # Controllers is a module for placing classes which handle URLs.  This is done
   # by defining a route to each class using the Controllers::R method.
   #
@@ -477,7 +475,7 @@ module Camping
     #     end
     #   end
     #
-    class NotFound; def get(p); r(404, div{h1("Cam\ping Problem!");h2("#{p} not found")}); end end
+    class NotFound; def get(p); r(404, div{h1(P);h2("#{p} not found")}); end end
 
     # The ServerError class is a special controller class for handling many (but not all) 500 errors.
     # If there is a parse error in Camping or in your application's source code, it will not be caught
@@ -502,7 +500,7 @@ module Camping
     #     end
     #   end
     #
-    class ServerError; include Base; def get(k,m,e); r(500, Mab.new { h1 "Cam\ping Problem!"; h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }.to_s) end end
+    class ServerError; include Base; def get(k,m,e); r(500, Mab.new { h1(P); h2 "#{k}.#{m}"; h3 "#{e.class} #{e.message}:"; ul { e.backtrace.each { |bt| li bt } } }.to_s) end end
 
     class << self
       # Add routes to a controller class by piling them into the R method.
@@ -524,7 +522,7 @@ module Camping
       #
       # Most of the time the rules inferred by dispatch method Controllers::D will get you
       # by just fine.
-      def R(*urls); Class.new(R) { meta_def(:urls) { urls } }; end
+      def R(*urls); Class.new { meta_def(:urls) { urls } }; end
 
       # Dispatch routes to controller classes.  Classes are searched in no particular order.
       # For each class, routes are checked for a match based on their order in the routing list
@@ -533,7 +531,7 @@ module Camping
       def D(path)
         constants.inject(nil) do |d,c| 
             k = const_get(c)
-            k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R)
+            k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to? :urls
             d||([k, $~[1..-1]] if k.urls.find { |x| path =~ /^#{x}\/?$/ })
         end||[NotFound, [path]]
       end
@@ -563,13 +561,13 @@ module Camping
     #     #=> "I%27d+go+to+the+museum+straightway%21"
     #
 
-    def escape(s); s.to_s.gsub(/([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join('%').upcase}.tr(' ', '+') end
+    def escape(s); s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.unpack('H2'*$&.size)*'%').upcase}.tr(' ', '+') end
     # Unescapes a URL-encoded string.
     #
     #   Camping.un("I%27d+go+to+the+museum+straightway%21") 
     #     #=> "I'd go to the museum straightway!"
     #
-    def un(s); s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%')].pack('H*')} end
+    def un(s); s.tr('+', ' ').gsub(/%([\da-f]){2}/in){[$1].pack('H*')} end
 
     # Parses a query string into an Camping::H object.
     #
@@ -674,7 +672,7 @@ module Camping
       #     #=> "tepee_pages"
       #
       def Base.table_name_prefix
-          "#{name[/^(\w+)/,1]}_".downcase.sub(/^(#{A}|camping)_/i,'')
+          "#{name[/\w+/]}_".downcase.sub(/^(#{A}|camping)_/i,'')
       end
   end
 

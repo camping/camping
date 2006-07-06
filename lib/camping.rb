@@ -1,5 +1,6 @@
 %w[active_record markaby metaid tempfile uri].each{|l|require l}
 module Camping;Apps=[];C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
+P="Cam\ping Problem!"
 module Helpers;def R c,*args;p=/\(.+?\)/;args.inject(c.urls.find{|x|x.scan(p).
 size==args.size}.dup){|str,a|str.sub(p,C.escape((a.__send__(a.class.primary_key
 )rescue a)))} end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls;c=self/c;c=
@@ -25,25 +26,25 @@ fh.is_a?H;end;elsif @method=="post";q.u C.qs_parse(@in.read) end;@cookies,@input
 " if v != @k[k]}.compact;self end;def to_s;"Status: #{@status}\r\n#{@headers.map{
 |k,v|[*v].map{|x|"#{k}: #{x}"}}*"\r\n"}\r\n\r\n#{@body}" end;def markaby;Mab.new(
 instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]}) end;def 
-markaview m,*a,&b;h=markaby;h.send m,*a,&b;h.to_s end end;class R;include Base
-end;module Controllers;class NotFound;def get p;r(404,div{h1 "Cam\ping Problem!"
+markaview m,*a,&b;h=markaby;h.send m,*a,&b;h.to_s end end
+module Controllers;class NotFound;def get p;r(404,div{h1 P
 h2 p+" not found"}) end end;class ServerError;include Base;def get k,m,e;r(500,
-Mab.new{h1 "Cam\ping Problem!";h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{
-e.backtrace.each{|bt|li(bt)}}}.to_s)end end;class<<self;def R *urls;Class.new(
-R){meta_def(:urls){urls}}end;def D path;constants.inject(nil){|d,c|k=const_get c
-k.meta_def(:urls){["/#{c.downcase}"]}if !(k<R);d||([k,$~[1..-1]]if k.urls.find{
+Mab.new{h1 P;h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{
+e.backtrace.each{|bt|li(bt)}}}.to_s)end end;class<<self;def R *urls;Class.new{
+meta_def(:urls){urls}}end;def D path;constants.inject(nil){|d,c|k=const_get c
+k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to? :urls;d||([k,$~[1..-1]]if k.urls.find{
 |x|path=~/^#{x}\/?$/})}||[NotFound,[path]] end end end;class<<self;def goes m
-eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);Apps<<const_get(m);end;def escape s;s.to_s.gsub(
-/([^ a-zA-Z0-9_.-]+)/n){'%'+$1.unpack('H2'*$1.size).join('%').upcase}.tr ' ','+'
-end;def un s;s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){[$1.delete('%'
-)].pack('H*')} end;def qs_parse q,d='&;';m=proc{|_,o,n|o.u(n,&m)rescue([*o
+eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);Apps<<const_get(m);end
+def escape(s)s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.unpack('H2'*$&.size)*'%').upcase}.tr(' ','+')end
+def un(s)s.tr('+',' ').gsub(/%([\da-f]{2})/in){[$1].pack('H*')} end
+def qs_parse q,d='&;';m=proc{|_,o,n|o.u(n,&m)rescue([*o
 ]<<n)};q.to_s.split(/[#{d}] */n).inject(H[]){|h,p|k,v=un(p).split('=',2)
 h.u k.split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]},&m}end;def kp(s);c=
 qs_parse(s,';,')end;def run r=$stdin,e=ENV;k,a=Controllers.D un("/#{e['PATH_INFO']
 }".gsub(/\/+/,'/'));k.send:include,C,Base,Models;k.new(r,e,(m=e['REQUEST_METHOD'
 ]||"GET")).service *a;rescue Exception=>x;Controllers::ServerError.new(r,e,'get').service(
 k,m,x)end end;module Views;include Controllers,Helpers end;module Models;A=
-ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/^(\w+)/,1]}_".
+ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/\w+/]}_".
 downcase.sub(/^(#{A}|camping)_/i,'')end end;class Mab<Markaby::Builder;include \
 Views;def tag! *g,&b;h=g[-1];[:href,:action,:src].map{|a|(h[a]=self/h[a])rescue
 0};super end end;H=HashWithIndifferentAccess;class H;def method_missing m,*a
