@@ -7,6 +7,7 @@
 # So where do you use the Camping::FastCGI class?  Use it in your application's
 # postamble and then you can point your web server directly at your application.
 # See Camping::FastCGI docs for more.
+require 'camping'
 require 'fcgi'
 
 module Camping
@@ -87,6 +88,29 @@ class FastCGI
         cf = Camping::FastCGI.new
         cf.mount("/", app)
         cf.start
+    end
+
+    # Serve an entire directory of Camping apps. (See 
+    # http://code.whytheluckystiff.net/camping/wiki/TheCampingServer.)
+    #
+    # Use this method inside your FastCGI dispatcher:
+    #
+    #   #!/usr/local/bin/ruby
+    #   require 'rubygems'
+    #   require 'camping/fastcgi'
+    #   Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => "/path/to/db"
+    #   Camping::FastCGI.serve("/home/why/cvs/camping/examples")
+    # 
+    def self.serve(path, index=nil)
+        require 'camping/reloader'
+        fast = Camping::FastCGI.new
+        fast.mount("/", index) if index
+        apps = Dir[File.join(path, '*.rb')].map do |script|
+            app = Camping::Reloader.new(script)
+            fast.mount("/#{app.mount}", app)
+            app
+        end
+        fast.start
     end
 
     private
