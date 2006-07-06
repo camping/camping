@@ -162,23 +162,29 @@ when :mongrel
             end
         end
     end
-    config = Mongrel::Configurator.new :host => host do
-        listener :port => port do
-            if apps.length > 1
-                apps.each do |app|
-                    uri "/#{app.mount}", :handler => Mongrel::Camping::CampingHandler.new(app)
-                    uri "/code/#{app.mount}", :handler => ViewSource.new(app)
+    begin
+        config = Mongrel::Configurator.new :host => host do
+            listener :port => port do
+                if apps.length > 1
+                    apps.each do |app|
+                        uri "/#{app.mount}", :handler => Mongrel::Camping::CampingHandler.new(app)
+                        uri "/code/#{app.mount}", :handler => ViewSource.new(app)
+                    end
+                    uri "/", :handler => IndexHandler.new(apps)
+                else
+                    uri "/", :handler => Mongrel::Camping::CampingHandler.new(apps.first)
                 end
-                uri "/", :handler => IndexHandler.new(apps)
-            else
-                uri "/", :handler => Mongrel::Camping::CampingHandler.new(apps.first)
+                uri "/favicon.ico", :handler => Mongrel::Error404Handler.new("")
+                trap("INT") { stop }
+                run
             end
-            uri "/favicon.ico", :handler => Mongrel::Error404Handler.new("")
-            trap("INT") { stop }
-            run
-        end
+        end 
+
+        puts "** Camping running on #{host}:#{port}."
+        config.join
+    rescue Errno::EADDRINUSE
+        puts "** ERROR : address #{host}:#{port} already in use."
     end
-    config.join
 when :webrick
     require 'webrick/httpserver'
     require 'camping/webrick'
