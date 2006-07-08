@@ -70,15 +70,25 @@ class FastCGI
     # Starts the FastCGI main loop.
     def start
         FCGI.each do |req|
-            path = req.env['SCRIPT_NAME'] + req.env['PATH_INFO']
-            dir, app = @mounts.max { |a,b| match(path, a[0]) <=> match(path, b[0]) }
-            unless dir and app
-                dir, app = '/', Camping
+            dir, app = nil
+            begin
+                path = req.env['SCRIPT_NAME'] + req.env['PATH_INFO']
+                dir, app = @mounts.max { |a,b| match(path, a[0]) <=> match(path, b[0]) }
+                unless dir and app
+                    dir, app = '/', Camping
+                end
+                req.env['SCRIPT_NAME'] = dir
+                req.env['PATH_INFO'] = path.gsub(/^#{dir}/, '')
+                req.out << app.run(req.in, req.env)
+            rescue Exception => e
+                req.out << "Content-Type: text/html\r\n\r\n" +
+                    "<h1>Camping Problem!</h1>" +
+                    "<h2>#{app}</h2>" + 
+                    "<h3>#{e.class} #{esc e.message}</h3>"
+                    "<ul>" + e.backtrace.map { |bt| "<li>#{esc bt}</li>" }.join + "</ul>"
+            ensure
+                req.finish
             end
-            req.env['SCRIPT_NAME'] = dir
-            req.env['PATH_INFO'] = path.gsub(/^#{dir}/, '')
-            req.out << app.run(req.in, req.env)
-            req.finish
         end
     end
 
@@ -122,6 +132,10 @@ class FastCGI
         if m: m.end(0)
         else  -1
         end
+    end
+
+    def esc(str)
+        str.gsub(/&/n, '&amp;').gsub(/\"/n, '&quot;').gsub(/>/n, '&gt;').gsub(/</n, '&lt;')
     end
 
 end
