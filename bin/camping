@@ -9,21 +9,33 @@ RAILS_CONNECTION_ADAPTERS.replace %w[sqlite]
 
 require 'delegate'
 require 'optparse'
+require 'ostruct'
 require 'stringio'
 require 'rubygems'
 require 'camping'
 require 'camping/session'
 require 'camping/reloader'
+require 'yaml'
 
-server, host, port, db, log = :mongrel, '0.0.0.0', 3301
+conf = OpenStruct.new(:host => '0.0.0.0', :port => 3301)
 
 homes = []
 homes << File.join( ENV['HOME'], '.camping.db' ) if ENV['HOME']
 homes << File.join( ENV['APPDATA'], 'Camping.db' ) if ENV['APPDATA']
-homes.each do |db|
-    break if File.exists?( db )
+homes.each do |conf.db|
+    break if File.exists?( conf.db )
+    rc = File.expand_path( '../.campingrc', conf.db )
+    if File.exists? rc
+        YAML.load_file(rc).each do |k,v|
+           v = v.to_sym if k == 'server'
+           conf.send("#{k}=", v)
+        end 
+    end
 end
 
+unless conf.db
+    puts "!! No home directory found.  Please specify a database file, see --help."; exit
+end
 
 opts = OptionParser.new do |opts|
     opts.banner = "Usage: camping app1.rb, app2.rb..."
@@ -31,11 +43,12 @@ opts = OptionParser.new do |opts|
     opts.separator ""
     opts.separator "Specific options:"
 
-    opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") { |host| }
-    opts.on("-p", "--port NUM", "Port for web server (defaults to #{port})") { |port| }
-    opts.on("-d", "--database FILE", "Database file (defaults to #{db})") { |db| }
-    opts.on("-l", "--log FILE", "Start a database log ('-' for STDOUT)") { |log| }
-    opts.on("-C", "--console", "Run in console mode with IRB") { server = :console }
+    opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") { |conf.host| }
+    opts.on("-p", "--port NUM", "Port for web server (defaults to #{conf.port})") { |conf.port| }
+    opts.on("-d", "--database FILE", "Database file (defaults to #{conf.db})") { |conf.db| }
+    opts.on("-l", "--log FILE", "Start a database log ('-' for STDOUT)") { |conf.log| }
+    opts.on("-C", "--console", "Run in console mode with IRB") { conf.server = :console }
+    opts.on("-s", "--server", "Server to force (mongrel, webrick, console)") { |s| conf.server = s.to_sym }
 
     opts.separator ""
     opts.separator "Common options:"
@@ -61,9 +74,13 @@ if ARGV.length < 1
     exit
 end
 
-Camping::Models::Base.establish_connection :adapter => 'sqlite3', :database => db
-if log
-    Camping::Models::Base.logger = Logger.new(log == "-" ? STDOUT : log)
+unless conf.database
+    conf.database = {:adapter => 'sqlite3', :database => conf.db}
+end
+Camping::Models::Base.establish_connection conf.database
+
+if conf.log
+    Camping::Models::Base.logger = Logger.new(conf.log == "-" ? STDOUT : conf.log)
 end
 begin
     Camping::Models::Session.create_schema
@@ -73,13 +90,14 @@ rescue MissingSourceFile
     exit
 end
 
-begin
-    require 'sqlite3_api'
-rescue LoadError
-    puts "!! Your SQLite3 adapter isn't a compiled extension."
-    abort "!! Please check out http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for tips."
+if conf.database[:adapter] == 'sqlite3'
+    begin
+        require 'sqlite3_api'
+    rescue LoadError
+        puts "!! Your SQLite3 adapter isn't a compiled extension."
+        abort "!! Please check out http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for tips."
+    end
 end
-
 
 apps = ARGV.inject([]) do |apps, script|
     if File.directory? script
@@ -130,16 +148,17 @@ def apps.index_page
 end
 
 # Check that mongrel exists 
-if server == :mongrel 
+unless conf.server 
     begin
         require 'mongrel'
         require 'mongrel/camping'
+        conf.server = :mongrel
     rescue LoadError 
-        server = :webrick 
+        conf.server = :webrick 
     end
 end
 
-case server 
+case conf.server 
 when :mongrel
     class IndexHandler < Mongrel::HttpHandler
         def initialize(apps)
@@ -163,8 +182,8 @@ when :mongrel
         end
     end
     begin
-        config = Mongrel::Configurator.new :host => host do
-            listener :port => port do
+        config = Mongrel::Configurator.new :host => conf.host do
+            listener :port => conf.port do
                 if apps.length > 1
                     apps.each do |app|
                         uri "/#{app.mount}", :handler => Mongrel::Camping::CampingHandler.new(app)
@@ -180,17 +199,17 @@ when :mongrel
             end
         end 
 
-        puts "** Camping running on #{host}:#{port}."
+        puts "** Camping running on #{conf.host}:#{conf.port}."
         config.join
     rescue Errno::EADDRINUSE
-        puts "** ERROR : address #{host}:#{port} already in use."
+        puts "** ERROR : address #{conf.host}:#{conf.port} already in use."
     end
 when :webrick
     require 'webrick/httpserver'
     require 'camping/webrick'
 
     # Mount the root
-    s = WEBrick::HTTPServer.new(:BindAddress => host, :Port => port)
+    s = WEBrick::HTTPServer.new(:BindAddress => conf.host, :Port => conf.port)
     if apps.length > 1
         apps.each do |app|
             s.mount "/#{app.mount}", WEBrick::CampingHandler, app

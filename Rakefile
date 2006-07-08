@@ -6,7 +6,8 @@ require 'fileutils'
 include FileUtils
 
 NAME = "camping"
-VERS = "1.4.120"
+REV = File.read(".svn/entries")[/committed-rev="(\d+)"/, 1] rescue nil
+VERS = "1.4" + (REV ? ".#{REV}" : "")
 CLEAN.include ['**/.*.sw?', '*.gem', '.config']
 RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
     "--template", "extras/flipbook_rdoc.rb",
@@ -50,7 +51,7 @@ spec =
         s.platform = Gem::Platform::RUBY
         s.has_rdoc = true
         s.extra_rdoc_files = ["README", "CHANGELOG", "COPYING"]
-        s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping(-orig)?.rb']
+        s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping.rb']
         s.summary = "minature rails for stay-at-home moms"
         s.description = s.summary
         s.author = "why the lucky stiff"
