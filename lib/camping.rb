@@ -51,5 +51,5 @@ ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/\w+/]}_".
 downcase.sub(/^(#{A}|camping)_/i,'')end end;class Mab<Markaby::Builder;include \
 Views;def tag! *g,&b;h=g[-1];[:href,:action,:src].map{|a|(h[a]=self/h[a])rescue
 0};super end end;H=HashWithIndifferentAccess;class H;def method_missing m,*a
-if m.to_s=~/=$/;self[$`]=a[0];elsif a.empty?;self[m];else;raise NoMethodError,
-"#{m}" end end;alias_method:u,:regular_update;end end
+m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:raise(NoMethodError,"#{m}")end
+alias_method:u,:regular_update;end end
