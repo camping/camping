@@ -34,7 +34,7 @@ r[0,0]=k;end}end;def D p;r.map{|k|k.urls.map{|x|return k,$~[1..-1]if p=~/^#{x}\/
 h2 p+" not found"}) end end;class ServerError<R();def get k,m,e;r(500,
 Mab.new{h1 P;h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{
 e.backtrace.each{|bt|li(bt)}}}.to_s)end end;self;end;class<<self;def goes m
-eval S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING;Apps<<const_get(m);end
+eval S.gsub(/Camping/,m.to_s).gsub("A\pps=[]","Cam\ping::Apps<<self"),TOPLEVEL_BINDING;end
 def escape(s)s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.unpack('H2'*$&.size)*'%').upcase}.tr(' ','+')end
 def un(s)s.tr('+',' ').gsub(/%([\da-f]{2})/in){[$1].pack('H*')} end
 def qs_parse q,d='&;';m=proc{|_,o,n|o.u(n,&m)rescue([*o
@@ -50,4 +50,4 @@ end;class Mab<Markaby::Builder;include \
 Views;def tag! *g,&b;h=g[-1];[:href,:action,:src].map{|a|(h[a]=self/h[a])rescue
 0};super end end;H=HashWithIndifferentAccess;class H;def method_missing m,*a
 m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:raise(NoMethodError,"#{m}")end
-alias_method:u,:regular_update;end end
+alias_method:u,:regular_update;end end;autoload(:ActiveRecord,'camping/db')

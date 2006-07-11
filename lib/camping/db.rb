@@ -8,7 +8,5 @@ module Camping::Models
 end
 Camping::S.sub! "autoload(:Base,'camping/db')", "Base=ActiveRecord::Base"
 Camping::Apps.each do |app|
-    unless app::Models.const_defined? :Base
-        app::Models::Base = Camping::Models::Base
-    end
+    app::Models::Base = ActiveRecord::Base
 end
