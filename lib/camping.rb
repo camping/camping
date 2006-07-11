@@ -1,4 +1,4 @@
-%w[active_record markaby metaid tempfile uri].map{|l|require l}
+%w[active_support markaby metaid tempfile uri].map{|l|require l}
 module Camping;Apps=[];C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
 P="Cam\ping Problem!";module Helpers;def R c,*g;p=/\(.+?\)/;g.inject(c.
 urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub p,C.escape((a[
@@ -45,9 +45,8 @@ qs_parse(s,';,')end;def run r=$stdin,e=ENV;X.M;k,a=X.D un("/#{e['PATH_INFO']
 ]||"GET")).service *a;rescue Exception=>x;X::ServerError.new(r,e,'get').service(
 k,m,x)end;def method_missing m,c,*a;k=X.const_get c;k.new('',
 H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s).service *a;end
-end;module Views;include X,Helpers end;module Models;A=
-ActiveRecord;Base=A::Base;def Base.table_name_prefix;"#{name[/\w+/]}_".
-downcase.sub(/^(#{A}|camping)_/i,'')end end;class Mab<Markaby::Builder;include \
+end;module Views;include X,Helpers end;module Models;autoload(:Base,'camping/db')
+end;class Mab<Markaby::Builder;include \
 Views;def tag! *g,&b;h=g[-1];[:href,:action,:src].map{|a|(h[a]=self/h[a])rescue
 0};super end end;H=HashWithIndifferentAccess;class H;def method_missing m,*a
 m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:raise(NoMethodError,"#{m}")end
