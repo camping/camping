@@ -48,7 +48,7 @@ opts = OptionParser.new do |opts|
     opts.on("-d", "--database FILE", "Database file (defaults to #{conf.db})") { |conf.db| }
     opts.on("-l", "--log FILE", "Start a database log ('-' for STDOUT)") { |conf.log| }
     opts.on("-C", "--console", "Run in console mode with IRB") { conf.server = :console }
-    opts.on("-s", "--server", "Server to force (mongrel, webrick, console)") { |s| conf.server = s.to_sym }
+    opts.on("-s", "--server NAME", "Server to force (mongrel, webrick, console)") { |s| conf.server = s.to_sym }
 
     opts.separator ""
     opts.separator "Common options:"

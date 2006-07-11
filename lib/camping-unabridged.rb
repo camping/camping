@@ -130,13 +130,7 @@ module Camping
     #   => :macadamian
     #
     def method_missing(m,*a)
-        if m.to_s =~ /=$/
-            self[$`] = a[0]
-        elsif a.empty?
-            self[m]
-        else
-            raise NoMethodError, "#{m}"
-        end
+        m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:raise(NoMethodError,"#{m}")
     end
     alias_method :u, :regular_update
   end
@@ -211,10 +205,10 @@ module Camping
     #     <a href="http://google.com">Google</a>
     #   </div>
     #
-    def R(c,*args)
+    def R(c,*g)
       p = /\(.+?\)/
-      args.inject(c.urls.find{|x|x.scan(p).size==args.size}.dup){|str,a|
-        str.sub(p,C.escape((a.__send__(a.class.primary_key) rescue a)))
+      g.inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|
+        s.sub(p,C.escape((a.__send__(a.class.primary_key) rescue a)))
       }
     end
     # Shows AR validation errors for the object passed. 
@@ -467,6 +461,7 @@ module Camping
   # uncaught by your application.
   module Controllers
     class << self
+      attr_accessor :routes
       # Add routes to a controller class by piling them into the R method.
       #
       #   module Camping::Controllers
@@ -486,18 +481,19 @@ module Camping
       #
       # Most of the time the rules inferred by dispatch method Controllers::D will get you
       # by just fine.
-      def R(*urls); Class.new { meta_def(:urls) { urls } }; end
+      def R(*u); Class.new{meta_def(:urls){u};meta_def(:inherited){|x|X.routes<<x}}; end
 
       # Dispatch routes to controller classes.  Classes are searched in no particular order.
       # For each class, routes are checked for a match based on their order in the routing list
       # given to Controllers::R.  If no routes were given, the dispatcher uses a slash followed
       # by the name of the controller lowercased.
       def D(path)
-        constants.inject(nil) do |d,c| 
+        constants.each do |c| 
             k = const_get(c)
-            k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to? :urls
-            d||([k, $~[1..-1]] if k.urls.find { |x| path =~ /^#{x}\/?$/ })
-        end||[NotFound, [path]]
+            k.meta_def(:urls){%r!^/#{c.downcase}/?$!}if !k.respond_to? :urls
+            case path when k.urls: return k, $~[1..-1] end
+        end
+        [NotFound, [path]]
       end
     end
 
@@ -662,6 +658,7 @@ module Camping
     end
 
     def i k
+      def k.urls;["/#{name.downcase}"]end if !k.respond_to? :urls
       k.send(:include, C, Base, Models) if !(k<C)
       k
     end
