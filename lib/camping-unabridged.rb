@@ -656,12 +656,6 @@ module Camping
       k = Controllers.const_get(c)
       i(k).new(nil,H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s).service(*a)
     end
-
-    def i k
-      def k.urls;["/#{name.downcase}"]end if !k.respond_to? :urls
-      k.send(:include, C, Base, Models) if !(k<C)
-      k
-    end
   end
 
   # Models is an empty Ruby module for housing model classes derived

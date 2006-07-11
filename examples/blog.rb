@@ -189,7 +189,7 @@ module Blog::Views
 
     def add
       if @user
-        _form(post, :action => R(Add))
+        _form(@post, :action => R(Add))
       else
         _login
       end
@@ -197,14 +197,14 @@ module Blog::Views
 
     def edit
       if @user
-        _form(post, :action => R(Edit))
+        _form(@post, :action => R(Edit))
       else
         _login
       end
     end
 
     def view
-        _post(post)
+        _post(@post)
 
         p "Comment for this post:"
         for c in @comments
@@ -240,6 +240,7 @@ module Blog::Views
       p post.body
       p do
         a "Edit", :href => R(Edit, post)
+        text " | "
         a "View", :href => R(View, post)
       end
     end

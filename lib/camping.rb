@@ -1,41 +1,40 @@
-%w[active_record markaby metaid tempfile uri].each{|l|require l}
+%w[active_record markaby metaid tempfile uri].map{|l|require l}
 module Camping;Apps=[];C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
 P="Cam\ping Problem!";module Helpers;def R c,*g;p=/\(.+?\)/;g.inject(c.
-urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub(p,C.escape((a.
-__send__(a.class.primary_key)rescue a)))}end;def URL c='/',*a;c=R(c,*a)if c.
+urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub p,C.escape((a[
+a.class.primary_key]rescue a))}end;def URL c='/',*a;c=R(c,*a)if c.
 respond_to?:urls;c=self/c;c="//"+@env.HTTP_HOST+c if c[/^\//];URI(c) end;def / p
 p[/^\//]?@root+p : p end;def errors_for o;ul.errors{o.errors.each_full{|x|li x}
 }if o.errors.any?end end;module Base;include Helpers;attr_accessor :input,
-:cookies,:env,:headers,:body,:status,:root;def method_missing m,*a,&b
-s=m==:render ? markaview(*a,&b):eval("markaby.#{m}(*a,&b)");s=markaview(:layout
-){s} if Views.method_defined?:layout;s end;def r s,b,h={};@status=s;@headers.
-merge! h;@body=b end;def redirect *a;r 302,'','Location'=>URL(*a)end;def
-initialize r,e,m;e=H[e.to_hash];@status,@method,@env,@headers,@root=200,m.
+:cookies,:env,:headers,:body,:status,:root;def method_missing *a,&b
+a.shift if a[0]==:render;m=markaby;s=m.capture{send(*a,&b)};s=m.layout{s} if
+m.respond_to?:layout;s end;def r s,b,h={};@status=s;@headers.
+merge! h;@body=b end;def redirect *a;r 302,'','Location'=>URL(*a)end;Z="\r\n"
+def initialize r,e,m;e=H[e.to_hash];@status,@method,@env,@headers,@root=200,m.
 downcase,e,{'Content-Type'=>"text/html"},e.SCRIPT_NAME.sub(/\/$/,'')
 @k=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING;@in=r
 if %r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n.match e.CONTENT_TYPE;b=
 /(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/;until @in.eof?;fh=H[];for l in
-@in;case l;when "\r\n":break;when /^Content-Disposition: form-data;/:fh.u H[*$'.
+@in;case l;when Z;break;when /^Content-D.+?: form-data;/:fh.u H[*$'.
 scan(/(?:\s(\w+)="([^"]+)")/).flatten];when /^Content-Type: (.+?)(\r$|\Z)/m;fh[
 :type]=$1;end;end;fn=fh[:name];o=if fh[:filename];o=fh[:tempfile]=Tempfile.new(:C)
-o.binmode;else;fh="";end;while l=@in.read(16384);if l=~b;o<<$`.chomp;@in.seek(-$'.
+o.binmode;else;fh=""end;while l=@in.read(16384);if l=~b;o<<$`.chomp;@in.seek(-$'.
 size,IO::SEEK_CUR);break;end;o<<l;end;q[fn]=fh if fn;fh[:tempfile].rewind if
 fh.is_a?H;end;elsif @method=="post";q.u C.qs_parse(@in.read) end;@cookies,@input=
 @k.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/"/"}\
-" if v != @k[k]}.compact;self end;def to_s;"Status: #{@status}\r\n#{@headers.map{
-|k,v|[*v].map{|x|"#{k}: #{x}"}}*"\r\n"}\r\n\r\n#{@body}" end;def markaby;Mab.new(
-instance_variables.map{|iv|[iv[1..-1],instance_variable_get(iv)]}) end;def 
-markaview m,*a,&b;h=markaby;h.send m,*a,&b;h.to_s end end;X=module Controllers
+" if v!=@k[k]}-[nil];self end;def to_s;"Status: #{@status}#{Z+@headers.map{
+|k,v|[*v].map{|x|"#{k}: #{x}"}}*Z+Z*2+@body}" end;def markaby;Mab.new({},self)
+end end;X=module Controllers
 @r=[];class<<self;def r;@r;end;def R *u;r=@r;Class.new{meta_def(:urls){u}
-meta_def(:inherited){|x|r<<x}}end;def M;constants.each{|c|k=const_get(c);k.send(
-:include,C,Base,Models);if !r.include?k;k.meta_def(:urls){["/#{c.downcase}"]}
-r<<k;end}end;def D p;r.each{|k|case p when *k.urls.map{|x|/^#{x}\/?$/};return k,
-$~[1..-1]end};[NotFound, [p]]end end;class NotFound<R();def get p;r(404,Mab.new{h1 P
+meta_def(:inherited){|x|r<<x}}end;def M;constants.map{|c|k=const_get(c);k.
+send:include,C,Base,Models;if !r.include?k;k.meta_def(:urls){["/#{c.downcase}"]}
+r[0,0]=k;end}end;def D p;r.map{|k|k.urls.map{|x|return k,$~[1..-1]if p=~/^#{x}\/?$/}
+};[NotFound, [p]]end end;class NotFound<R();def get p;r(404,Mab.new{h1 P
 h2 p+" not found"}) end end;class ServerError<R();def get k,m,e;r(500,
 Mab.new{h1 P;h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{
 e.backtrace.each{|bt|li(bt)}}}.to_s)end end;self;end;class<<self;def goes m
-eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);Apps<<const_get(m);end
+eval S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING;Apps<<const_get(m);end
 def escape(s)s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.unpack('H2'*$&.size)*'%').upcase}.tr(' ','+')end
 def un(s)s.tr('+',' ').gsub(/%([\da-f]{2})/in){[$1].pack('H*')} end
 def qs_parse q,d='&;';m=proc{|_,o,n|o.u(n,&m)rescue([*o
