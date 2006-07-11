@@ -1,4 +1,4 @@
-require 'active_record'
+%w[active_support active_record].map{|l|require l}
 module Camping::Models
     A = ActiveRecord
     Base = A::Base

@@ -13,7 +13,6 @@ require 'ostruct'
 require 'stringio'
 require 'rubygems'
 require 'camping'
-require 'camping/session'
 require 'camping/reloader'
 require 'yaml'
 
@@ -77,27 +76,6 @@ end
 unless conf.database
     conf.database = {:adapter => 'sqlite3', :database => conf.db}
 end
-Camping::Models::Base.establish_connection conf.database
-
-if conf.log
-    Camping::Models::Base.logger = Logger.new(conf.log == "-" ? STDOUT : conf.log)
-end
-begin
-    Camping::Models::Session.create_schema
-rescue MissingSourceFile
-    puts "** #$0 stopped: SQLite3 not found, please install."
-    puts "** See http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for instructions."
-    exit
-end
-
-if conf.database[:adapter] == 'sqlite3'
-    begin
-        require 'sqlite3_api'
-    rescue LoadError
-        puts "!! Your SQLite3 adapter isn't a compiled extension."
-        abort "!! Please check out http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for tips."
-    end
-end
 
 apps = ARGV.inject([]) do |apps, script|
     if File.directory? script
@@ -107,6 +85,8 @@ apps = ARGV.inject([]) do |apps, script|
     end
 end
 
+Camping::Reloader.database = conf.database
+Camping::Reloader.log = conf.log
 apps.map! { |script| Camping::Reloader.new(script) }
 abort("** No apps successfully loaded") unless apps.detect { |app| app.klass }
 

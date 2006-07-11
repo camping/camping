@@ -63,6 +63,8 @@ class Reloader
             @klass = nil
             return
         end
+        
+        Reloader.conditional_connect
         @klass.create if @klass.respond_to? :create
         @klass
     end
@@ -102,6 +104,47 @@ class Reloader
     # Returns source code for the main script in the application.
     def view_source
         File.read(@script)
+    end
+
+    class << self
+        def database=(db)
+            @database = db
+        end
+        def log=(log)
+            @log = log
+        end
+        def conditional_connect
+            # If database models are present, `autoload?` will return nil.
+            unless Camping::Models.autoload? :Base
+                require 'logger'
+                require 'camping/session'
+                Camping::Models::Base.establish_connection @database
+
+                case @log
+                when Logger
+                    Camping::Models::Base.logger = @log
+                when String
+                    Camping::Models::Base.logger = Logger.new(@log == "-" ? STDOUT : @log)
+                end
+
+                begin
+                    Camping::Models::Session.create_schema
+                rescue MissingSourceFile
+                    puts "** #$0 stopped: SQLite3 not found, please install."
+                    puts "** See http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for instructions."
+                    exit
+                end
+
+                if @database[:adapter] == 'sqlite3'
+                    begin
+                        require 'sqlite3_api'
+                    rescue LoadError
+                        puts "!! Your SQLite3 adapter isn't a compiled extension."
+                        abort "!! Please check out http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for tips."
+                    end
+                end
+            end
+        end
     end
 end
 end
