@@ -1,4 +1,10 @@
-%w[active_support active_record].map{|l|require l}
+require 'active_support'
+class MissingLibrary < Exception; end
+begin
+    require 'active_record'
+rescue LoadError => e
+    raise MissingLibrary, "ActiveRecord could not be loaded (is it installed?): #{e.message}"
+end
 module Camping::Models
     A = ActiveRecord
     Base = A::Base
