@@ -1,11 +1,13 @@
 require 'active_support'
-class MissingLibrary < Exception; end
+class MissingLibrary < Exception #:nodoc: all
+end
 begin
     require 'active_record'
 rescue LoadError => e
     raise MissingLibrary, "ActiveRecord could not be loaded (is it installed?): #{e.message}"
 end
-module Camping::Models
+module Camping
+  module Models
     A = ActiveRecord
     # Base is an alias for ActiveRecord::Base.  The big warning I'm going to give you
     # about this: *Base overloads table_name_prefix.*  This means that if you have a
@@ -25,6 +27,7 @@ module Camping::Models
     def Base.table_name_prefix
         "#{name[/\w+/]}_".downcase.sub(/^(#{A}|camping)_/i,'')
     end
+  end
 end
 Camping::S.sub! "autoload:Base,'camping/db'", "Base=ActiveRecord::Base"
 Camping::Apps.each do |app|

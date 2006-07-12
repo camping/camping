@@ -199,7 +199,7 @@ module Camping
     # is assigned to route <tt>/logout</tt>.  The HTML will come out as:
     #
     #   <div id="menu">
-    #     <a href="http://localhost:3301/frodo/">Home</a>
+    #     <a href="//localhost:3301/frodo/">Home</a>
     #     <a href="/frodo/profile">Profile</a>
     #     <a href="/frodo/logout">Logout</a>
     #     <a href="http://google.com">Google</a>
@@ -350,8 +350,8 @@ module Camping
     #
     # So, given a root of <tt>http://localhost:3301/articles</tt>:
     #
-    #   redirect "view/12"    # redirects to "http://localhost:3301/articles/view/12"
-    #   redirect View, 12     # redirects to "http://localhost:3301/articles/view/12"
+    #   redirect "view/12"    # redirects to "//localhost:3301/articles/view/12"
+    #   redirect View, 12     # redirects to "//localhost:3301/articles/view/12"
     #
     # <b>NOTE:</b> This method doesn't magically exit your methods and redirect.
     # You'll need to <tt>return redirect(...)</tt> if this isn't the last statement
@@ -438,7 +438,6 @@ module Camping
     end
   end
 
-  X = 
   # Controllers is a module for placing classes which handle URLs.  This is done
   # by defining a route to each class using the Controllers::R method.
   #
@@ -461,7 +460,9 @@ module Camping
   module Controllers
     @r = []
     class << self
-      def r; @r end
+      def r #:nodoc:
+        @r
+      end
       # Add routes to a controller class by piling them into the R method.
       #
       #   module Camping::Controllers
@@ -519,7 +520,8 @@ module Camping
       # Anyway, if you are calling the URI dispatcher from outside of a Camping server, you'll
       # definitely need to call this at least once to set things up.
       def M
-        def M; end
+        def M #:nodoc:
+        end
         constants.map { |c|
           k=const_get(c)
           k.send:include,C,Base,Models
@@ -528,6 +530,7 @@ module Camping
         }
       end
     end
+    X = Controllers
 
     # The NotFound class is a special controller class for handling 404 errors, in case you'd
     # like to alter the appearance of the 404.  The path is passed in as +p+.
