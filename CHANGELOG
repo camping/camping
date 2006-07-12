@@ -1,3 +1,44 @@
+= 1.5
+=== 13th July, 2006
+
+* Camping::Apps stores constants for all loaded apps. 
+* bin/camping can be given a directory. Like: <tt>camping examples/</tt>
+* Console mode -- thank zimbatm. Use: camping -C yourapp.rb 
+* Call controllers with Camping.method_missing.
+
+    Tepee.get(:Index) #=> (Response)
+    Blog.post(:Delete, id) #=> (Response) 
+
+    Blog.post(:Login, :input => {'username' => 'admin', 'password' => 'camping'}) 
+      #=> #<Blog::Controllers::Login @user=... > 
+
+    Blog.get(:Info, :env => {:HTTP_HOST => 'wagon'}) 
+      #=> #<Blog::Controllers::Info @env={'HTTP_HOST'=>'wagon'} ...> 
+
+* Using \r\n instead of \n on output. FastCGI has these needs. 
+* ActiveRecord no longer required or installed. 
+* If you refer to Models::Base, however, ActiveRecord will be loaded with autoload. (see lib/camping/db.rb) 
+* new Camping::FastCGI.serve which will serve a whole directory of apps
+  (see http://code.whytheluckystiff.net/camping/wiki/TheCampingServer) 
+* ~/.campingrc can contain database connection info if you want your default to be something other than SQLite. 
+
+    database: 
+      adapter: mysql 
+      username: camping 
+      socket: /tmp/mysql.sock 
+      password: NOFORESTFIRES 
+      database: camping 
+
+* controllers are now *ordered*. uses the inherited hook to keep track of all 
+  classes created with R. those classes are scanned, in order, when a request is 
+  made. any other controllers are handled first. so if you plan on overriding the 
+  urls method, be sure to subclass from R(). 
+* Console mode will load .irbrc in the working directory, if present. 
+  (for example, in my ~/git/balloon directory, i have this in the .irbrc: 
+  include Balloon::Models 
+  when camping -C balloon.rb gets run, the models all get included in main.) 
+* And, of course, many other bugfixes from myself and the loyal+kind zimbatm...
+
 = 1.4.2
 === 18th May, 2006
 
