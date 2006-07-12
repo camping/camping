@@ -59,7 +59,7 @@ class Reloader
         @mtime = mtime
         @klass = Object.const_get(Object.constants.grep(/^#{title}$/i)[0]) rescue nil
         unless @klass and @klass.const_defined? :C
-            puts "!! trouble loading #{title}: not a Camping app"
+            puts "!! trouble loading #{title}: not a Camping app, no #{title.capitalize} module found"
             @klass = nil
             return
         end

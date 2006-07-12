@@ -28,7 +28,7 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[active_record markaby metaid tempfile uri].each { |lib| require lib }
+%w[active_support/core_ext/hash markaby metaid tempfile uri].each { |lib| require lib }
 
 # == Camping 
 #
@@ -206,11 +206,12 @@ module Camping
     #   </div>
     #
     def R(c,*g)
-      p = /\(.+?\)/
+      p=/\(.+?\)/
       g.inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|
-        s.sub(p,C.escape((a.__send__(a.class.primary_key) rescue a)))
+        s.sub p,C.escape((a[a.class.primary_key]rescue a))
       }
     end
+
     # Shows AR validation errors for the object passed. 
     # There is no output if there are no errors.
     #
@@ -308,6 +309,8 @@ module Camping
   module Base
     include Helpers
     attr_accessor :input, :cookies, :env, :headers, :body, :status, :root
+    Z = "\r\n"
+
     # Display a view, calling it by its method name +m+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
     #
@@ -333,10 +336,12 @@ module Camping
     #
     # If you have a <tt>layout</tt> method in Camping::Views, it will be used to
     # wrap the HTML.
-    def method_missing(m, *a, &b)
-      str = m==:render ? markaview(*a, &b):eval("markaby.#{m}(*a, &b)")
-      str = markaview(:layout) { str } if Views.method_defined? :layout
-      str
+    def method_missing(*a,&b)
+      a.shift if a[0]==:render
+      m=markaby
+      s=m.capture{send(*a,&b)}
+      s=m.layout{s} if m.respond_to?:layout
+      "#{s}"
     end
 
     # Formulate a redirect response: a 302 status with <tt>Location</tt> header
@@ -379,7 +384,7 @@ module Camping
           fh=H[]
           for l in @in
             case l
-            when "\r\n": break
+            when Z: break
             when /^Content-Disposition: form-data;/
               fh.u H[*$'.scan(/(?:\s(\w+)="([^"]+)")/).flatten]
             when /^Content-Type: (.+?)(\r$|\Z)/m
@@ -418,28 +423,22 @@ module Camping
     # on before and after overrides with Camping.
     def service(*a)
       @body = send(@method, *a) if respond_to? @method
-      @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @k[k] }.compact
+      @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @k[k] } - [nil]
       self
     end
 
     # Used by the web server to convert the current request to a string.  If you need to
     # alter the way Camping builds HTTP headers, consider overriding this method.
     def to_s
-      "Status: #{@status}\r\n#{@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}}*"\r\n"}\r\n\r\n#{@body}"
+      "Status: #{@status}#{Z+@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}}*Z+Z*2+@body}"
     end
 
     def markaby #:nodoc:
-        Mab.new( instance_variables.map { |iv| 
-          [iv[1..-1], instance_variable_get(iv)] } )
-    end
-    
-    def markaview m,*a,&b #:nodoc:
-      h=markaby
-      h.send m,*a,&b
-      h.to_s
+      Mab.new({},self)
     end
   end
 
+  X = 
   # Controllers is a module for placing classes which handle URLs.  This is done
   # by defining a route to each class using the Controllers::R method.
   #
@@ -460,8 +459,9 @@ module Camping
   # NotFound class handles URLs not found.  The ServerError class handles exceptions
   # uncaught by your application.
   module Controllers
+    @r = []
     class << self
-      attr_accessor :routes
+      def r; @r end
       # Add routes to a controller class by piling them into the R method.
       #
       #   module Camping::Controllers
@@ -481,19 +481,51 @@ module Camping
       #
       # Most of the time the rules inferred by dispatch method Controllers::D will get you
       # by just fine.
-      def R(*u); Class.new{meta_def(:urls){u};meta_def(:inherited){|x|X.routes<<x}}; end
+      def R *u
+        r=@r
+        Class.new {
+          meta_def(:urls){u}
+          meta_def(:inherited){|x|r<<x}
+        }
+      end
 
-      # Dispatch routes to controller classes.  Classes are searched in no particular order.
+      # Dispatch routes to controller classes.
       # For each class, routes are checked for a match based on their order in the routing list
       # given to Controllers::R.  If no routes were given, the dispatcher uses a slash followed
       # by the name of the controller lowercased.
+      #
+      # Controllers are searched in this order:
+      #
+      # # Classes without routes, since they refer to a very specific URL.
+      # # Classes with routes are searched in order of their creation.
+      #
+      # So, define your catch-all controllers last.
       def D(path)
-        constants.each do |c| 
-            k = const_get(c)
-            k.meta_def(:urls){%r!^/#{c.downcase}/?$!}if !k.respond_to? :urls
-            case path when k.urls: return k, $~[1..-1] end
-        end
+        r.map { |k|
+          k.urls.map { |x|
+            return k, $~[1..-1] if path =~ /^#{x}\/?$/
+          }
+        }
         [NotFound, [path]]
+      end
+
+      # The route maker, this is called by Camping internally, you shouldn't need to call it.
+      #
+      # Still, it's worth know what this method does.  Since Ruby doesn't keep track of class
+      # creation order, we're keeping an internal list of the controllers which inherit from R().
+      # This method goes through and adds all the remaining routes to the beginning of the list
+      # and ensures all the controllers have the right mixins.
+      #
+      # Anyway, if you are calling the URI dispatcher from outside of a Camping server, you'll
+      # definitely need to call this at least once to set things up.
+      def M
+        def M; end
+        constants.map { |c|
+          k=const_get(c)
+          k.send:include,C,Base,Models
+          r[0,0]=k if !r.include?k
+          k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to?:urls
+        }
       end
     end
 
@@ -551,6 +583,7 @@ module Camping
         }.to_s)
       end
     end
+    self
   end
 
   class << self
@@ -566,8 +599,7 @@ module Camping
     #   module Blog::Views;       ... end
     #
     def goes(m)
-        eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING)
-        Apps << const_get(m)
+      eval S.gsub(/Camping/,m.to_s).gsub("A\pps = []","Cam\ping::Apps<<self"), TOPLEVEL_BINDING
     end
 
     # URL escapes a string.
@@ -609,12 +641,6 @@ module Camping
     # Parses a string of cookies from the <tt>Cookie</tt> header.
     def kp(s); c = qs_parse(s, ';,'); end
 
-    def method_missing(m, c, *a)
-        k = X.const_get(c)
-        k.send :include, C, Base, Models
-        k.allocate.method(m, *a)
-    end
-
     # Fields a request through Camping.  For traditional CGI applications, the method can be
     # executed without arguments.
     #
@@ -646,15 +672,37 @@ module Camping
     #   end
     #
     def run(r=$stdin,e=ENV)
-      k, a = Controllers.D un("/#{e['PATH_INFO']}".gsub(%r!/+!,'/'))
-      i(k).new(r,e,(m=e['REQUEST_METHOD']||"GET")).service(*a)
-    rescue Exception => x
-      i(Controllers::ServerError).new(r,e,'get').service(k,m,x)
+      X.M
+      k,a=X.D un("/#{e['PATH_INFO']}".gsub(/\/+/,'/'))
+      k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service *a
+    rescue Exception=>x
+      X::ServerError.new(r,e,'get').service(k,m,x)
     end
 
+    # The Camping scriptable dispatcher.  Any unhandled method call to the app module will
+    # be sent to a controller class, specified as an argument.
+    #
+    #   Blog.get(:Index)
+    #   #=> #<Blog::Controllers::Index ... >
+    #
+    # The controller object contains all the @cookies, @body, @headers, etc. formulated by
+    # the response.
+    #
+    # You can also feed environment variables and query variables as a hash, the final
+    # argument.
+    #
+    #   Blog.post(:Login, :input => {'username' => 'admin', 'password' => 'camping'})
+    #   #=> #<Blog::Controllers::Login @user=... >
+    #
+    #   Blog.get(:Info, :env => {:HTTP_HOST => 'wagon'})
+    #   #=> #<Blog::Controllers::Info @env={'HTTP_HOST'=>'wagon'} ...>
+    #
     def method_missing(m, c, *a)
-      k = Controllers.const_get(c)
-      i(k).new(nil,H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s).service(*a)
+      X.M
+      k = X.const_get(c).new(StringIO.new,
+             H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s)
+      H.new(a.pop).each { |e,f| k.send("#{e}=",f) } if Hash === a[-1]
+      k.service *a
     end
   end
 
@@ -684,21 +732,7 @@ module Camping
   #
   # Models cannot be referred to in Views at this time.
   module Models
-      A = ActiveRecord
-      # Base is an alias for ActiveRecord::Base.  The big warning I'm going to give you
-      # about this: *Base overloads table_name_prefix.*  This means that if you have a
-      # model class Blog::Models::Post, it's table name will be <tt>blog_posts</tt>.
-      Base = A::Base
-
-      # The default prefix for Camping model classes is the topmost module name lowercase
-      # and followed with an underscore.
-      #
-      #   Tepee::Models::Page.table_name_prefix
-      #     #=> "tepee_pages"
-      #
-      def Base.table_name_prefix
-          "#{name[/\w+/]}_".downcase.sub(/^(#{A}|camping)_/i,'')
-      end
+      autoload:Base,'camping/db'
   end
 
   # Views is an empty module for storing methods which create HTML.  The HTML is described
@@ -722,3 +756,5 @@ module Camping
       end
   end
 end
+
+autoload:ActiveRecord,'camping/db'

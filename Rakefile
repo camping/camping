@@ -60,7 +60,7 @@ spec =
         s.executables = ['camping']
 
         s.add_dependency('activesupport', '>=1.3.1')
-        s.add_dependency('markaby', '>0.4')
+        s.add_dependency('markaby', '>=0.4.65')
         s.add_dependency('metaid')
         s.required_ruby_version = '>= 1.8.2'
 

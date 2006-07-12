@@ -70,7 +70,7 @@ module Blog::Controllers
         def get(*args)
             div do
                 code args.inspect; br; br
-                code ENV.inspect; br
+                code @env.inspect; br
                 code "Link: #{R(Info, 1, 2)}"
             end
         end

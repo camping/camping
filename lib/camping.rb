@@ -23,31 +23,30 @@ size,IO::SEEK_CUR);break;end;o<<l;end;q[fn]=fh if fn;fh[:tempfile].rewind if
 fh.is_a?H;end;elsif @method=="post";q.u C.qs_parse(@in.read) end;@cookies,@input=
 @k.dup,q.dup end;def service *a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/"/"}\
-" if v!=@k[k]}-[nil];self end;def to_s;"Status: #{@status}#{Z+@headers.map{
-|k,v|[*v].map{|x|"#{k}: #{x}"}}*Z+Z*2+@body}" end;def markaby;Mab.new({},self)
-end end;X=module Controllers
-@r=[];class<<self;def r;@r;end;def R *u;r=@r;Class.new{meta_def(:urls){u}
-meta_def(:inherited){|x|r<<x}}end;def M;constants.map{|c|k=const_get(c);k.
-send:include,C,Base,Models;if !r.include?k;k.meta_def(:urls){["/#{c.downcase}"]}
-r[0,0]=k;end}end;def D p;r.map{|k|k.urls.map{|x|return k,$~[1..-1]if p=~/^#{x}\/?$/}
-};[NotFound, [p]]end end;class NotFound<R();def get p;r(404,Mab.new{h1 P
-h2 p+" not found"}) end end;class ServerError<R();def get k,m,e;r(500,
-Mab.new{h1 P;h2 "#{k}.#{m}";h3 "#{e.class} #{e.message}:";ul{
-e.backtrace.each{|bt|li(bt)}}}.to_s)end end;self;end;class<<self;def goes m
-eval S.gsub(/Camping/,m.to_s).gsub("A\pps=[]","Cam\ping::Apps<<self"),TOPLEVEL_BINDING;end
-def escape(s)s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.unpack('H2'*$&.size)*'%').upcase}.tr(' ','+')end
-def un(s)s.tr('+',' ').gsub(/%([\da-f]{2})/in){[$1].pack('H*')} end
-def qs_parse q,d='&;';m=proc{|_,o,n|o.u(n,&m)rescue([*o
-]<<n)};q.to_s.split(/[#{d}] */n).inject(H[]){|h,p|k,v=un(p).split('=',2)
-h.u k.split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]},&m}end;def kp(s);c=
-qs_parse(s,';,')end;def run r=$stdin,e=ENV;X.M;k,a=X.D un("/#{e['PATH_INFO']
-}".gsub(/\/+/,'/'));k.new(r,e,(m=e['REQUEST_METHOD'
-]||"GET")).service *a;rescue Exception=>x;X::ServerError.new(r,e,'get').service(
-k,m,x)end;def method_missing m,c,*a;k=X.const_get c;k.new('',
-H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s).service *a;end
-end;module Views;include X,Helpers end;module Models;autoload(:Base,'camping/db')
-end;class Mab<Markaby::Builder;include \
+" if v!=@k[k]}-[nil];self end;def to_s;"Status: #{@status}#{Z+@headers.map{|k,v|
+[*v].map{|x|"#{k}: #{x}"}}*Z+Z*2+@body}" end;def markaby;Mab.new({},self)end;end
+X=module Controllers;@r=[];class<<self;def r;@r;end;def R *u;r=@r;Class.new{
+meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def M;def M;end;constants.map{|c|
+k=const_get(c);k.send:include,C,Base,Models;r[0,0]=k if !r.include?k;k.meta_def(
+:urls){["/#{c.downcase}"]}if !k.respond_to?:urls}end;def D p;r.map{|k|k.urls.
+map{|x|return k,$~[1..-1]if p=~/^#{x}\/?$/}};[NotFound, [p]]end end;class 
+NotFound<R();def get p;r(404,Mab.new{h1 P;h2 p+" not found"}) end end;class 
+ServerError<R();def get k,m,e;r(500,Mab.new{h1 P;h2 "#{k}.#{m}";h3 "#{e.class
+} #{e.message}:";ul{e.backtrace.each{|bt|li(bt)}}}.to_s)end end;self;end;class<<
+self;def goes m;eval S.gsub(/Camping/,m.to_s).gsub("A\pps=[]","Cam\ping::Apps<<\
+self"),TOPLEVEL_BINDING;end;def escape(s)s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.
+unpack('H2'*$&.size)*'%').upcase}.tr(' ','+')end;def un(s)s.tr('+',' ').gsub(
+/%([\da-f]{2})/in){[$1].pack('H*')}end;def qs_parse q,d='&;';m=proc{|_,o,n|o.u(
+n,&m)rescue([*o]<<n)};q.to_s.split(/[#{d}] */n).inject(H[]){|h,p|k,v=un(p).
+split('=',2);h.u k.split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]},&m}end;def
+kp(s);c=qs_parse(s,';,')end;def run r=$stdin,e=ENV;X.M;k,a=X.D un("/#{e[
+'PATH_INFO']}".gsub(/\/+/,'/'));k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).
+service *a;rescue Exception=>x;X::ServerError.new(r,e,'get').service(k,m,x)end
+def method_missing m,c,*a;X.M;k=X.const_get(c).new(StringIO.new,H['HTTP_HOST',
+'','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s);H.new(a.pop).each{|e,f|k.send(
+"#{e}=",f)}if Hash===a[-1];k.service *a;end;end;module Views;include X,Helpers
+end;module Models;autoload:Base,'camping/db';end;class Mab<Markaby::Builder;include \
 Views;def tag! *g,&b;h=g[-1];[:href,:action,:src].map{|a|(h[a]=self/h[a])rescue
 0};super end end;H=HashWithIndifferentAccess;class H;def method_missing m,*a
 m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:raise(NoMethodError,"#{m}")end
-alias_method:u,:regular_update;end end;autoload(:ActiveRecord,'camping/db')
+alias_method:u,:regular_update;end end;autoload:ActiveRecord,'camping/db'
