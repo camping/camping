@@ -77,6 +77,7 @@ class FastCGI
                 unless dir and app
                     dir, app = '/', Camping
                 end
+                yield dir, app if block_given?
                 req.env['SCRIPT_NAME'] = dir
                 req.env['PATH_INFO'] = path.gsub(/^#{dir}/, '')
                 req.out << app.run(req.in, req.env)
@@ -117,12 +118,19 @@ class FastCGI
         require 'camping/reloader'
         fast = Camping::FastCGI.new
         fast.mount("/", index) if index
-        apps = Dir[File.join(path, '*.rb')].map do |script|
+        script_load = proc do |script|
             app = Camping::Reloader.new(script)
             fast.mount("/#{app.mount}", app)
             app
         end
-        fast.start
+        Dir[File.join(path, '*.rb')].each &script_load
+
+        fast.start do |dir, app|
+             Dir[File.join(path, dir, '*.rb')].each do |script|
+                 smount = "/" + File.basename(script, '.rb')
+                 script_load[script] unless @mounts.has_key? smount
+             end
+        end
     end
 
     private

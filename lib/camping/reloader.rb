@@ -40,6 +40,18 @@ class Reloader
         load_app
     end
 
+    # Find the application, based on the script name.
+    def find_app(title)
+        @klass = Object.const_get(Object.constants.grep(/^#{title}$/i)[0]) rescue nil
+    end
+
+    # If the file isn't found, if we need to remove the app from the global
+    # namespace, this will be sure to do so and set @klass to nil.
+    def remove_app
+        Object.send :remove_const, @klass.name if @klass
+        @klass = nil
+    end
+
     # Loads (or reloads) the application.  The reloader will take care of calling
     # this for you.  You can certainly call it yourself if you feel it's warranted.
     def load_app
@@ -52,15 +64,16 @@ class Reloader
             end
         rescue Exception => e
             puts "!! trouble loading #{title}: [#{e.class}] #{e.message}"
-            @klass = nil
+            find_app title
+            remove_app
             return
         end
 
         @mtime = mtime
-        @klass = Object.const_get(Object.constants.grep(/^#{title}$/i)[0]) rescue nil
+        find_app title
         unless @klass and @klass.const_defined? :C
             puts "!! trouble loading #{title}: not a Camping app, no #{title.capitalize} module found"
-            @klass = nil
+            remove_app
             return
         end
         
@@ -73,7 +86,12 @@ class Reloader
     def mtime
         ((@requires || []) + [@script]).map do |fname|
             fname = fname.gsub(/^#{Regexp::quote File.dirname(@script)}\//, '')
-            File.mtime(File.join(File.dirname(@script), fname))
+            begin
+                File.mtime(File.join(File.dirname(@script), fname))
+            rescue Errno::ENOENT
+                remove_app
+                @mtime
+            end
         end.max
     end
 
@@ -86,7 +104,7 @@ class Reloader
             @requires.each { |req| $LOADED_FEATURES.delete(req) }
         end
         k = @klass
-        Object.instance_eval { remove_const k.name } if k
+        Object.send :remove_const, k.name if k
         load_app
     end
 
