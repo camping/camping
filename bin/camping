@@ -96,7 +96,6 @@ def apps.find_new_scripts
     PATHS.each do |path|
         Dir[File.join(path, '*.rb')].each do |script|
             smount = File.basename(script, '.rb')
-            puts smount
             next if detect { |x| x.mount == smount }
 
             puts "** Discovered new #{script}"
@@ -242,6 +241,31 @@ when :webrick
         s.shutdown
     end
     s.start
+when :lighttpd
+    require 'rbconfig'
+    ruby = File.join(Config::CONFIG['bindir'], Config::CONFIG['RUBY_INSTALL_NAME'])
+    dispatcher =<<SCRIPT
+#!#{ruby}
+require 'rubygems'
+require 'camping/fastcgi'
+Camping::Models::Base.establish_connection(Marshal.load(#{Marshal.dump(conf.database).dump})) 
+Camping::FastCGI.serve("")
+SCRIPT
+    lighttpd_conf =<<CONF
+server.port                 = #{conf.port}
+server.bind                 = "#{conf.host}"
+server.modules              = ( "mod_fastcgi" )
+server.document-root        = "/dont/need/one" 
+
+#### fastcgi module
+fastcgi.server = ( "/" => ( 
+  "localhost" => ( 
+    "socket" => "/tmp/camping-blog.socket",
+    "bin-path" => "#{conf.dispatcher}",
+    "check-local" => "disable",
+    "max-procs" => 1 ) ) )
+CONF
+ 
 when :console 
     ARGV.clear # Avoid passing args to IRB 
 
