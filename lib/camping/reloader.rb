@@ -136,7 +136,7 @@ class Reloader
             unless Camping::Models.autoload? :Base
                 require 'logger'
                 require 'camping/session'
-                Camping::Models::Base.establish_connection @database
+                Camping::Models::Base.establish_connection @database if @database
 
                 case @log
                 when Logger
@@ -153,7 +153,7 @@ class Reloader
                     exit
                 end
 
-                if @database[:adapter] == 'sqlite3'
+                if @database and @database[:adapter] == 'sqlite3'
                     begin
                         require 'sqlite3_api'
                     rescue LoadError

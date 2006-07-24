@@ -85,7 +85,7 @@ class FastCGI
                 req.out << "Content-Type: text/html\r\n\r\n" +
                     "<h1>Camping Problem!</h1>" +
                     "<h2>#{app}</h2>" + 
-                    "<h3>#{e.class} #{esc e.message}</h3>"
+                    "<h3>#{e.class} #{esc e.message}</h3>" +
                     "<ul>" + e.backtrace.map { |bt| "<li>#{esc bt}</li>" }.join + "</ul>"
             ensure
                 req.finish
@@ -116,20 +116,24 @@ class FastCGI
     # 
     def self.serve(path, index=nil)
         require 'camping/reloader'
-        fast = Camping::FastCGI.new
-        fast.mount("/", index) if index
-        script_load = proc do |script|
-            app = Camping::Reloader.new(script)
-            fast.mount("/#{app.mount}", app)
-            app
-        end
-        Dir[File.join(path, '*.rb')].each &script_load
+        if File.directory? path
+            fast = Camping::FastCGI.new
+            script_load = proc do |script|
+                app = Camping::Reloader.new(script)
+                fast.mount("/#{app.mount}", app)
+                app
+            end
+            Dir[File.join(path, '*.rb')].each &script_load
+            fast.mount("/", index) if index
 
-        fast.start do |dir, app|
-             Dir[File.join(path, dir, '*.rb')].each do |script|
-                 smount = "/" + File.basename(script, '.rb')
-                 script_load[script] unless @mounts.has_key? smount
-             end
+            fast.start do |dir, app|
+                 Dir[File.join(path, dir, '*.rb')].each do |script|
+                     smount = "/" + File.basename(script, '.rb')
+                     script_load[script] unless @mounts.has_key? smount
+                 end
+            end
+        else
+            start(Camping::Reloader.new(path))
         end
     end
 

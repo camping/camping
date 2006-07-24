@@ -530,7 +530,6 @@ module Camping
         }
       end
     end
-    X = Controllers
 
     # The NotFound class is a special controller class for handling 404 errors, in case you'd
     # like to alter the appearance of the 404.  The path is passed in as +p+.
@@ -586,8 +585,8 @@ module Camping
         }.to_s)
       end
     end
-    self
   end
+  X = Controllers
 
   class << self
     # When you are running many applications, you may want to create independent
