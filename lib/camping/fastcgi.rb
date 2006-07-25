@@ -56,6 +56,8 @@ module Camping
 #  fast.start
 #
 class FastCGI
+    CHUNK_SIZE=(4 * 1024)
+
     # Creates a Camping::FastCGI class with empty mounts.
     def initialize
         @mounts = {}
@@ -67,26 +69,68 @@ class FastCGI
         dir.gsub!(/\/+$/, '')
         @mounts[dir] = app
     end
+    # 
     # Starts the FastCGI main loop.
     def start
         FCGI.each do |req|
             dir, app = nil
             begin
-                path = req.env['SCRIPT_NAME'] + req.env['PATH_INFO']
+                root, path = "/"
+                if ENV['FORCE_ROOT'] and ENV['FORCE_ROOT'].to_i == 1
+                  path = req.env['REQUEST_URI']
+                else
+                  root = req.env['SCRIPT_NAME']
+                  path = req.env['PATH_INFO']
+                end
+
                 dir, app = @mounts.max { |a,b| match(path, a[0]) <=> match(path, b[0]) }
                 unless dir and app
                     dir, app = '/', Camping
                 end
                 yield dir, app if block_given?
-                req.env['SCRIPT_NAME'] = dir
+
+                req.env['SERVER_SCRIPT_NAME'] = req.env['SCRIPT_NAME']
+                req.env['SERVER_PATH_INFO'] = req.env['PATH_INFO']
+                req.env['SCRIPT_NAME'] = File.join(root, dir)
                 req.env['PATH_INFO'] = path.gsub(/^#{dir}/, '')
-                req.out << app.run(req.in, req.env)
+
+                controller = app.run(req.in, req.env)
+                sendfile = nil
+                headers = {}
+                controller.headers.each do |k, v|
+                  if k =~ /^X-SENDFILE$/i
+                    sendfile = v
+                  else
+                    headers[k] = v
+                  end
+                end
+
+                body = controller.body
+                controller.body = ""
+                controller.headers = headers
+
+                req.out << controller.to_s
+                if sendfile
+                  File.open(sendfile, "rb") do |f|
+                    while chunk = f.read(Const::CHUNK_SIZE) and chunk.length > 0
+                      req.out << chunk
+                    end
+                  end
+                elsif body.respond_to? :read
+                  while chunk = body.read(Const::CHUNK_SIZE) and chunk.length > 0
+                    req.out << chunk
+                  end
+                  body.close if body.respond_to? :close
+                else
+                  req.out << body.to_s
+                end
             rescue Exception => e
                 req.out << "Content-Type: text/html\r\n\r\n" +
                     "<h1>Camping Problem!</h1>" +
-                    "<h2>#{app}</h2>" + 
+                    "<h2><strong>#{root}</strong>#{path}</h2>" + 
                     "<h3>#{e.class} #{esc e.message}</h3>" +
-                    "<ul>" + e.backtrace.map { |bt| "<li>#{esc bt}</li>" }.join + "</ul>"
+                    "<ul>" + e.backtrace.map { |bt| "<li>#{esc bt}</li>" }.join + "</ul>" +
+                    "<hr /><p>#{req.env.inspect}</p>"
             ensure
                 req.finish
             end
@@ -141,7 +185,7 @@ class FastCGI
 
     def match(path, mount)
         m = path.match(/^#{Regexp::quote mount}(\/|$)/)
-        if m: m.end(0)
+        if m; m.end(0)
         else  -1
         end
     end
