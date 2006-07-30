@@ -42,6 +42,9 @@ class CampingHandler < WEBrick::HTTPServlet::DefaultFileHandler
     end
     # Handler for WEBrick requests (also aliased as do_POST).
     def service(req, resp)
+        unless Camping::Models.autoload? :Base
+            Camping::Models::Base.verify_active_connections!
+        end
         controller = @klass.run((req.body and StringIO.new(req.body)), req.meta_vars)
         resp.status = controller.status
         @local_path = nil

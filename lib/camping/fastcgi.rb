@@ -94,6 +94,9 @@ class FastCGI
                 req.env['SCRIPT_NAME'] = File.join(root, dir)
                 req.env['PATH_INFO'] = path.gsub(/^#{dir}/, '')
 
+                unless Camping::Models.autoload? :Base
+                    Camping::Models::Base.verify_active_connections!
+                end
                 controller = app.run(req.in, req.env)
                 sendfile = nil
                 headers = {}
