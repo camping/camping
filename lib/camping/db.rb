@@ -6,6 +6,7 @@ begin
 rescue LoadError => e
     raise MissingLibrary, "ActiveRecord could not be loaded (is it installed?): #{e.message}"
 end
+$VAC = "ActiveRecord::Base.verify_active_connections!"
 module Camping
   module Models
     A = ActiveRecord
@@ -27,9 +28,14 @@ module Camping
     def Base.table_name_prefix
         "#{name[/\w+/]}_".downcase.sub(/^(#{A}|camping)_/i,'')
     end
+    class_eval %{def Y;#$VAC;self;end}
   end
 end
 Camping::S.sub! "autoload:Base,'camping/db'", "Base=ActiveRecord::Base"
+Camping::S.sub! "Models;def Y;self;end", "Models;def Y;#$VAC;self;end"
 Camping::Apps.each do |app|
-    app::Models::Base = ActiveRecord::Base
+    app::Models.class_eval %{
+        Base = ActiveRecord::Base
+        def Y;#$VAC;self;end
+    }
 end
