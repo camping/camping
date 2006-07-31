@@ -341,7 +341,7 @@ module Camping
       m=markaby
       s=m.capture{send(*a,&b)}
       s=m.layout{s} if m.respond_to?:layout
-      "#{s}"
+      s
     end
 
     # Formulate a redirect response: a 302 status with <tt>Location</tt> header
@@ -676,7 +676,7 @@ module Camping
     def run(r=$stdin,e=ENV)
       X.M
       k,a=X.D un("/#{e['PATH_INFO']}".gsub(/\/+/,'/'))
-      k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).service *a
+      k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).Y.service *a
     rescue Exception=>x
       X::ServerError.new(r,e,'get').service(k,m,x)
     end
@@ -733,7 +733,7 @@ module Camping
   #   end
   #
   # Models cannot be referred to in Views at this time.
-  module Models
+  module Models;def Y;self;end
       autoload:Base,'camping/db'
   end
 

@@ -8,7 +8,7 @@ p[/^\//]?@root+p : p end;def errors_for o;ul.errors{o.errors.each_full{|x|li x}
 }if o.errors.any?end end;module Base;include Helpers;attr_accessor :input,
 :cookies,:env,:headers,:body,:status,:root;def method_missing *a,&b
 a.shift if a[0]==:render;m=markaby;s=m.capture{send(*a,&b)};s=m.layout{s} if
-m.respond_to?:layout;"#{s}"end;def r s,b,h={};@status=s;@headers.
+m.respond_to?:layout;s end;def r s,b,h={};@status=s;@headers.
 merge! h;@body=b end;def redirect *a;r 302,'','Location'=>URL(*a)end;Z="\r\n"
 def initialize r,e,m;e=H[e.to_hash];@status,@method,@env,@headers,@root=200,m.
 downcase,e,{'Content-Type'=>"text/html"},e.SCRIPT_NAME.sub(/\/$/,'')
