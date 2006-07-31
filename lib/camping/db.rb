@@ -6,7 +6,43 @@ begin
 rescue LoadError => e
     raise MissingLibrary, "ActiveRecord could not be loaded (is it installed?): #{e.message}"
 end
-$VAC = "ActiveRecord::Base.verify_active_connections!"
+
+$AR_EXTRAS = %{
+  Base = ActiveRecord::Base
+
+  def Y; ActiveRecord::Base.verify_active_connections!; self; end
+
+  class SchemaInfo < Base
+  end
+
+  def self.V(n)
+    @final = [n, @final.to_i].max
+    m = (@migrations ||= [])
+    Class.new(ActiveRecord::Migration) do
+      meta_def(:version) { n }
+      meta_def(:inherited) { |k| m << k }
+    end
+  end
+
+  def self.create_schema
+    if @migrations
+      unless SchemaInfo.table_exists?
+        ActiveRecord::Schema.define do
+          create_table SchemaInfo.table_name do |t|
+            t.column :version, :float
+          end
+        end
+      end
+
+      si = SchemaInfo.find(:first) || SchemaInfo.new(:version => 0)
+      @migrations.each do |k|
+        k.migrate(:up) if si.version < k.version
+      end
+      si.update_attributes(:version => @final)
+    end
+  end
+}
+
 module Camping
   module Models
     A = ActiveRecord
@@ -28,14 +64,11 @@ module Camping
     def Base.table_name_prefix
         "#{name[/\w+/]}_".downcase.sub(/^(#{A}|camping)_/i,'')
     end
-    class_eval %{def Y;#$VAC;self;end}
+    module_eval $AR_EXTRAS
   end
 end
-Camping::S.sub! "autoload:Base,'camping/db'", "Base=ActiveRecord::Base"
-Camping::S.sub! "Models;def Y;self;end", "Models;def Y;#$VAC;self;end"
+Camping::S.sub! "autoload:Base,'camping/db'", ""
+Camping::S.sub! "def Y;self;end", $AR_EXTRAS
 Camping::Apps.each do |app|
-    app::Models.class_eval %{
-        Base = ActiveRecord::Base
-        def Y;#$VAC;self;end
-    }
+    app::Models.module_eval $AR_EXTRAS
 end

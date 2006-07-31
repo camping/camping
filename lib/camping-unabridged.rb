@@ -733,8 +733,9 @@ module Camping
   #   end
   #
   # Models cannot be referred to in Views at this time.
-  module Models;def Y;self;end
+  module Models
       autoload:Base,'camping/db'
+      def Y;self;end
   end
 
   # Views is an empty module for storing methods which create HTML.  The HTML is described

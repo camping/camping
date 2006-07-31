@@ -45,7 +45,7 @@ service *a;rescue Exception=>x;X::ServerError.new(r,e,'get').service(k,m,x)end
 def method_missing m,c,*a;X.M;k=X.const_get(c).new(StringIO.new,H['HTTP_HOST',
 '','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s);H.new(a.pop).each{|e,f|k.send(
 "#{e}=",f)}if Hash===a[-1];k.service *a;end;end;module Views;include X,Helpers
-end;module Models;def Y;self;end;autoload:Base,'camping/db';end;class Mab<Markaby::Builder;include \
+end;module Models;autoload:Base,'camping/db';def Y;self;end;end;class Mab<Markaby::Builder;include \
 Views;def tag! *g,&b;h=g[-1];[:href,:action,:src].map{|a|(h[a]=self/h[a])rescue
 0};super end end;H=HashWithIndifferentAccess;class H;def method_missing m,*a
 m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:raise(NoMethodError,"#{m}")end
