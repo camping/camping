@@ -39,6 +39,7 @@ $AR_EXTRAS = %{
       si = SchemaInfo.find(:first) || SchemaInfo.new(:version => opts[:assume])
       @migrations.each do |k|
         k.migrate(:up) if si.version < k.version
+        k.migrate(:down) if si.version > k.version
       end
       si.update_attributes(:version => opts[:version])
     end
