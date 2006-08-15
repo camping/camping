@@ -12,35 +12,37 @@ module Blog
 end
 
 module Blog::Models
-    def self.schema(&block)
-        @@schema = block if block_given?
-        @@schema
-    end
-  
     class Post < Base; belongs_to :user; end
     class Comment < Base; belongs_to :user; end
     class User < Base; end
-end
 
-Blog::Models.schema do
-    create_table :blog_posts, :force => true do |t|
-      t.column :id,       :integer, :null => false
-      t.column :user_id,  :integer, :null => false
-      t.column :title,    :string,  :limit => 255
-      t.column :body,     :text
+    class CreateTheBasics < V 1.0
+      def self.up
+        create_table :blog_posts, :force => true do |t|
+          t.column :id,       :integer, :null => false
+          t.column :user_id,  :integer, :null => false
+          t.column :title,    :string,  :limit => 255
+          t.column :body,     :text
+        end
+        create_table :blog_users, :force => true do |t|
+          t.column :id,       :integer, :null => false
+          t.column :username, :string
+          t.column :password, :string
+        end
+        create_table :blog_comments, :force => true do |t|
+          t.column :id,       :integer, :null => false
+          t.column :post_id,  :integer, :null => false
+          t.column :username, :string
+          t.column :body,     :text
+        end
+        User.create :username => 'admin', :password => 'camping'
+      end
+      def self.down
+        drop_table :blog_posts
+        drop_table :blog_users
+        drop_table :blog_comments
+      end
     end
-    create_table :blog_users, :force => true do |t|
-      t.column :id,       :integer, :null => false
-      t.column :username, :string
-      t.column :password, :string
-    end
-    create_table :blog_comments, :force => true do |t|
-      t.column :id,       :integer, :null => false
-      t.column :post_id,  :integer, :null => false
-      t.column :username, :string
-      t.column :body,     :text
-    end
-    execute "INSERT INTO blog_users (username, password) VALUES ('admin', 'camping')"
 end
 
 module Blog::Controllers
@@ -266,9 +268,7 @@ end
  
 def Blog.create
     Camping::Models::Session.create_schema
-    unless Blog::Models::Post.table_exists?
-        ActiveRecord::Schema.define(&Blog::Models.schema)
-    end
+    Blog::Models.create_schema :assume => (Blog::Models::Post.table_exists? ? 1.0 : 0.0)
 end
 
 if __FILE__ == $0

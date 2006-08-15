@@ -22,19 +22,7 @@ module CampSh
     end
 
     def self.create
-        unless CampSh::Models::Command.table_exists?
-            ActiveRecord::Schema.define do
-                create_table :campsh_commands, :force => true do |t|
-                    t.column :id,         :integer, :null => false
-                    t.column :author,     :string,  :limit => 40
-                    t.column :name,       :string,  :limit => 255
-                    t.column :created_at, :datetime
-                    t.column :doc,        :text
-                    t.column :code,       :text
-                end
-                CampSh::Models::Command.create_versioned_table
-            end
-        end
+        Models.create_schema :assume => (Models::Command.table_exists? ? 1.0 : 0.0)
     end
 end
 
@@ -43,6 +31,24 @@ module CampSh::Models
         validates_uniqueness_of :name
         validates_presence_of :author
         acts_as_versioned
+    end
+    class CreateBasics < V 1.0
+        def self.up
+            create_table :campsh_commands, :force => true do |t|
+                t.column :id,         :integer, :null => false
+                t.column :author,     :string,  :limit => 40
+                t.column :name,       :string,  :limit => 255
+                t.column :created_at, :datetime
+                t.column :doc,        :text
+                t.column :code,       :text
+            end
+            Command.create_versioned_table
+            Command.reset_column_information
+        end
+        def self.down
+            drop_table :campsh_commands
+            Command.drop_versioned_table
+        end
     end
 end
 
@@ -127,13 +133,11 @@ module CampSh::Controllers
             @cmd = Command.find_by_name(name)
             @cmd = @cmd.versions.find_by_version(version) unless version.nil? or version == @cmd.version.to_s
             @title = "Editing #{name}"
-            @author = cookies.cmd_author or CampSh::ANON
+            @author = @cookies.cmd_author || CampSh::ANON
             render :edit
         end
         def post(name)
-            if input.author != CampSh::ANON
-                cookies.cmd_author = input.author
-            end
+            @cookies.cmd_author = input.command.author
             Command.find_or_create_by_name(name).update_attributes(input.command)
             redirect Show, name
         end
@@ -559,13 +563,18 @@ module CampSh::Views
             a "Edit Page", :href => R(Edit, @version.name, @version.version), 
                            :class => "navlink", :accesskey => "E"
             unless @version.version == 1
+                text " | "
                 a 'Back in time', :href => R(Show, @version.name, @version.version-1)
             end
             unless @version.version == @cmd.version
+                text " | "
                 a 'Next',    :href => R(Show, @version.name, @version.version+1)
+                text " | "
                 a 'Current', :href => R(Show, @version.name)
             end
-            small "(#{ @cmd.version.size } revisions)"
+            if @cmd.versions.size > 1
+                small "(#{ @cmd.versions.size } revisions)"
+            end
         end
     end
 

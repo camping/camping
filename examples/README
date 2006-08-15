@@ -1,3 +1,5 @@
 If you've got camping installed, why not run all these examples using TheCampingServer?
 
 From this directory, run: `camping .`
+
+NOTE: You'll need the active_record and acts_as_versioned gems installed.

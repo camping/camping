@@ -24,7 +24,9 @@ $AR_EXTRAS = %{
     end
   end
 
-  def self.create_schema
+  def self.create_schema(opts = {})
+    opts[:assume] ||= 0
+    opts[:version] ||= @final
     if @migrations
       unless SchemaInfo.table_exists?
         ActiveRecord::Schema.define do
@@ -34,11 +36,11 @@ $AR_EXTRAS = %{
         end
       end
 
-      si = SchemaInfo.find(:first) || SchemaInfo.new(:version => 0)
+      si = SchemaInfo.find(:first) || SchemaInfo.new(:version => opts[:assume])
       @migrations.each do |k|
         k.migrate(:up) if si.version < k.version
       end
-      si.update_attributes(:version => @final)
+      si.update_attributes(:version => opts[:version])
     end
   end
 }

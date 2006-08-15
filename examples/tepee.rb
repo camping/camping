@@ -5,25 +5,29 @@ $:.unshift File.dirname(__FILE__) + "/../../lib"
 Camping.goes :Tepee
 
 module Tepee::Models
-  def self.schema(&block)
-    @@schema = block if block_given?
-    @@schema
-  end
-  
+
   class Page < Base
     PAGE_LINK = /\[\[([^\]|]*)[|]?([^\]]*)\]\]/
     validates_uniqueness_of :title
     before_save { |r| r.title = r.title.underscore }
     acts_as_versioned
   end
-end
 
-Tepee::Models.schema do
-  create_table :tepee_pages, :force => true do |t|
-    t.column :title, :string, :limit => 255
-    t.column :body, :text
+  class CreateTepee < V 1.0
+    def self.up
+      create_table :tepee_pages, :force => true do |t|
+        t.column :title, :string, :limit => 255
+        t.column :body, :text
+      end
+      Page.create_versioned_table
+      Page.reset_column_information
+    end
+    def self.down
+      drop_table :tepee_pages
+      Page.drop_versioned_table
+    end
   end
-  Tepee::Models::Page.create_versioned_table
+
 end
 
 module Tepee::Controllers
@@ -129,10 +133,7 @@ module Tepee::Views
 end
 
 def Tepee.create
-  unless Tepee::Models::Page.table_exists?
-    ActiveRecord::Schema.define(&Tepee::Models.schema)
-    Tepee::Models::Page.reset_column_information
-  end
+  Tepee::Models.create_schema :assume => (Tepee::Models::Page.table_exists? ? 1.0 : 0.0)
 end
 
 if __FILE__ == $0
