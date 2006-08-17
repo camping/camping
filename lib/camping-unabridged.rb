@@ -338,7 +338,7 @@ module Camping
     # wrap the HTML.
     def method_missing(*a,&b)
       a.shift if a[0]==:render
-      m=markaby
+      m=Mab.new({},self)
       s=m.capture{send(*a,&b)}
       s=m.layout{s} if m.respond_to?:layout
       s
@@ -433,9 +433,6 @@ module Camping
       "Status: #{@status}#{Z+@headers.map{|k,v|[*v].map{|x|"#{k}: #{x}"}}*Z+Z*2+@body}"
     end
 
-    def markaby #:nodoc:
-      Mab.new({},self)
-    end
   end
 
   # Controllers is a module for placing classes which handle URLs.  This is done
