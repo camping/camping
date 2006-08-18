@@ -241,17 +241,12 @@ module Blog::Views
       h1 post.title
       p post.body
       p do
-        a "Edit", :href => R(Edit, post)
-        text " | "
-        a "View", :href => R(View, post)
+        [a("Edit", :href => R(Edit, post)), a("View", :href => R(View, post))].join " | "
       end
     end
 
     def _form(post, opts)
-      p do
-        text "You are logged in as #{@user.username} | "
-        a 'Logout', :href => R(Logout)
-      end
+      p { "You are logged in as #{@user.username} | #{a 'Logout', :href => R(Logout)}" }
       form({:method => 'post'}.merge(opts)) do
         label 'Title', :for => 'post_title'; br
         input :name => 'post_title', :type => 'text', 

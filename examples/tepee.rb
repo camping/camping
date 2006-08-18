@@ -71,6 +71,17 @@ module Tepee::Views
       head do
         title 'test'
       end
+      style <<-END, :type => 'text/css'
+        body {
+          font-family: verdana, arial, sans-serif;
+        }
+        h1, h2, h3, h4, h5 {
+          font-weight: normal;
+        }
+        p.actions a {
+          margin-right: 6px;
+        }
+      END
       body do
         p do
           small do
@@ -89,7 +100,7 @@ module Tepee::Views
   def show
     h1 @page.title
     div { _markup @version.body }
-    p do 
+    p.actions do 
       a 'edit',    :href => R(Edit, @version.title, @version.version)
       a 'back',    :href => R(Show, @version.title, @version.version-1) unless @version.version == 1
       a 'next',    :href => R(Show, @version.title, @version.version+1) unless @version.version == @page.version
