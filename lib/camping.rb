@@ -4,7 +4,7 @@ P="Cam\ping Problem!";module Helpers;def R c,*g;p=/\(.+?\)/;g.inject(c.
 urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub p,C.escape((a[
 a.class.primary_key]rescue a))}end;def URL c='/',*a;c=R(c,*a)if c.
 respond_to?:urls;c=self/c;c="//"+@env.HTTP_HOST+c if c[/^\//];URI(c)end;def/p
-p[/^\//]?@root+p:p end;def errors_for o;ul.errors{o.errors.each_full{|x|li x}
+p[/^\//]?@root+p : p end;def errors_for o;ul.errors{o.errors.each_full{|x|li x}
 }if o.errors.any?end end;module Base;include Helpers;attr_accessor:input,
 :cookies,:env,:headers,:body,:status,:root;def method_missing*a,&b
 a.shift if a[0]==:render;m=Mab.new({},self);s=m.capture{send(*a,&b)};s=m.layout{s}if
