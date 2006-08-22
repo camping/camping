@@ -112,12 +112,12 @@ class FastCGI
                 req.out << controller.to_s
                 if sendfile
                   File.open(sendfile, "rb") do |f|
-                    while chunk = f.read(Const::CHUNK_SIZE) and chunk.length > 0
+                    while chunk = f.read(CHUNK_SIZE) and chunk.length > 0
                       req.out << chunk
                     end
                   end
                 elsif body.respond_to? :read
-                  while chunk = body.read(Const::CHUNK_SIZE) and chunk.length > 0
+                  while chunk = body.read(CHUNK_SIZE) and chunk.length > 0
                     req.out << chunk
                   end
                   body.close if body.respond_to? :close
