@@ -98,7 +98,7 @@ class FastCGI
                 sendfile = nil
                 headers = {}
                 controller.headers.each do |k, v|
-                  if k =~ /^X-SENDFILE$/i
+                  if k =~ /^X-SENDFILE$/i and !ENV['SERVER_X_SENDFILE']
                     sendfile = v
                   else
                     headers[k] = v
