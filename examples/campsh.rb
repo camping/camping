@@ -107,7 +107,7 @@ module CampSh::Controllers
     class Show < R '/show/(\w+)', '/show/(\w+)/(\d+)', '/cancel_edit/(\w+)'
         def get(name, version = nil)
             unless @cmd = Command.find_by_name(name)
-                redirect(Edit, page_name)
+                redirect(Edit, name)
                 return
             end
             @version = (version.nil? or version == @cmd.version.to_s) ? @cmd : @cmd.versions.find_by_version(version)
@@ -628,19 +628,3 @@ module CampSh::Views
     end
 end
 
-if __FILE__ == $0
-  begin
-    require 'mongrel/camping'
-  rescue LoadError => e
-    abort "** Try running `camping #$0' instead."
-  end
-
-  CampSh::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'examples.db'
-  CampSh::Models::Base.logger = Logger.new('camping.log')
-  CampSh::Models::Base.threaded_connections=false
-  CampSh.create
-
-  server = Mongrel::Camping::start("0.0.0.0",3002,"/campsh",CampSh)
-  puts "** CampSh example is running at http://localhost:3002/campsh"
-  server.run.join
-end

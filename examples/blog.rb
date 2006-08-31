@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 
 $:.unshift File.dirname(__FILE__) + "/../../lib"
-require 'rubygems'
-require_gem 'camping', '>=1.4'
+require 'camping'
 require 'camping/session'
   
 Camping.goes :Blog
@@ -270,20 +269,3 @@ def Blog.create
     Blog::Models.create_schema :assume => (Blog::Models::Post.table_exists? ? 1.0 : 0.0)
 end
 
-if __FILE__ == $0
-  begin
-    require 'mongrel/camping'
-  rescue LoadError => e
-    abort "** Try running `camping #$0' instead."
-  end
-
-  Blog::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'examples.db'
-  Blog::Models::Base.logger = Logger.new('camping.log')
-  Blog::Models::Base.threaded_connections=false
-  Blog.create
-
-  server = Mongrel::Camping::start("0.0.0.0",3002,"/blog",Blog)
-  puts "** Blog example is running at http://localhost:3002/blog"
-  puts "** Default username is `admin', password is `camping'"
-  server.run.join
-end

@@ -33,18 +33,11 @@ end
 module Tepee::Controllers
   class Index < R '/'
     def get
-      redirect Show, 'home_page'
+      redirect Show, 'home'
     end
   end
 
-  class List < R '/list'
-    def get
-      @pages = Page.find :all, :order => 'title'
-      render :list
-    end
-  end
-
-  class Show < R '/s/(\w+)', '/s/(\w+)/(\d+)'
+  class Show < R '/(\w+)', '/(\w+)/(\d+)'
     def get page_name, version = nil
       redirect(Edit, page_name, 1) and return unless @page = Page.find_by_title(page_name)
       @version = (version.nil? or version == @page.version.to_s) ? @page : @page.versions.find_by_version(version)
@@ -52,7 +45,7 @@ module Tepee::Controllers
     end
   end
 
-  class Edit < R '/e/(\w+)/(\d+)', '/e/(\w+)'
+  class Edit < R '/(\w+)/edit', '/(\w+)/(\d+)/edit' 
     def get page_name, version = nil
       @page = Page.find_or_create_by_title(page_name)
       @page = @page.versions.find_by_version(version) unless version.nil? or version == @page.version.to_s
@@ -63,6 +56,28 @@ module Tepee::Controllers
       Page.find_or_create_by_title(page_name).update_attributes :body => input.post_body and redirect Show, page_name
     end
   end
+
+  class Versions < R '/(\w+)/versions'
+    def get page_name
+      @page = Page.find_or_create_by_title(page_name)
+      @versions = @page.versions
+      render :versions
+    end
+  end
+
+  class List < R '/all/list'
+    def get
+      @pages = Page.find :all, :order => 'title'
+      render :list
+    end
+  end
+
+  class Stylesheet < R '/css/tepee.css'
+    def get
+@headers['Content-Type'] = 'text/css'
+File.read(__FILE__).gsub(/.*__END__/m, '')
+    end
+  end
 end
 
 module Tepee::Views
@@ -70,6 +85,7 @@ module Tepee::Views
     html do
       head do
         title 'test'
+        link :href=>R(Stylesheet), :rel=>'stylesheet', :type=>'text/css' 
       end
       style <<-END, :type => 'text/css'
         body {
@@ -86,7 +102,7 @@ module Tepee::Views
         p do
           small do
             span "welcome to " ; a 'tepee', :href => "http://code.whytheluckystiff.net/svn/camping/trunk/examples/tepee.rb"
-            span '. go ' ;       a 'home',  :href => R(Show, 'home_page')
+            span '. go ' ;       a 'home',  :href => R(Show, 'home')
             span '. list all ' ; a 'pages', :href => R(List)
           end
         end
@@ -101,30 +117,48 @@ module Tepee::Views
     h1 @page.title
     div { _markup @version.body }
     p.actions do 
-      a 'edit',    :href => R(Edit, @version.title, @version.version)
-      a 'back',    :href => R(Show, @version.title, @version.version-1) unless @version.version == 1
-      a 'next',    :href => R(Show, @version.title, @version.version+1) unless @version.version == @page.version
-      a 'current', :href => R(Show, @version.title)                     unless @version.version == @page.version
+      _button 'edit',      :href => R(Edit, @version.title, @version.version) 
+      _button 'back',      :href => R(Show, @version.title, @version.version-1) unless @version.version == 1 
+      _button 'next',      :href => R(Show, @version.title, @version.version+1) unless @version.version == @page.version 
+      _button 'current',   :href => R(Show, @version.title)                     unless @version.version == @page.version 
+      _button 'versions',  :href => R(Versions, @page.title) 
     end
   end
 
   def edit
+    h1 @page.title 
     form :method => 'post', :action => R(Edit, @page.title) do
       p do
-        label 'Body' ; br
         textarea @page.body, :name => 'post_body', :rows => 50, :cols => 100
       end
-      
-      p do
-        input :type => 'submit'
-        a 'cancel', :href => R(Show, @page.title, @page.version)
-      end
+      input :type => 'submit', :value=>'change' 
     end
+    _button 'cancel', :href => R(Show, @page.title, @page.version) 
+    a 'syntax', :href => 'http://hobix.com/textile/', :target=>'_blank' 
   end
 
   def list
     h1 'all pages'
     ul { @pages.each { |p| li { a p.title, :href => R(Show, p.title) } } }
+  end
+
+  def versions
+    h1 @page.title
+    ul do
+      @versions.each do |page|
+        li do
+          span page.version
+          _button 'show',   :href => R(Show, page.title, page.version)
+          _button 'edit',   :href => R(Edit, page.title, page.version)
+        end
+      end
+    end
+  end
+
+  def _button(text, options={})
+    form :method=>:get, :action=>options[:href] do
+      input :type=>'submit', :name=>'submit', :value=>text
+    end
   end
 
   def _markup body
@@ -146,20 +180,63 @@ end
 def Tepee.create
   Tepee::Models.create_schema :assume => (Tepee::Models::Page.table_exists? ? 1.0 : 0.0)
 end
+__END__
+/** focus **/
+/*
+a:hover:active {
+  color: #10bae0;
+}
 
-if __FILE__ == $0
-  begin
-    require 'mongrel/camping'
-  rescue LoadError => e
-    abort "** Try running `camping #$0' instead."
-  end
+a:not(:hover):active {
+  color: #0000ff;
+}
 
-  Tepee::Models::Base.establish_connection :adapter => 'sqlite3', :database => 'examples.db'
-  Tepee::Models::Base.logger = Logger.new('camping.log')
-  Tepee::Models::Base.threaded_connections=false
-  Tepee.create
-  
-  server = Mongrel::Camping::start("0.0.0.0",3001,"/tepee",Tepee)
-  puts "** Tepee example is running at http://localhost:3000/tepee"
-  server.run.join
-end
+*:focus {
+  -moz-outline: 2px solid #10bae0 !important;
+  -moz-outline-offset: 1px !important;
+  -moz-outline-radius: 3px !important;
+}
+
+button:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus,
+input[type="submit"]:focus,
+input[type="file"] > input[type="button"]:focus {
+  -moz-outline-radius: 5px !important;
+}
+
+button:focus::-moz-focus-inner {
+  border-color: transparent !important;
+}
+
+button::-moz-focus-inner,
+input[type="reset"]::-moz-focus-inner,
+input[type="button"]::-moz-focus-inner,
+input[type="submit"]::-moz-focus-inner,
+input[type="file"] > input[type="button"]::-moz-focus-inner {
+  border: 1px dotted transparent !important;
+}
+textarea:focus, button:focus, select:focus, input:focus {
+  -moz-outline-offset: -1px !important;
+}
+input[type="radio"]:focus {
+  -moz-outline-radius: 12px;
+  -moz-outline-offset: 0px !important;
+}
+a:focus {
+  -moz-outline-offset: 0px !important;
+}
+*/
+form { display: inline; }
+
+/** Gradient **/
+small, pre, textarea, textfield, button, input, select {
+   color: #4B4B4C !important;
+   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAeCAMAAAAxfD/2AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAtUExURfT09PLy8vHx8fv7+/j4+PX19fn5+fr6+vf39/z8/Pb29vPz8/39/f7+/v///0c8Y4oAAAA5SURBVHjaXMZJDgAgCMDAuouA/3+uHPRiMmlKzmhCFRorLOakVnpnDEpBBDHM8ODs/bz372+PAAMAXIQCfD6uIDsAAAAASUVORK5CYII=) !important;
+   background-color: #FFF !important;
+   background-repeat: repeat-x !important;
+   border: 1px solid #CCC !important;
+}
+
+button, input { margin: 3px; }
+
