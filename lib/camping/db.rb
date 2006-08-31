@@ -1,4 +1,3 @@
-require 'active_support'
 class MissingLibrary < Exception #:nodoc: all
 end
 begin
