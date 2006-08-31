@@ -62,9 +62,11 @@ module Blog::Controllers
             render :add
         end
         def post
-            post = Post.create :title => input.post_title, :body => input.post_body,
-                               :user_id => @state.user_id
-            redirect View, post
+            unless @state.user_id.blank?
+                post = Post.create :title => input.post_title, :body => input.post_body,
+                                   :user_id => @state.user_id
+                redirect View, post
+            end
         end
     end
 
@@ -96,9 +98,11 @@ module Blog::Controllers
         end
      
         def post
-            @post = Post.find input.post_id
-            @post.update_attributes :title => input.post_title, :body => input.post_body
-            redirect View, @post
+            unless @state.user_id.blank?
+                @post = Post.find input.post_id
+                @post.update_attributes :title => input.post_title, :body => input.post_body
+                redirect View, @post
+            end
         end
     end
      
@@ -219,7 +223,7 @@ module Blog::Views
           input :name => 'post_username', :type => 'text'; br
           label 'Comment', :for => 'post_body'; br
           textarea :name => 'post_body' do; end; br
-          input :type => 'hidden', :name => 'post_id', :value => post.id
+          input :type => 'hidden', :name => 'post_id', :value => @post.id
           input :type => 'submit'
         end
     end
