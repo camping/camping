@@ -28,7 +28,7 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[active_support metaid tempfile uri].each { |lib| require lib }
+%w[active_support markaby tempfile uri].each { |lib| require lib }
 
 # == Camping 
 #

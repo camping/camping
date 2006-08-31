@@ -1,4 +1,4 @@
-%w[active_support metaid tempfile uri].map{|l|require l}
+%w[active_support markaby tempfile uri].map{|l|require l}
 module Camping;Apps=[];C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
 P="Cam\ping Problem!";module Helpers;def R c,*g;p=/\(.+?\)/;g.inject(c.
 urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub p,C.escape((a[
