@@ -7,7 +7,7 @@ rescue LoadError => e
 end
 
 $AR_EXTRAS = %{
-  Base = ActiveRecord::Base
+  Base = ActiveRecord::Base unless const_defined? :Base
 
   def Y; ActiveRecord::Base.verify_active_connections!; self; end
 
