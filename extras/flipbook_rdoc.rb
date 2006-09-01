@@ -18,6 +18,7 @@ class HTMLGenerator
       
       # this method is defined in the template file
       write_extra_pages if defined? write_extra_pages
+      RDoc.send :remove_const, :Page # clean up for other templates
     end
 
     def gen_into(list)
