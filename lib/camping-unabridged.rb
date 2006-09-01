@@ -42,28 +42,25 @@
 #
 # * Camping::Helpers which can be used in controllers and views.
 #
-# == The postamble
+# == The Camping Server
 #
-# Most Camping applications contain the entire application in a single script.
-# The script begins by requiring Camping, then fills each of the three modules
-# described above with classes and methods.  Finally, a postamble puts the wheels
-# in motion.
+# How do you run Camping apps?  Oh, uh... The Camping Server!
 #
-#   if __FILE__ == $0
-#     Camping::Models::Base.establish_connection :adapter => 'sqlite3',
-#         :database => 'blog3.db'
-#     Camping::Models::Base.logger = Logger.new('camping.log')
-#     Camping.create if Camping.respond_to? :create
-#     puts Camping.run
-#   end
+# The Camping Server is, firstly and thusly, a set of rules.  At the very least, The Camping Server must:
 #
-# In the postamble, your job is to setup Camping::Models::Base (see: ActiveRecord::Base) 
-# and call Camping::run in a request loop.  The above postamble is for a standard
-# CGI setup, where the web server manages the request loop and calls the script once
-# for every request.
+# * Load all Camping apps in a directory.
+# * Load new apps that appear in that directory.
+# * Mount those apps according to their filename. (e.g. blog.rb is mounted at /blog.)
+# * Run each app's <tt>create</tt> method upon startup.
+# * Reload the app if its modification time changes.
+# * Reload the app if it requires any files under the same directory and one of their modification times changes.
+# * Support the X-Sendfile header. 
 #
-# For other configurations, see 
-# http://code.whytheluckystiff.net/camping/wiki/PostAmbles
+# In fact, Camping comes with its own little The Camping Server.
+#
+# At a command prompt, run: <tt>camping examples/</tt> and the entire <tt>examples/</tt> directory will be served.
+#
+# Configurations also exist for Apache and Lighttpd.  See http://code.whytheluckystiff.net/camping/wiki/TheCampingServer.
 #
 # == The <tt>create</tt> method
 #
@@ -658,17 +655,7 @@ module Camping
     # at the center, passing in the read +r+ and write +w+ streams.  You will also need to mimick or
     # pass in the <tt>ENV</tt> replacement as part of your wrapper.
     #
-    #   if __FILE__ == $0
-    #     require 'fcgi'
-    #       Camping::Models::Base.establish_connection :adapter => 'sqlite3',
-    #           :database => 'blog3.db'
-    #       Camping::Models::Base.logger = Logger.new('camping.log')
-    #       FCGI.each do |req|
-    #         req.out << Camping.run req.in, req.env
-    #         req.finish
-    #       end
-    #     end
-    #   end
+    # See Camping::FastCGI and Camping::WEBrick for examples.
     #
     def run(r=$stdin,e=ENV)
       X.M

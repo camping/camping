@@ -47,13 +47,6 @@ A skeletal Camping blog could look like this:
     end
   end
 
-  if __FILE__ == $0
-    Blog::Models::Base.establish_connection :adapter => 'sqlite3', 
-        :database => 'blog3.db'
-    Blog::Models::Base.logger = Logger.new('camping.log')
-    puts Blog.run
-  end
-
 Some things you might have noticed:
 
 * Camping::Models uses ActiveRecord to do its work.  We love ActiveRecord!

@@ -1,7 +1,7 @@
 = 1.5
-=== 13th July, 2006
+=== 1st Sep, 2006
 
-* Camping::Apps stores constants for all loaded apps. 
+* Camping::Apps stores an array of classes for all loaded apps. 
 * bin/camping can be given a directory. Like: <tt>camping examples/</tt>
 * Console mode -- thank zimbatm. Use: camping -C yourapp.rb 
 * Call controllers with Camping.method_missing.
@@ -38,6 +38,7 @@
   include Balloon::Models 
   when camping -C balloon.rb gets run, the models all get included in main.) 
 * And, of course, many other bugfixes from myself and the loyal+kind zimbatm...
+* Markaby updated to 0.5. (See its CHANGELOG.)
 
 = 1.4.2
 === 18th May, 2006

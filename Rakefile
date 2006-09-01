@@ -10,7 +10,6 @@ REV = File.read(".svn/entries")[/committed-rev="(\d+)"/, 1] rescue nil
 VERS = ENV['VERSION'] || ("1.4" + (REV ? ".#{REV}" : ""))
 CLEAN.include ['**/.*.sw?', '*.gem', '.config']
 RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
-    "--template", "extras/flipbook_rdoc.rb",
     "--opname", "index.html",
     "--line-numbers", 
     "--main", "README",
