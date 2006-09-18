@@ -58,7 +58,7 @@ class CampingHandler < WEBrick::HTTPServlet::DefaultFileHandler
         if @local_path
             do_GET(req, res)
         else
-            resp.body = controller.body
+            resp.body = controller.body.to_s
         end
     end
 end
