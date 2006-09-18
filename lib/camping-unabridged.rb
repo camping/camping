@@ -744,4 +744,3 @@ module Camping
   end
 end
 
-autoload:ActiveRecord,'camping/db'
