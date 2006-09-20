@@ -1,15 +1,9 @@
 #!/usr/bin/env ruby
 
-# this line prevents other db adapters from being loaded (oci8 was
-# causing some pain.)
-unless Object.const_defined? :RAILS_CONNECTION_ADAPTERS
-    RAILS_CONNECTION_ADAPTERS = []
-end
-RAILS_CONNECTION_ADAPTERS.replace %w[sqlite]
-
 require 'delegate'
 require 'optparse'
 require 'ostruct'
+
 require 'stringio'
 require 'camping'
 require 'camping/reloader'
