@@ -11,24 +11,23 @@ require 'yaml'
 
 conf = OpenStruct.new(:host => '0.0.0.0', :port => 3301)
 
-homes = []
-homes << File.join( ENV['HOME'], '.camping.db' ) if ENV['HOME']
-homes << File.join( ENV['APPDATA'], 'Camping.db' ) if ENV['APPDATA']
-homes.each do |conf.db|
-    break if File.exists?( conf.db )
-    rc = File.expand_path( '../.campingrc', conf.db )
-    if File.exists? rc
-        YAML.load_file(rc).each do |k,v|
-           v = v.to_sym if k == 'server'
-           conf.send("#{k}=", v)
-        end 
-    end
+# Setup paths
+if home = ENV['HOME'] # POSIX
+  conf.db = File.join(home, '.camping.db')
+  conf.rc = File.join(home, '.campingrc')
+elsif home = ENV['APPDATA'] # MSWIN
+  conf.db = File.join(home, 'Camping.db')
+  conf.rc = File.join(home, 'Campingrc')
 end
 
-unless conf.db
-    puts "!! No home directory found.  Please specify a database file, see --help."; exit
+# Load configuration if any
+if conf.rc and File.exists?( conf.rc )
+  YAML.load_file(conf.rc).each do |k,v|
+    conf.send("#{k}=", v)
+  end 
 end
 
+# Parse options
 opts = OptionParser.new do |opts|
     opts.banner = "Usage: camping app1.rb, app2.rb..."
     opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
@@ -66,10 +65,15 @@ if ARGV.length < 1
     exit
 end
 
+# Default database
 unless conf.database
-    conf.database = {:adapter => 'sqlite3', :database => conf.db}
+  unless conf.db
+    puts "!! No home directory found.  Please specify a database file, see --help."; exit
+  end
+  conf.database = {:adapter => 'sqlite3', :database => conf.db}
 end
 
+# Load apps
 PATHS = ARGV.dup
 apps = PATHS.inject([]) do |apps, script|
     if File.directory? script
@@ -150,8 +154,9 @@ unless conf.server
     end
 end
 
-case conf.server 
-when :mongrel
+# Running the selected server
+case conf.server.to_s
+when 'mongrel'
     class IndexHandler < Mongrel::HttpHandler
         def initialize(apps, server)
             @apps = apps
@@ -201,7 +206,7 @@ when :mongrel
     rescue Errno::EADDRINUSE
         puts "** ERROR : address #{conf.host}:#{conf.port} already in use."
     end
-when :webrick
+when 'webrick'
     require 'webrick/httpserver'
     require 'camping/webrick'
 
@@ -234,7 +239,7 @@ when :webrick
         s.shutdown
     end
     s.start
-when :lighttpd
+when 'lighttpd'
     require 'rbconfig'
     ruby = File.join(Config::CONFIG['bindir'], Config::CONFIG['RUBY_INSTALL_NAME'])
     dispatcher =<<SCRIPT
@@ -259,7 +264,7 @@ fastcgi.server = ( "/" => (
     "max-procs" => 1 ) ) )
 CONF
  
-when :console 
+when 'console'
     ARGV.clear # Avoid passing args to IRB 
 
     require 'irb' 

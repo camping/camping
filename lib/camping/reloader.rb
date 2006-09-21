@@ -64,6 +64,7 @@ class Reloader
             end
         rescue Exception => e
             puts "!! trouble loading #{title}: [#{e.class}] #{e.message}"
+            puts e.backtrace.join("\n")
             find_app title
             remove_app
             return
