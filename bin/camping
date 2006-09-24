@@ -157,6 +157,9 @@ end
 # Running the selected server
 case conf.server.to_s
 when 'mongrel'
+    require 'mongrel'
+    require 'mongrel/camping'
+
     class IndexHandler < Mongrel::HttpHandler
         def initialize(apps, server)
             @apps = apps
