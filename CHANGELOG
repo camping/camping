@@ -1,5 +1,5 @@
 = 1.5
-=== 1st Sep, 2006
+=== 3rd Oct, 2006
 
 * Camping::Apps stores an array of classes for all loaded apps. 
 * bin/camping can be given a directory. Like: <tt>camping examples/</tt>
