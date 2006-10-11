@@ -373,7 +373,7 @@ module Camping
       @status, @method, @env, @headers, @root = 200, m.downcase, e, 
           {'Content-Type'=>'text/html'}, e.SCRIPT_NAME.sub(/\/$/,'')
       @k = C.kp(e.HTTP_COOKIE)
-      qs = C.qs_parse(e.QUERY_STRING)
+      qs = C.qsp(e.QUERY_STRING)
       @in = r
       if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
         b = /(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/
@@ -404,11 +404,11 @@ module Camping
             end
             o<<l
           end
-          qs[fn]=fh if fn
+          C.qsp(fn,'&;',fh,qs) if fn
           fh[:tempfile].rewind if fh.is_a?H
         end
       elsif @method == "post"
-        qs.merge!(C.qs_parse(@in.read))
+        qs.merge!(C.qsp(@in.read))
       end
       @cookies, @input = @k.dup, qs.dup
     end
@@ -614,28 +614,28 @@ module Camping
 
     # Parses a query string into an Camping::H object.
     #
-    #   input = Camping.qs_parse("name=Philarp+Tremain&hair=sandy+blonde")
+    #   input = Camping.qsp("name=Philarp+Tremain&hair=sandy+blonde")
     #   input.name
     #     #=> "Philarp Tremaine"
     #
     # Also parses out the Hash-like syntax used in PHP and Rails and builds
     # nested hashes from it.
     #
-    #   input = Camping.qs_parse("post[id]=1&post[user]=_why")
+    #   input = Camping.qsp("post[id]=1&post[user]=_why")
     #     #=> {'post' => {'id' => '1', 'user' => '_why'}}
     #
-    def qs_parse(qs, d = '&;')
+    def qsp(qs, d='&;', y=nil, z=H[])
         m = proc {|_,o,n|o.u(n,&m)rescue([*o]<<n)}
         (qs||'').
             split(/[#{d}] */n).
-            inject(H[]) { |h,p| k, v=un(p).split('=',2)
+            inject((b,z=z,H[])[0]) { |h,p| k, v=un(p).split('=',2)
                 h.u(k.split(/[\]\[]+/).reverse.
-                    inject(v) { |x,i| H[i,x] },&m)
+                    inject(y||v) { |x,i| H[i,x] },&m)
             } 
     end
 
     # Parses a string of cookies from the <tt>Cookie</tt> header.
-    def kp(s); c = qs_parse(s, ';,'); end
+    def kp(s); c = qsp(s, ';,'); end
 
     # Fields a request through Camping.  For traditional CGI applications, the method can be
     # executed without arguments.
@@ -661,7 +661,7 @@ module Camping
       X.M
       k,a=X.D un("/#{e['PATH_INFO']}".gsub(/\/+/,'/'))
       k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).Y.service *a
-    rescue Exception=>x
+    rescue Object=>x
       X::ServerError.new(r,e,'get').service(k,m,x)
     end
 

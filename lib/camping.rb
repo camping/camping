@@ -12,15 +12,15 @@ a.shift if a[0]==:render;m=Mab.new({},self);s=m.capture{send(*a,&b)};s=m.layout{
 merge!h;@body=b end;def redirect*a;r 302,'','Location'=>URL(*a)end;Z="\r\n"
 def initialize r,e,m;e=H[e.to_hash];@status,@method,@env,@headers,@root=200,m.
 downcase,e,{'Content-Type'=>"text/html"},e.SCRIPT_NAME.sub(/\/$/,'')
-@k=C.kp e.HTTP_COOKIE;q=C.qs_parse e.QUERY_STRING;@in=r
+@k=C.kp e.HTTP_COOKIE;q=C.qsp e.QUERY_STRING;@in=r
 if%r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n.match e.CONTENT_TYPE
 b=/(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/;until@in.eof?;fh=H[];for l in@in
 case l;when Z;break;when/^Content-D.+?: form-data;/;fh.u H[*$'.
 scan(/(?:\s(\w+)="([^"]+)")/).flatten];when/^Content-Type: (.+?)(\r$|\Z)/m;fh[
 :type]=$1;end;end;fn=fh[:name];o=if fh[:filename];o=fh[:tempfile]=Tempfile.new(:C)
 o.binmode;else;fh=""end;while l=@in.read(16384);if l=~b;o<<$`.chomp;@in.seek(-$'.
-size,IO::SEEK_CUR);break;end;o<<l;end;q[fn]=fh if fn;fh[:tempfile].rewind if
-fh.is_a?H;end;elsif@method=="post";q.u C.qs_parse(@in.read)end;@cookies,@input=
+size,IO::SEEK_CUR);break;end;o<<l;end;C.qsp(fn,'&;',fh,q) if fn;fh[:tempfile].rewind if
+fh.is_a?H;end;elsif@method=="post";q.u C.qsp(@in.read)end;@cookies,@input=
 @k.dup,q.dup end;def service*a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/'/'
 }"if v!=@k[k]}-[nil];self end;def to_s;"Status: #{@status}#{Z+@headers.map{|k,v|
@@ -36,12 +36,12 @@ ServerError<R();def get k,m,e;r(500,Mab.new{h1 P;h2"#{k}.#{m}";h3"#{e.class
 self;def goes m;eval S.gsub(/Camping/,m.to_s).gsub("A\pps=[]","Cam\ping::Apps<<\
 self"),TOPLEVEL_BINDING;end;def escape s;s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.
 unpack('H2'*$&.size)*'%').upcase}.tr(' ','+')end;def un s;s.tr('+',' ').gsub(
-/%([\da-f]{2})/in){[$1].pack('H*')}end;def qs_parse q,d='&;';m=proc{|_,o,n|o.u(
-n,&m)rescue([*o]<<n)};q.to_s.split(/[#{d}] */n).inject(H[]){|h,p|k,v=un(p).
-split('=',2);h.u k.split(/[\]\[]+/).reverse.inject(v){|x,i|H[i,x]},&m}end;def
-kp s;c=qs_parse(s,';,')end;def run r=$stdin,e=ENV;X.M;k,a=X.D un("/#{e[
+/%([\da-f]{2})/in){[$1].pack('H*')}end;def qsp q,d='&;',y=nil,z=H[];m=proc{|_,o,n|o.u(
+n,&m)rescue([*o]<<n)};q.to_s.split(/[#{d}] */n).inject((b,z=z,H[])[0]){|h,p|k,v=un(p).
+split('=',2);h.u k.split(/[\]\[]+/).reverse.inject(y||v){|x,i|H[i,x]},&m}end;def
+kp s;c=qsp(s,';,')end;def run r=$stdin,e=ENV;X.M;k,a=X.D un("/#{e[
 'PATH_INFO']}".gsub(/\/+/,'/'));k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).Y.
-service *a;rescue Exception=>x;X::ServerError.new(r,e,'get').service(k,m,x)end
+service *a;rescue Object=>x;X::ServerError.new(r,e,'get').service(k,m,x)end
 def method_missing m,c,*a;X.M;k=X.const_get(c).new(StringIO.new,H['HTTP_HOST',
 '','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s);H.new(a.pop).each{|e,f|k.send(
 "#{e}=",f)}if Hash===a[-1];k.service *a;end;end;module Views;include X,Helpers

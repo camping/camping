@@ -77,7 +77,7 @@ class FastCGI
             begin
                 root, path = "/"
                 if ENV['FORCE_ROOT'] and ENV['FORCE_ROOT'].to_i == 1
-                  path = req.env['REQUEST_URI']
+                  path = req.env['SCRIPT_NAME']
                 else
                   root = req.env['SCRIPT_NAME']
                   path = req.env['PATH_INFO']
@@ -94,7 +94,7 @@ class FastCGI
                 req.env['SCRIPT_NAME'] = File.join(root, dir)
                 req.env['PATH_INFO'] = path.gsub(/^#{dir}/, '')
 
-                controller = app.run(req.in, req.env)
+                controller = app.run(SeekStream.new(req.in), req.env)
                 sendfile = nil
                 headers = {}
                 controller.headers.each do |k, v|
@@ -192,6 +192,70 @@ class FastCGI
 
     def esc(str)
         str.gsub(/&/n, '&amp;').gsub(/\"/n, '&quot;').gsub(/>/n, '&gt;').gsub(/</n, '&lt;')
+    end
+
+    class SeekStream2
+        def initialize(stream)
+            @last_read = ""
+            @stream = stream
+        end
+        def eof?
+            @stream.eof?
+        end
+        def each
+            while( line = @stream.gets ) 
+                yield line
+            end
+        end
+        def read(len = 16384)
+            @last_read = @stream.read(len)
+        end
+        def seek(len, typ)
+            raise NotImplementedError, "only IO::SEEK_CUR is supported with SeekStream" if typ != IO::SEEK_CUR
+            raise NotImplementedError, "only rewinding is supported with SeekStream" if len > 0
+            raise NotImplementedError, "rewinding #{-len} past the buffer #{@last_read.size} start not supported with SeekStream" if -len > @last_read.size
+            -1.downto(len) { |x| @stream.ungetc(@last_read[x]) }
+            @last_read = ""
+            self
+        end
+    end
+
+    class SeekStream
+        def initialize(stream)
+            @last_read = ""
+            @stream = stream
+            @buffer = ""
+        end
+        def eof?
+            @buffer.empty? && @stream.eof?
+        end
+        def each
+            while true
+                pull(1024) until eof? or @buffer.index("\n")
+                return nil if eof?
+                yield @buffer.slice!(0..(@buffer.index("\n") || -1))
+            end
+        end
+        def pull(len)
+            @buffer += @stream.read(len).to_s
+        end
+        def read(len = 16384)
+            pull(len)
+            @last_read =
+                if eof?
+                    nil
+                else
+                    @buffer.slice!(0...len)
+                end
+        end
+        def seek(len, typ)
+            raise NotImplementedError, "only IO::SEEK_CUR is supported with SeekStream" if typ != IO::SEEK_CUR
+            raise NotImplementedError, "only rewinding is supported with SeekStream" if len > 0
+            raise NotImplementedError, "rewinding #{-len} past the buffer #{@last_read.size} start not supported with SeekStream" if -len > @last_read.size
+            @buffer = @last_read[len..-1] + @buffer
+            @last_read = ""
+            self
+        end
     end
 
 end
