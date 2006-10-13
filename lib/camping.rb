@@ -23,8 +23,8 @@ size,IO::SEEK_CUR);break;end;o<<l;end;C.qsp(fn,'&;',fh,q) if fn;fh[:tempfile].re
 fh.is_a?H;end;elsif@method=="post";q.u C.qsp(@in.read)end;@cookies,@input=
 @k.dup,q.dup end;def service*a;@body=send(@method,*a)if respond_to?@method
 @headers["Set-Cookie"]=@cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/'/'
-}"if v!=@k[k]}-[nil];self end;def to_s;"Status: #{@status}#{Z+@headers.map{|k,v|
-[*v].map{|x|"#{k}: #{x}"}}*Z+Z*2+@body}"end;end
+}"if v!=@k[k]}-[nil];self end;def to_s;a=[];@headers.map{|k,v|[*v].map{|x|a<<
+"#{k}: #{x}"}};"Status: #{@status}#{Z+a*Z+Z*2+@body}"end;end
 X=module Controllers;@r=[];class<<self;def r;@r;end;def R*u;r=@r;Class.new{
 meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def M;def M;end;constants.map{|c|
 k=const_get(c);k.send:include,C,Base,Models;r[0,0]=k if !r.include?k;k.meta_def(
