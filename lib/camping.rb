@@ -41,7 +41,7 @@ n,&m)rescue([*o]<<n)};q.to_s.split(/[#{d}] */n).inject((b,z=z,H[])[0]){|h,p|k,v=
 split('=',2);h.u k.split(/[\]\[]+/).reverse.inject(y||v){|x,i|H[i,x]},&m}end;def
 kp s;c=qsp(s,';,')end;def run r=$stdin,e=ENV;X.M;k,a=X.D un("/#{e[
 'PATH_INFO']}".gsub(/\/+/,'/'));k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).Y.
-service *a;rescue=>x;X::ServerError.new(r,e,'get').service(k,m,x)end
+service *a;rescue Object=>x;X::ServerError.new(r,e,'get').service(k,m,x)end
 def method_missing m,c,*a;X.M;k=X.const_get(c).new(StringIO.new,H['HTTP_HOST',
 '','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s);H.new(a.pop).each{|e,f|k.send(
 "#{e}=",f)}if Hash===a[-1];k.service *a;end;end;module Views;include X,Helpers
