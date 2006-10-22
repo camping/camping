@@ -69,71 +69,12 @@ class FastCGI
         dir.gsub!(/\/+$/, '')
         @mounts[dir] = app
     end
+
     # 
     # Starts the FastCGI main loop.
-    def start
+    def start(&blk)
         FCGI.each do |req|
-            dir, app = nil
-            begin
-                root, path = "/"
-                if ENV['FORCE_ROOT'] and ENV['FORCE_ROOT'].to_i == 1
-                  path = req.env['SCRIPT_NAME']
-                else
-                  root = req.env['SCRIPT_NAME']
-                  path = req.env['PATH_INFO']
-                end
-
-                dir, app = @mounts.max { |a,b| match(path, a[0]) <=> match(path, b[0]) }
-                unless dir and app
-                    dir, app = '/', Camping
-                end
-                yield dir, app if block_given?
-
-                req.env['SERVER_SCRIPT_NAME'] = req.env['SCRIPT_NAME']
-                req.env['SERVER_PATH_INFO'] = req.env['PATH_INFO']
-                req.env['SCRIPT_NAME'] = File.join(root, dir)
-                req.env['PATH_INFO'] = path.gsub(/^#{dir}/, '')
-
-                controller = app.run(SeekStream.new(req.in), req.env)
-                sendfile = nil
-                headers = {}
-                controller.headers.each do |k, v|
-                  if k =~ /^X-SENDFILE$/i and !ENV['SERVER_X_SENDFILE']
-                    sendfile = v
-                  else
-                    headers[k] = v
-                  end
-                end
-
-                body = controller.body
-                controller.body = ""
-                controller.headers = headers
-
-                req.out << controller.to_s
-                if sendfile
-                  File.open(sendfile, "rb") do |f|
-                    while chunk = f.read(CHUNK_SIZE) and chunk.length > 0
-                      req.out << chunk
-                    end
-                  end
-                elsif body.respond_to? :read
-                  while chunk = body.read(CHUNK_SIZE) and chunk.length > 0
-                    req.out << chunk
-                  end
-                  body.close if body.respond_to? :close
-                else
-                  req.out << body.to_s
-                end
-            rescue Exception => e
-                req.out << "Content-Type: text/html\r\n\r\n" +
-                    "<h1>Camping Problem!</h1>" +
-                    "<h2><strong>#{root}</strong>#{path}</h2>" + 
-                    "<h3>#{e.class} #{esc e.message}</h3>" +
-                    "<ul>" + e.backtrace.map { |bt| "<li>#{esc bt}</li>" }.join + "</ul>" +
-                    "<hr /><p>#{req.env.inspect}</p>"
-            ensure
-                req.finish
-            end
+            camp_do(req, &blk)
         end
     end
 
@@ -183,6 +124,67 @@ class FastCGI
 
     private
 
+    def camp_do(req)
+        root, path, dir, app = "/"
+        if ENV['FORCE_ROOT'] and ENV['FORCE_ROOT'].to_i == 1
+            path = req.env['SCRIPT_NAME']
+        else
+            root = req.env['SCRIPT_NAME']
+            path = req.env['PATH_INFO']
+        end
+
+        dir, app = @mounts.max { |a,b| match(path, a[0]) <=> match(path, b[0]) }
+        unless dir and app
+            dir, app = '/', Camping
+        end
+        yield dir, app if block_given?
+
+        req.env['SERVER_SCRIPT_NAME'] = req.env['SCRIPT_NAME']
+        req.env['SERVER_PATH_INFO'] = req.env['PATH_INFO']
+        req.env['SCRIPT_NAME'] = File.join(root, dir)
+        req.env['PATH_INFO'] = path.gsub(/^#{dir}/, '')
+
+        controller = app.run(SeekStream.new(req.in), req.env)
+        sendfile = nil
+        headers = {}
+        controller.headers.each do |k, v|
+            if k =~ /^X-SENDFILE$/i and !ENV['SERVER_X_SENDFILE']
+                sendfile = v
+            else
+                headers[k] = v
+            end
+        end
+
+        body = controller.body
+        controller.body = ""
+        controller.headers = headers
+
+        req.out << controller.to_s
+        if sendfile
+            File.open(sendfile, "rb") do |f|
+                while chunk = f.read(CHUNK_SIZE) and chunk.length > 0
+                    req.out << chunk
+                end
+            end
+        elsif body.respond_to? :read
+            while chunk = body.read(CHUNK_SIZE) and chunk.length > 0
+                req.out << chunk
+            end
+            body.close if body.respond_to? :close
+        else
+            req.out << body.to_s
+        end
+    rescue Exception => e
+        req.out << "Content-Type: text/html\r\n\r\n" +
+                "<h1>Camping Problem!</h1>" +
+                "<h2><strong>#{root}</strong>#{path}</h2>" + 
+                "<h3>#{e.class} #{esc e.message}</h3>" +
+                "<ul>" + e.backtrace.map { |bt| "<li>#{esc bt}</li>" }.join + "</ul>" +
+                "<hr /><p>#{req.env.inspect}</p>"
+    ensure
+        req.finish
+    end
+
     def match(path, mount)
         m = path.match(/^#{Regexp::quote mount}(\/|$)/)
         if m; m.end(0)
@@ -192,32 +194,6 @@ class FastCGI
 
     def esc(str)
         str.gsub(/&/n, '&amp;').gsub(/\"/n, '&quot;').gsub(/>/n, '&gt;').gsub(/</n, '&lt;')
-    end
-
-    class SeekStream2
-        def initialize(stream)
-            @last_read = ""
-            @stream = stream
-        end
-        def eof?
-            @stream.eof?
-        end
-        def each
-            while( line = @stream.gets ) 
-                yield line
-            end
-        end
-        def read(len = 16384)
-            @last_read = @stream.read(len)
-        end
-        def seek(len, typ)
-            raise NotImplementedError, "only IO::SEEK_CUR is supported with SeekStream" if typ != IO::SEEK_CUR
-            raise NotImplementedError, "only rewinding is supported with SeekStream" if len > 0
-            raise NotImplementedError, "rewinding #{-len} past the buffer #{@last_read.size} start not supported with SeekStream" if -len > @last_read.size
-            -1.downto(len) { |x| @stream.ungetc(@last_read[x]) }
-            @last_read = ""
-            self
-        end
     end
 
     class SeekStream
