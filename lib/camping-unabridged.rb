@@ -337,7 +337,7 @@ module Camping
       a.shift if a[0]==:render
       m=Mab.new({},self)
       s=m.capture{send(*a,&b)}
-      s=m.layout{s} if /^_/!~a[0].to_s and m.respond_to?:layout
+      s=m.capture{send(:layout){s}} if /^_/!~a[0].to_s and m.respond_to?:layout
       s
     end
 

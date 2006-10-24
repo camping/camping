@@ -7,9 +7,10 @@ respond_to?:urls;c=self/c;c="//"+@env.HTTP_HOST+c if c[/^\//];URI(c)end;def/p
 p[/^\//]?@root+p : p end;def errors_for o;ul.errors{o.errors.each_full{|x|li x}
 }if o.errors.any?end end;module Base;include Helpers;attr_accessor:input,
 :cookies,:env,:headers,:body,:status,:root;def method_missing*a,&b
-a.shift if a[0]==:render;m=Mab.new({},self);s=m.capture{send(*a,&b)};s=m.layout{s}if
-/^_/!~a[0].to_s and m.respond_to?:layout;s end;def r s,b,h={};@status=s;@headers. 
-merge!h;@body=b end;def redirect*a;r 302,'','Location'=>URL(*a)end;Z="\r\n"
+a.shift if a[0]==:render;m=Mab.new({},self);s=m.capture{send(*a,&b)}
+s=m.capture{send(:layout){s}} if /^_/!~a[0].to_s and m.respond_to?:layout
+s end;def r s,b,h={};@status=s;@headers.merge!h;@body=b end
+def redirect*a;r 302,'','Location'=>URL(*a)end;Z="\r\n"
 def initialize r,e,m;e=H[e.to_hash];@status,@method,@env,@headers,@root=200,m.
 downcase,e,{'Content-Type'=>"text/html"},e.SCRIPT_NAME.sub(/\/$/,'')
 @k=C.kp e.HTTP_COOKIE;q=C.qsp e.QUERY_STRING;@in=r

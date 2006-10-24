@@ -2,13 +2,14 @@ require 'rake'
 require 'rake/clean'
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
+require 'rake/testtask'
 require 'fileutils'
 include FileUtils
 
 NAME = "camping"
 REV = File.read(".svn/entries")[/committed-rev="(\d+)"/, 1] rescue nil
 VERS = ENV['VERSION'] || ("1.5" + (REV ? ".#{REV}" : ""))
-CLEAN.include ['**/.*.sw?', '*.gem', '.config']
+CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log']
 RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
     "--opname", "index.html",
     "--line-numbers", 
@@ -86,4 +87,10 @@ end
 
 task :uninstall => [:clean] do
   sh %{sudo gem uninstall #{NAME}}
+end
+
+Rake::TestTask.new(:test) do |t|
+  t.test_files = FileList['test/test_*.rb']
+#  t.warning = true
+#  t.verbose = true
 end
