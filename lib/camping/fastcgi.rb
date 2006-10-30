@@ -58,6 +58,8 @@ module Camping
 class FastCGI
     CHUNK_SIZE=(4 * 1024)
 
+    attr_reader :mounts
+
     # Creates a Camping::FastCGI class with empty mounts.
     def initialize
         @mounts = {}
@@ -114,7 +116,7 @@ class FastCGI
             fast.start do |dir, app|
                  Dir[File.join(path, dir, '*.rb')].each do |script|
                      smount = "/" + File.basename(script, '.rb')
-                     script_load[script] unless @mounts.has_key? smount
+                     script_load[script] unless fast.mounts.has_key? smount
                  end
             end
         else
