@@ -75,9 +75,30 @@ spec =
         s.bindir = "bin"
     end
 
+omni =
+    Gem::Specification.new do |s|
+        s.name = "camping-omnibus"
+        s.version = VERS
+        s.platform = Gem::Platform::RUBY
+        s.summary = "the camping meta-package for updating ActiveRecord, Mongrel and SQLite3 bindings"
+        s.description = s.summary
+        %w[author email homepage].each { |x| s.__send__("#{x}=", spec.__send__(x)) }
+
+        s.add_dependency('camping', "=#{VERS}")
+        s.add_dependency('activerecord')
+        s.add_dependency('sqlite3-ruby', '>=1.1.0.1')
+        s.add_dependency('mongrel')
+        s.add_dependency('acts_as_versioned')
+        s.add_dependency('RedCloth')
+    end
+
 Rake::GemPackageTask.new(spec) do |p|
     p.need_tar = true
     p.gem_spec = spec
+end
+
+Rake::GemPackageTask.new(omni) do |p|
+    p.gem_spec = omni
 end
 
 task :install do
