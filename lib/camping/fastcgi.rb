@@ -177,14 +177,18 @@ class FastCGI
             req.out << body.to_s
         end
     rescue Exception => e
-        req.out << "Content-Type: text/html\r\n\r\n" +
-                "<h1>Camping Problem!</h1>" +
-                "<h2><strong>#{root}</strong>#{path}</h2>" + 
-                "<h3>#{e.class} #{esc e.message}</h3>" +
-                "<ul>" + e.backtrace.map { |bt| "<li>#{esc bt}</li>" }.join + "</ul>" +
-                "<hr /><p>#{req.env.inspect}</p>"
+        req.out << server_error(root, path, exc, req)
     ensure
         req.finish
+    end
+
+    def server_error(root, path, exc, req)
+        "Content-Type: text/html\r\n\r\n" +
+        "<h1>Camping Problem!</h1>" +
+        "<h2><strong>#{root}</strong>#{path}</h2>" + 
+        "<h3>#{exc.class} #{esc exc.message}</h3>" +
+        "<ul>" + exc.backtrace.map { |bt| "<li>#{esc bt}</li>" }.join + "</ul>" +
+        "<hr /><p>#{req.env.inspect}</p>"
     end
 
     def match(path, mount)
