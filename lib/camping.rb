@@ -11,6 +11,7 @@ a.shift if a[0]==:render;m=Mab.new({},self);s=m.capture{send(*a,&b)}
 s=m.capture{send(:layout){s}} if /^_/!~a[0].to_s and m.respond_to?:layout
 s end;def r s,b,h={};@status=s;@headers.merge!h;@body=b end
 def redirect*a;r 302,'','Location'=>URL(*a)end;Z="\r\n"
+def to_a;[@status,@body,@headers]end
 def initialize r,e,m;e=H[e.to_hash];@status,@method,@env,@headers,@root=200,m.
 downcase,e,{'Content-Type'=>"text/html"},e.SCRIPT_NAME.sub(/\/$/,'')
 @k=C.kp e.HTTP_COOKIE;q=C.qsp e.QUERY_STRING;@in=r

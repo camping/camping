@@ -368,6 +368,20 @@ module Camping
     #
     def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
 
+    # Turn a controller into an array.  This is designed to be used to pipe
+    # controllers into the <tt>r</tt> method.  A great way to forward your
+    # requests!
+    #
+    #   class Read < '/(\d+)'
+    #     def get(id)
+    #       Post.find(id)
+    #     rescue
+    #       r *Blog.get(:NotFound, @env.REQUEST_URI)
+    #     end
+    #   end
+    #
+    def to_a;[@status, @body, @headers] end
+
     def initialize(r, e, m) #:nodoc:
       e = H[e.to_hash]
       @status, @method, @env, @headers, @root = 200, m.downcase, e, 
@@ -520,7 +534,7 @@ module Camping
         end
         constants.map { |c|
           k=const_get(c)
-          k.send:include,C,Base,Models
+          k.send :include,C,Base,Models
           r[0,0]=k if !r.include?k
           k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to?:urls
         }
@@ -720,7 +734,7 @@ module Camping
   #
   # Models cannot be referred to in Views at this time.
   module Models
-      autoload:Base,'camping/db'
+      autoload :Base,'camping/db'
       def Y;self;end
   end
 
