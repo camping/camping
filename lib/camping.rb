@@ -1,8 +1,9 @@
 %w[active_support markaby tempfile uri].map{|l|require l}
 module Camping;Apps=[];C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
-P="Cam\ping Problem!";module Helpers;def R c,*g;p=/\(.+?\)/;g.inject(c.
-urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub p,C.escape((a[
-a.class.primary_key]rescue a))}end;def URL c='/',*a;c=R(c,*a)if c.
+P="Cam\ping Problem!";module Helpers;def R(c,*g);p,h=/\(.+?\)/,g.grep(Hash)
+(g-=h).inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub p,C.
+escape((a[a.class.primary_key]rescue a))}+(h.any?? "?"+h[0].map{|x|x.map{|z|C.
+escape z}*"="}*"&": "")end;def URL c='/',*a;c=R(c,*a)if c.
 respond_to?:urls;c=self/c;c="//"+@env.HTTP_HOST+c if c[/^\//];URI(c)end;def/p
 p[/^\//]?@root+p : p end;def errors_for o;ul.errors{o.errors.each_full{|x|li x}
 }if o.errors.any?end end;module Base;include Helpers;attr_accessor:input,

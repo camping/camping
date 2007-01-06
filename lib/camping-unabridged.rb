@@ -203,10 +203,10 @@ module Camping
     #   </div>
     #
     def R(c,*g)
-      p=/\(.+?\)/
-      g.inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|
+      p,h=/\(.+?\)/,g.grep(Hash)
+      (g-=h).inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|
         s.sub p,C.escape((a[a.class.primary_key]rescue a))
-      }
+      }+(h.any?? "?"+h[0].map{|x|x.map{|z|C.escape z}*"="}*"&": "")
     end
 
     # Shows AR validation errors for the object passed. 

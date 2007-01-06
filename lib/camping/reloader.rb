@@ -146,13 +146,7 @@ class Reloader
                     Camping::Models::Base.logger = Logger.new(@log == "-" ? STDOUT : @log)
                 end
 
-                begin
-                    Camping::Models::Session.create_schema
-                rescue MissingSourceFile
-                    puts "** #$0 stopped: SQLite3 not found, please install."
-                    puts "** See http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for instructions."
-                    exit
-                end
+                Camping::Models::Session.create_schema
 
                 if @database and @database[:adapter] == 'sqlite3'
                     begin
