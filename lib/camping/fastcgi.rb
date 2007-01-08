@@ -176,7 +176,7 @@ class FastCGI
         else
             req.out << body.to_s
         end
-    rescue Exception => e
+    rescue Exception => exc
         req.out << server_error(root, path, exc, req)
     ensure
         req.finish
