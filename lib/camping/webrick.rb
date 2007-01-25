@@ -57,6 +57,9 @@ class CampingHandler < WEBrick::HTTPServlet::DefaultFileHandler
 
         if @local_path
             do_GET(req, resp)
+        elsif controller.body.kind_of?(IO)
+            resp.chunked = true
+            resp.body = controller.body
         else
             resp.body = controller.body.to_s
         end
