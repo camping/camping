@@ -15,7 +15,7 @@ module Tepee::Models
 
   class CreateTepee < V 1.0
     def self.up
-      create_table :tepee_pages, :force => true do |t|
+      create_table :tepee_pages do |t|
         t.column :title, :string, :limit => 255
         t.column :body, :text
       end
