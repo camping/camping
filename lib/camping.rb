@@ -18,8 +18,9 @@ dary=\"?([^\";,]+)|n.match e.CONTENT_TYPE;b=/(?:\r?\n|\A)#{Regexp::quote("--#$1"
 )}(?:--)?\r$/;until@in.eof?;fh=H[];for l in@in;case l;when Z;break
 when/^Content-D.+?: form-data;/;fh.u H[*$'.scan(/(?:\s(\w+)="([^"]+)")/).flatten]
 when/^Content-Type: (.+?)(\r$|\Z)/m;fh[:type]=$1;end;end;fn=fh[:name];o=if
-fh[:filename];o=fh[:tempfile]=Tempfile.new(:C);o.binmode;else;fh=""end;while l=@in.
-read(16384);if l=~b;o<<$`.chomp;@in.seek(-$'.size,IO::SEEK_CUR);break;end;o<<l
+fh[:filename];o=fh[:tempfile]=Tempfile.new(:C);o.binmode;else;fh=""end;s=8192;k=
+'';l=@in.read(s*2);while l;if(k<<l)=~b;o<<$`.chomp;@in.seek(-$'.size,
+IO::SEEK_CUR);break;end;o<<k.slice!(0...s);l=@in.read(s)
 end;C.qsp(fn,'&;',fh,q) if fn;fh[:tempfile].rewind if fh.is_a?H;end;elsif@method==
 "post" and e.CONTENT_TYPE == "application/x-www-form-urlencoded"
 q.u C.qsp(@in.read)end;@cookies,@input=@k.dup,q.dup end;def service*a

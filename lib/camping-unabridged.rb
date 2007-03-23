@@ -410,13 +410,17 @@ module Camping
           else
             fh=""
           end
-          while l=@in.read(16384)
-            if l=~b
+          s=8192 
+          k='' 
+          l=@in.read(s*2) 
+          while l 
+            if (k<<l)=~b 
               o<<$`.chomp
               @in.seek(-$'.size,IO::SEEK_CUR)
               break
             end
-            o<<l
+            o<<k.slice!(0...s) 
+            l=@in.read(s) 
           end
           C.qsp(fn,'&;',fh,qs) if fn
           fh[:tempfile].rewind if fh.is_a?H
