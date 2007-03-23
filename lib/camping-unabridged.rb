@@ -421,7 +421,7 @@ module Camping
           C.qsp(fn,'&;',fh,qs) if fn
           fh[:tempfile].rewind if fh.is_a?H
         end
-      elsif @method == "post"
+      elsif @method == "post" and e.CONTENT_TYPE == "application/x-www-form-urlencoded"
         qs.merge!(C.qsp(@in.read))
       end
       @cookies, @input = @k.dup, qs.dup
