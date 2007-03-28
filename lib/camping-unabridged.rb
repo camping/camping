@@ -681,6 +681,8 @@ module Camping
       X.M
       k,a=X.D un("/#{e['PATH_INFO']}".gsub(/\/+/,'/'))
       k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).Y.service *a
+    rescue SystemExit
+      raise
     rescue Object=>x
       X::ServerError.new(r,e,'get').service(k,m,x)
     end
