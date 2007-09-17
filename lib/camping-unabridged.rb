@@ -101,7 +101,7 @@ module Camping
   # 
   # To access the query string, for instance, use the <tt>@input</tt> variable.
   #
-  #   module Blog::Models
+  #   module Blog::Controllers
   #     class Index < R '/'
   #       def get
   #         if page = @input.page.to_i > 0
