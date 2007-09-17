@@ -42,7 +42,7 @@ class CampingHandler < WEBrick::HTTPServlet::DefaultFileHandler
     end
     # Handler for WEBrick requests (also aliased as do_POST).
     def service(req, resp)
-        controller = @klass.run((req.body and StringIO.new(req.body)), req.meta_vars)
+        controller = @klass.run((req.body && StringIO.new(req.body)) || StringIO.new(), req.meta_vars)
         resp.status = controller.status
         @local_path = nil
         controller.headers.each do |k, v|
