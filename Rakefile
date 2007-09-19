@@ -9,7 +9,7 @@ include FileUtils
 NAME = "camping"
 REV = File.read(".svn/entries")[/committed-rev="(\d+)"/, 1] rescue nil
 VERS = ENV['VERSION'] || ("1.5" + (REV ? ".#{REV}" : ""))
-CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log']
+CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log', '.*.pt']
 RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
     "--opname", "index.html",
     "--line-numbers", 
@@ -115,3 +115,16 @@ Rake::TestTask.new(:test) do |t|
 #  t.warning = true
 #  t.verbose = true
 end
+
+desc "Compare camping and camping-unabridged parse trees"
+task :diff do
+  if `which parse_tree_show`.strip.empty?
+    STDERR.puts "ERROR: parse_tree_show missing : `gem install ParseTree`"
+    exit 1
+  end
+
+  sh "parse_tree_show lib/camping.rb > .camping.pt"
+  sh "parse_tree_show lib/camping-unabridged.rb > .camping-unabridged.pt"
+  sh "diff -u .camping-unabridged.pt .camping.pt | less"
+end
+
