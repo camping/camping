@@ -127,7 +127,7 @@ module Camping
     #   => :macadamian
     #
     def method_missing(m,*a)
-        m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:raise(NoMethodError,"#{m}")
+        m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:super
     end
     alias_method :u, :regular_update
   end

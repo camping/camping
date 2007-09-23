@@ -131,10 +131,9 @@ end
 SIZE_LIMIT = 4096
 desc "Compare camping sizes to unabridged"
 task :size do
-  size = File.size("lib/camping-unabridged.rb")
   FileList["lib/camping*.rb"].each do |path|
     s = File.size(path)
-    puts "%21s : % 6d % 4d%" % [File.basename(path), s, (100 * s / size)]
+    puts "%21s : % 6d % 4d%" % [File.basename(path), s, (100 * s / SIZE_LIMIT)]
   end
   if File.size("lib/camping.rb") > SIZE_LIMIT
     STDERR.puts "ERROR: camping.rb is too big (> #{SIZE_LIMIT})"
