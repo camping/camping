@@ -1,5 +1,5 @@
 %w[active_support markaby tempfile uri].map{|l|require l}
-module Camping;C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
+module Camping;C=self;f=__FILE__;S=IO.read(f)unless f=~/\(/
 P="Cam\ping Problem!";module Helpers;def R(c,*g);p,h=/\(.+?\)/,g.grep(Hash)
 (g-=h).inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub p,C.
 escape((a[a.class.primary_key]rescue a))}+(h.any?? "?"+h[0].map{|x|x.map{|z|C.

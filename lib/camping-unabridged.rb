@@ -91,7 +91,7 @@ module Camping
   #   Camping::Apps # => [Blog, Tepee]
   # 
   C = self
-  S = IO.read(__FILE__).sub(/^  S = I.+$/,'')
+  S = IO.read(f) unless f =~ /\(/
   P="Cam\ping Problem!"
 
   H = HashWithIndifferentAccess
