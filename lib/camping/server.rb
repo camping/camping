@@ -92,8 +92,8 @@ class Base < Hash
       b.to_s
   end
   
-  def each
-      self.values.each
+  def each(&b)
+      self.values.each(&b)
   end
 
   # for RSpec tests
