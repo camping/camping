@@ -8,7 +8,7 @@ c=self/c;c="//"+@env.HTTP_HOST+c if c[/^\//];URI(c)end;def/p;p[/^\//]?@root+p :
 p end;def errors_for o;ul.errors{o.errors.each_full{|x|li x}}if o.errors.any?end
 end;module Base;attr_accessor:input,:cookies,:env,:headers,:body,
 :status,:root;def method_missing*a,&b;a.shift if a[0]==:render;m=Mab.new({},self)
-s=m.capture{send(*a,&b)};s=m.capture{send(:layout){s}} if /^_/!~a[0].to_s and m.
+s=m.capture{send(*a,&b)};s=m.capture{send(:layout){s}}if /^_/!~a[0].to_s and m.
 respond_to?:layout;s end;def r s,b,h={};@status=s;@headers.merge!h;@body=b end
 def redirect*a;r 302,'','Location'=>URL(*a)end;Z="\r\n";def to_a;[@status,@body,
 @headers]end;def initialize r,e,m;e=H[e.to_hash];@status,@method,@env,@headers,
@@ -21,7 +21,7 @@ when/^Content-Type: (.+?)(\r$|\Z)/m;fh[:type]=$1;end;end;fn=fh[:name];o=if
 fh[:filename];o=fh[:tempfile]=Tempfile.new(:C);o.binmode;else;fh=""end;s=8192;k=
 '';l=@in.read(s*2);while l;if(k<<l)=~b;o<<$`.chomp;@in.seek(-$'.size,
 IO::SEEK_CUR);break;end;o<<k.slice!(0...s);l=@in.read(s)
-end;C.qsp(fn,'&;',fh,q) if fn;fh[:tempfile].rewind if fh.is_a?H;end;elsif@method==
+end;C.qsp(fn,'&;',fh,q)if fn;fh[:tempfile].rewind if fh.is_a?H;end;elsif@method==
 "post" and e.CONTENT_TYPE == "application/x-www-form-urlencoded"
 q.u C.qsp(@in.read)end;@cookies,@input=@k.dup,q.dup end;def service*a
 @body=send(@method,*a)if respond_to?@method;@headers["Set-Cookie"]=@cookies.map{
