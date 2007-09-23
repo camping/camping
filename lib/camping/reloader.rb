@@ -80,6 +80,7 @@ class Reloader
         
         Reloader.conditional_connect
         @klass.create if @klass.respond_to? :create
+        puts "!! loaded #{title}"
         @klass
     end
 
@@ -93,7 +94,7 @@ class Reloader
                 remove_app
                 @mtime
             end
-        end.max
+        end.reject{|t| t > Time.now }.max
     end
 
     # Conditional reloading of the app.  This gets called on each request and
