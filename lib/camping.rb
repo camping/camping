@@ -1,5 +1,5 @@
 %w[active_support markaby tempfile uri].map{|l|require l}
-module Camping;Apps=[];C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
+module Camping;C=self;S=IO.read(__FILE__).sub(/S=I.+$/,'')
 P="Cam\ping Problem!";module Helpers;def R(c,*g);p,h=/\(.+?\)/,g.grep(Hash)
 (g-=h).inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.sub p,C.
 escape((a[a.class.primary_key]rescue a))}+(h.any?? "?"+h[0].map{|x|x.map{|z|C.
@@ -35,8 +35,8 @@ D p;r.map{|k|k.urls.map{|x|return k,$~[1..-1]if p=~/^#{x}\/?$/}};[NotFound,[p]]e
 end;class NotFound<R();def get p;r(404,Mab.new{h1 P;h2 p+" not found"})end end
 class ServerError<R();def get k,m,e;r(500,Mab.new{h1 P;h2"#{k}.#{m}";h3"#{e.class
 } #{e.message}:";ul{e.backtrace.each{|bt|li(bt)}}}.to_s)end end;self;end;class<<
-self;def goes m;eval S.gsub(/Camping/,m.to_s).gsub("A\pps=[]","Cam\ping::Apps<<\
-self"),TOPLEVEL_BINDING;end;def escape s;s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.
+self;def goes m;eval S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING;end;def escape s
+s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.
 unpack('H2'*$&.size)*'%').upcase}.tr(' ','+')end;def un s;s.tr('+',' ').gsub(
 /%([\da-f]{2})/in){[$1].pack('H*')}end;def qsp q,d='&;',y=nil,z=H[];m=proc{|_,o,n|o.u(
 n,&m)rescue([*o]<<n)};q.to_s.split(/[#{d}]+ */n).inject((b,z=z,H[])[0]){|h,p|k,v=un(p).

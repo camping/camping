@@ -90,7 +90,6 @@ module Camping
   #   Camping.goes :Tepee
   #   Camping::Apps # => [Blog, Tepee]
   # 
-  Apps = []
   C = self
   S = IO.read(__FILE__).sub(/^  S = I.+$/,'')
   P="Cam\ping Problem!"
@@ -612,7 +611,7 @@ module Camping
     #   module Blog::Views;       ... end
     #
     def goes(m)
-      eval S.gsub(/Camping/,m.to_s).gsub("A\pps = []","Cam\ping::Apps<<self"), TOPLEVEL_BINDING
+      eval S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING
     end
 
     # URL escapes a string.

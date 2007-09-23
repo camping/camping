@@ -71,8 +71,8 @@ module Camping
     module_eval $AR_EXTRAS
   end
 end
-Camping::S.sub! "autoload:Base,'camping/db'", ""
-Camping::S.sub! "def Y;self;end", $AR_EXTRAS
-Camping::Apps.each do |app|
-    app::Models.module_eval $AR_EXTRAS
+Camping::S.sub! /autoload\s*:Base\s*,\s*['"]camping\/db['"]/, ""
+Camping::S.sub! /def\s*Y[;\s]*self[;\s]*end/, $AR_EXTRAS
+Object.constants.map{|c|Object.const_get(c)}.each do |c|
+  c::Models.module_eval $AR_EXTRAS if c.respond_to?(:run)
 end
