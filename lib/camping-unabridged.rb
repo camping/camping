@@ -128,7 +128,7 @@ module Camping
     def method_missing(m,*a)
         m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:super
     end
-    alias_method :u, :regular_update
+    alias u regular_update
   end
 
   # Helpers contains methods available in your controllers and views.  You may add
