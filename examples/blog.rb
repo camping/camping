@@ -18,18 +18,15 @@ module Blog::Models
     class CreateTheBasics < V 1.0
       def self.up
         create_table :blog_posts do |t|
-          t.column :id,       :integer, :null => false
           t.column :user_id,  :integer, :null => false
           t.column :title,    :string,  :limit => 255
           t.column :body,     :text
         end
         create_table :blog_users do |t|
-          t.column :id,       :integer, :null => false
           t.column :username, :string
           t.column :password, :string
         end
         create_table :blog_comments do |t|
-          t.column :id,       :integer, :null => false
           t.column :post_id,  :integer, :null => false
           t.column :username, :string
           t.column :body,     :text

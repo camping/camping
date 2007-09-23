@@ -35,7 +35,6 @@ module CampSh::Models
     class CreateBasics < V 1.0
         def self.up
             create_table :campsh_commands do |t|
-                t.column :id,       :integer, :null => false
                 t.column :author,     :string,  :limit => 40
                 t.column :name,       :string,  :limit => 255
                 t.column :created_at, :datetime

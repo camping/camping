@@ -63,7 +63,6 @@ class Session < Base
         unless table_exists?
             ActiveRecord::Schema.define do
                 create_table :sessions, :force => true, :id => false do |t|
-                    t.column :id,          :integer, :null => false, :primary_key => true, :auto_increment => true
                     t.column :hashid,      :string,  :limit => 32
                     t.column :created_at,  :datetime
                     t.column :ivars,       :text
