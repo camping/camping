@@ -39,7 +39,7 @@ self;def goes m;eval S.gsub(/Camping/,m.to_s).gsub("A\pps=[]","Cam\ping::Apps<<\
 self"),TOPLEVEL_BINDING;end;def escape s;s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.
 unpack('H2'*$&.size)*'%').upcase}.tr(' ','+')end;def un s;s.tr('+',' ').gsub(
 /%([\da-f]{2})/in){[$1].pack('H*')}end;def qsp q,d='&;',y=nil,z=H[];m=proc{|_,o,n|o.u(
-n,&m)rescue([*o]<<n)};q.to_s.split(/[#{d}] */n).inject((b,z=z,H[])[0]){|h,p|k,v=un(p).
+n,&m)rescue([*o]<<n)};q.to_s.split(/[#{d}]+ */n).inject((b,z=z,H[])[0]){|h,p|k,v=un(p).
 split('=',2);h.u k.split(/[\]\[]+/).reverse.inject(y||v){|x,i|H[i,x]},&m}end;def
 kp s;c=qsp(s,';,')end;def run r=$stdin,e=ENV;X.M;k,a=X.D un("/#{e[
 'PATH_INFO']}".gsub(/\/+/,'/'));k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).Y.service *a;
