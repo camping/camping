@@ -6,7 +6,7 @@ escape((a[a.class.primary_key]rescue a))}+(h.any?? "?"+h[0].map{|x|x.map{|z|C.
 escape z}*"="}*"&": "")end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls
 c=self/c;c="//"+@env.HTTP_HOST+c if c[/^\//];URI(c)end;def/p;p[/^\//]?@root+p :
 p end;def errors_for o;ul.errors{o.errors.each_full{|x|li x}}if o.errors.any?end
-end;module Base;include Helpers;attr_accessor:input,:cookies,:env,:headers,:body,
+end;module Base;attr_accessor:input,:cookies,:env,:headers,:body,
 :status,:root;def method_missing*a,&b;a.shift if a[0]==:render;m=Mab.new({},self)
 s=m.capture{send(*a,&b)};s=m.capture{send(:layout){s}} if /^_/!~a[0].to_s and m.
 respond_to?:layout;s end;def r s,b,h={};@status=s;@headers.merge!h;@body=b end
@@ -29,7 +29,7 @@ q.u C.qsp(@in.read)end;@cookies,@input=@k.dup,q.dup end;def service*a
 "Status: #{@status}#{Z+@headers.map{|k,v|[*v].map{|x|[k,v]*": "}}*Z+Z*2}#{@body}"
 end;end;X=module Controllers;@r=[];class<<self;def r;@r;end;def R*u
 r=@r;Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def M;def M
-end;constants.map{|c|k=const_get(c);k.send:include,C,Base,Models;r[0,0]=k if
+end;constants.map{|c|k=const_get(c);k.send:include,C,Base,Helpers,Models;r[0,0]=k if
 !r.include?k;k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to?:urls}end;def
 D p;r.map{|k|k.urls.map{|x|return k,$~[1..-1]if p=~/^#{x}\/?$/}};[NotFound,[p]]end
 end;class NotFound<R();def get p;r(404,Mab.new{h1 P;h2 p+" not found"})end end

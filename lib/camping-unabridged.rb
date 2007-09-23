@@ -304,7 +304,6 @@ module Camping
   #   end
   #
   module Base
-    include Helpers
     attr_accessor :input, :cookies, :env, :headers, :body, :status, :root
     Z = "\r\n"
 
@@ -536,7 +535,7 @@ module Camping
         end
         constants.map { |c|
           k=const_get(c)
-          k.send :include,C,Base,Models
+          k.send :include,C,Base,Helpers,Models
           r[0,0]=k if !r.include?k
           k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to?:urls
         }
