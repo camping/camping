@@ -26,8 +26,8 @@ end;C.qsp(fn,'&;',fh,q) if fn;fh[:tempfile].rewind if fh.is_a?H;end;elsif@method
 q.u C.qsp(@in.read)end;@cookies,@input=@k.dup,q.dup end;def service*a
 @body=send(@method,*a)if respond_to?@method;@headers["Set-Cookie"]=@cookies.map{
 |k,v|"#{k}=#{C.escape(v)}; path=#{self/'/'}"if v!=@k[k]}-[nil];self end;def to_s
-a=[];@headers.map{|k,v|[*v].map{|x|a<<"#{k}: #{x}"}};"Status: #{@status}#{Z+a*Z+
-Z*2+@body}"end;end;X=module Controllers;@r=[];class<<self;def r;@r;end;def R*u
+"Status: #{@status}#{Z+@headers.map{|k,v|[*v].map{|x|[k,v]*": "}}*Z+Z*2}#{@body}"
+end;end;X=module Controllers;@r=[];class<<self;def r;@r;end;def R*u
 r=@r;Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def M;def M
 end;constants.map{|c|k=const_get(c);k.send:include,C,Base,Models;r[0,0]=k if
 !r.include?k;k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to?:urls}end;def
