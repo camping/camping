@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 $:.unshift File.dirname(__FILE__) + "/../../lib"
-%w(rubygems redcloth camping active_record acts_as_versioned).each { |lib| require lib }
+%w(rubygems redcloth camping camping/db acts_as_versioned).each { |lib| require lib }
   
 Camping.goes :CampSh
 
