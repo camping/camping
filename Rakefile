@@ -17,7 +17,7 @@ RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
     "--inline-source"]
 
 desc "Packages up Camping."
-task :default => [:size, :package]
+task :default => [:check]
 task :package => [:clean]
 
 task :doc => [:before_doc, :rdoc, :after_doc]
@@ -128,15 +128,37 @@ task :diff do
   sh "diff -u .camping-unabridged.pt .camping.pt | less"
 end
 
-SIZE_LIMIT = 4096
-desc "Compare camping sizes to unabridged"
-task :size do
-  FileList["lib/camping*.rb"].each do |path|
-    s = File.size(path)
-    puts "%21s : % 6d % 4d%" % [File.basename(path), s, (100 * s / SIZE_LIMIT)]
+task :check => ["check:valid", "check:size", "check:lines"]
+namespace :check do
+
+  desc "Check source code validity"
+  task :valid do
+    ruby "-w", "lib/camping-unabridged.rb"
+    ruby "-w", "lib/camping.rb"
   end
-  if File.size("lib/camping.rb") > SIZE_LIMIT
-    STDERR.puts "ERROR: camping.rb is too big (> #{SIZE_LIMIT})"
-    exit 1
+
+  SIZE_LIMIT = 4096
+  desc "Compare camping sizes to unabridged"
+  task :size do
+    FileList["lib/camping*.rb"].each do |path|
+      s = File.size(path)
+      puts "%21s : % 6d % 4d%" % [File.basename(path), s, (100 * s / SIZE_LIMIT)]
+    end
+    if File.size("lib/camping.rb") > SIZE_LIMIT
+      STDERR.puts "lib/camping.rb: file is too big (> #{SIZE_LIMIT})"
+      exit 1
+    end
   end
+
+  desc "Verify that line lenght doesn't exceed 80 chars for camping.rb"
+  task :lines do
+    i = 1
+    File.open("lib/camping.rb").each_line do |line|
+      if line.size > 81 # 1 added for \n
+        puts "lib/camping.rb:#{i}: line too long (#{line[-10..-1].inspect})"
+      end
+      i += 1
+    end
+  end
+
 end

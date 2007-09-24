@@ -28,7 +28,7 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[active_support markaby tempfile uri].each { |lib| require lib }
+%w[active_support markaby tempfile uri].map { |l| require l }
 
 # == Camping 
 #
@@ -91,6 +91,7 @@ module Camping
   #   Camping::Apps # => [Blog, Tepee]
   # 
   C = self
+  f=__FILE__
   S = IO.read(f) unless f =~ /\(/
   P="Cam\ping Problem!"
 
@@ -364,7 +365,7 @@ module Camping
     #
     #   redirect "/view/12"
     #
-    def r(s, b, h = {}); @status = s; @headers.merge!(h); @body = b; end
+    def r(s, b, h = {}); @status = s; headers.merge!(h); @body = b; end
 
     # Turn a controller into an array.  This is designed to be used to pipe
     # controllers into the <tt>r</tt> method.  A great way to forward your
@@ -378,26 +379,25 @@ module Camping
     #     end
     #   end
     #
-    def to_a;[@status, @body, @headers] end
+    def to_a;[status, body, headers] end
 
     def initialize(r, e, m) #:nodoc:
       e = H[e.to_hash]
       @status, @method, @env, @headers, @root = 200, m.downcase, e, 
           {'Content-Type'=>'text/html'}, e.SCRIPT_NAME.sub(/\/$/,'')
       @k = C.kp(e.HTTP_COOKIE)
-      qs = C.qsp(e.QUERY_STRING)
+      q = C.qsp(e.QUERY_STRING)
       @in = r
-      if %r|\Amultipart/form-data.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
+      if %r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
         b = /(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/
         until @in.eof?
           fh=H[]
           for l in @in
             case l
             when Z: break
-            when /^Content-Disposition: form-data;/
+            when /^Content-D.+?: form-data;/
               fh.u H[*$'.scan(/(?:\s(\w+)="([^"]+)")/).flatten]
             when /^Content-Type: (.+?)(\r$|\Z)/m
-              puts "=> fh[type] = #$1"
               fh[:type] = $1
             end
           end
@@ -420,13 +420,13 @@ module Camping
             o<<k.slice!(0...s) 
             l=@in.read(s) 
           end
-          C.qsp(fn,'&;',fh,qs) if fn
+          C.qsp(fn,'&;',fh,q) if fn
           fh[:tempfile].rewind if fh.is_a?H
         end
       elsif @method == "post" and e.CONTENT_TYPE == "application/x-www-form-urlencoded"
-        qs.merge!(C.qsp(@in.read))
+        q.u(C.qsp(@in.read))
       end
-      @cookies, @input = @k.dup, qs.dup
+      @cookies, @input = @k.dup, q.dup
     end
 
     # All requests pass through this method before going to the controller.  Some magic
@@ -436,14 +436,14 @@ module Camping
     # on before and after overrides with Camping.
     def service(*a)
       @body = send(@method, *a) if respond_to? @method
-      @headers['Set-Cookie'] = @cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @k[k] } - [nil]
+      headers['Set-Cookie'] = cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @k[k] } - [nil]
       self
     end
 
     # Used by the web server to convert the current request to a string.  If you need to
     # alter the way Camping builds HTTP headers, consider overriding this method.
     def to_s
-      "Status: #{@status}#{Z+@headers.map{|k,v|[*v].map{|x|[k,v]*": "}}*Z+Z*2}#{@body}"
+      "Status: #{status}#{Z+headers.map{|k,v|[*v].map{|x|[k,v]*": "}}*Z+Z*2}#{body}"
     end
 
   end
@@ -467,7 +467,7 @@ module Camping
   # There are two special classes used for handling 404 and 500 errors.  The
   # NotFound class handles URLs not found.  The ServerError class handles exceptions
   # uncaught by your application.
-  module Controllers
+  X = module Controllers
     @r = []
     class << self
       def r #:nodoc:
@@ -511,13 +511,13 @@ module Camping
       # # Classes with routes are searched in order of their creation.
       #
       # So, define your catch-all controllers last.
-      def D(path)
+      def D(p)
         r.map { |k|
           k.urls.map { |x|
-            return k, $~[1..-1] if path =~ /^#{x}\/?$/
+            return k, $~[1..-1] if p =~ /^#{x}\/?$/
           }
         }
-        [NotFound, [path]]
+        [NotFound, [p]]
       end
 
       # The route maker, this is called by Camping internally, you shouldn't need to call it.
@@ -558,7 +558,7 @@ module Camping
     #
     class NotFound < R()
       def get(p)
-        r(404, Mab.new{h1(P);h2("#{p} not found")})
+        r(404, Mab.new{h1(P);h2 p + " not found"})
       end
     end
 
@@ -592,11 +592,12 @@ module Camping
           h2 "#{k}.#{m}"
           h3 "#{e.class} #{e.message}:"
           ul { e.backtrace.each { |bt| li bt } }
-        }.to_s)
+        })
       end
     end
+
+    self
   end
-  X = Controllers
 
   class << self
     # When you are running many applications, you may want to create independent
@@ -640,9 +641,9 @@ module Camping
     #   input = Camping.qsp("post[id]=1&post[user]=_why")
     #     #=> {'post' => {'id' => '1', 'user' => '_why'}}
     #
-    def qsp(qs, d='&;', y=nil, z=H[])
+    def qsp(q, d='&;', y=nil, z=H[])
         m = proc {|_,o,n|o.u(n,&m)rescue([*o]<<n)}
-        (qs||'').
+        q.to_s.
             split(/[#{d}]+ */n).
             inject((b,z=z,H[])[0]) { |h,p| k, v=un(p).split('=',2)
                 h.u(k.split(/[\]\[]+/).reverse.
@@ -708,6 +709,15 @@ module Camping
     end
   end
 
+  # Views is an empty module for storing methods which create HTML.  The HTML is described
+  # using the Markaby language.
+  #
+  # == Using the layout method
+  #
+  # If your Views module has a <tt>layout</tt> method defined, it will be called with a block
+  # which will insert content from your view.
+  module Views; include X, Helpers end
+ 
   # Models is an empty Ruby module for housing model classes derived
   # from ActiveRecord::Base.  As a shortcut, you may derive from Base
   # which is an alias for ActiveRecord::Base.
@@ -737,16 +747,7 @@ module Camping
       autoload :Base,'camping/db'
       def Y;self;end
   end
-
-  # Views is an empty module for storing methods which create HTML.  The HTML is described
-  # using the Markaby language.
-  #
-  # == Using the layout method
-  #
-  # If your Views module has a <tt>layout</tt> method defined, it will be called with a block
-  # which will insert content from your view.
-  module Views; include Controllers, Helpers end
-  
+ 
   # The Mab class wraps Markaby, allowing it to run methods from Camping::Views
   # and also to replace :href, :action and :src attributes in tags by prefixing the root
   # path.
@@ -754,7 +755,7 @@ module Camping
       include Views
       def tag!(*g,&b)
           h=g[-1]
-          [:href,:action,:src].each{|a|(h[a]=self/h[a])rescue 0}
+          [:href,:action,:src].map{|a|(h[a]=self/h[a])rescue 0}
           super 
       end
   end
