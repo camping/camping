@@ -72,7 +72,6 @@
 #     unless Blog::Models::Post.table_exists?
 #       ActiveRecord::Schema.define do
 #         create_table :blog_posts, :force => true do |t|
-#           t.column :id,       :integer, :null => false
 #           t.column :user_id,  :integer, :null => false
 #           t.column :title,    :string,  :limit => 255
 #           t.column :body,     :text
@@ -83,18 +82,9 @@
 #
 # For more tips, see http://code.whytheluckystiff.net/camping/wiki/GiveUsTheCreateMethod.
 module Camping
-  # Stores an +Array+ of all Camping applications modules.  Modules are added
-  # automatically by +Camping.goes+.
-  #
-  #   Camping.goes :Blog
-  #   Camping.goes :Tepee
-  #   Camping::Apps # => [Blog, Tepee]
-  # 
   C = self
-  f=__FILE__
-  S = IO.read(f) unless f =~ /\(/
-  P="Cam\ping Problem!"
-
+  S = IO.read(__FILE__) rescue nil
+  P = "Cam\ping Problem!"
   H = HashWithIndifferentAccess
   # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
   # All Camping query string and cookie variables are loaded as this.
