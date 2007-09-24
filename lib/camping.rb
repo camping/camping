@@ -1,5 +1,5 @@
 %w[active_support markaby tempfile uri].map{|l|require l};module Camping;C=self
-S=IO.read(f)rescue nil;P="Cam\ping Problem!";H=HashWithIndifferentAccess;class
+S=IO.read(__FILE__)rescue nil;P="Cam\ping Problem!";H=HashWithIndifferentAccess;class
 H;def method_missing m,*a;m.to_s=~/=$/?self[$`
 ]=a[0]:a==[]?self[m]:super end;alias u regular_update;end;module Helpers
 def R c,*g;p,h=/\(.+?\)/,g.grep(Hash);(g-=h).inject(c.urls.find{|x|x.scan(p).

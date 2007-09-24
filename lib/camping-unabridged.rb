@@ -548,7 +548,7 @@ module Camping
     #
     class NotFound < R()
       def get(p)
-        r(404, Mab.new{h1(P);h2 p + " not found"})
+        r(404, Mab.new{h1 P;h2 p + " not found"})
       end
     end
 
@@ -630,6 +630,11 @@ module Camping
     #
     #   input = Camping.qsp("post[id]=1&post[user]=_why")
     #     #=> {'post' => {'id' => '1', 'user' => '_why'}}
+    #
+    # And finally, Array syntax like:
+    #
+    #   input = Camping.qsp("user[]=_why&user[]=lucky&user[]=stiff")
+    #     #=> {"user" => ["_why", "lucky", "stiff"]}
     #
     def qsp(q, d='&;', y=nil, z=H[])
         m = proc {|_,o,n|o.u(n,&m)rescue([*o]<<n)}
