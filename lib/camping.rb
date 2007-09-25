@@ -26,8 +26,8 @@ break;end;o<<k.slice!(0...s);l=@in.read(s);end;C.qsp(fn,'&;',fh,q)if fn;fh[
 "application/x-www-form-urlencoded";q.u C.qsp(@in.read)end;@cookies,@input=@k.
 dup,q.dup end;def service*a;@body=send(@method,*a)if respond_to?@method
 headers["Set-Cookie"]=cookies.map{|k,v|"#{k}=#{C.escape v}; path=#{self/'/'}"if
-v!=@k[k]}-[nil];self end;def to_s;"Status: #{status}#{Z+headers.map{|k,v|[*v].
-map{|x|[k,v]*": "}}*Z+Z*2}#{body}"end;end;X=module Controllers;@r=[];class<<
+v!=@k[k]}-[nil];self end;def to_s;"Status: #@status#{Z+headers.map{|k,v|[*v].
+map{|x|[k,v]*": "}}*Z+Z}#@body"end;end;X=module Controllers;@r=[];class<<
 self;def r;@r;end;def R*u;r=@r;Class.new{meta_def(:urls){u};meta_def(:inherited
 ){|x|r<<x}}end;def D p;r.map{|k|k.urls.map{|x|return k,$~[1..-1]if p=~/^#{x
 }\/?$/}};[NotFound,[p]]end;def M;def M;end;constants.map{|c|k=const_get(c);k.
