@@ -70,7 +70,7 @@ end
 paths = ARGV.dup
 
 # Check that mongrel exists 
-unless conf.server 
+if conf.server.nil? || conf.server == :mongrel
     begin
         require 'mongrel'
         require 'mongrel/camping'
@@ -80,7 +80,7 @@ unless conf.server
     end
 end
 
-require 'camping/server/' + conf.server.to_s
+require "camping/server/#{conf.server}"
 
-server = eval("Camping::Server::#{conf.server.to_s.capitalize}.new(conf, paths)")
+server = Camping::Server.const_get(conf.server.to_s.capitalize).new(conf, paths)
 server.start
