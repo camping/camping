@@ -1,12 +1,11 @@
 %w[active_support markaby tempfile uri].map{|l|require l};module Camping;C=self
-S=IO.read(__FILE__)rescue nil;P="Cam\ping Problem!";H=HashWithIndifferentAccess;class
-H;def method_missing m,*a;m.to_s=~/=$/?self[$`
-]=a[0]:a==[]?self[m]:super end;alias u regular_update;end;module Helpers
-def R c,*g;p,h=/\(.+?\)/,g.grep(Hash);(g-=h).inject(c.urls.find{|x|x.scan(p).
-size==g.size}.dup){|s,a|s.sub p,C.escape((a[a.class.primary_key]rescue a))}+(
-h.any?? "?"+h[0].map{|x|x.map{|z|C.escape z}*"="}*"&": "")end;def errors_for o
-ul.errors{o.errors.each_full{|er|li er}}if o.errors.any?end;def /(p);p[/^\//]?
-@root+p:p end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls;c=self/c;c="//"+
+S=IO.read(__FILE__)rescue nil;P="Cam\ping Problem!";H=HashWithIndifferentAccess
+class H;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:super
+end;alias u regular_update;end;module Helpers def R c,*g;p,h=/\(.+?\)/,g.
+grep(Hash);(g-=h).inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|s.
+sub p,C.escape((a[a.class.primary_key]rescue a))}+(h.any?? "?"+h[0].
+map{|x|x.map{|z|C.escape z}*"="}*"&": "")end;def /(p);p[/^\//]?@root+p:p
+end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls;c=self/c;c="//"+
 @env.HTTP_HOST+c if c[/^\//];URI(c) end end;module Base;attr_accessor:input,
 :cookies,:env,:headers,:body,:status,:root;Z="\r\n";def method_missing*a,&b;a.
 shift if a[0]==:render;m=Mab.new({},self);s=m.capture{send(*a,&b)};s=m.capture{

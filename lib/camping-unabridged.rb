@@ -199,25 +199,6 @@ module Camping
       }+(h.any?? "?"+h[0].map{|x|x.map{|z|C.escape z}*"="}*"&": "")
     end
 
-    # Shows AR validation errors for the object passed. 
-    # There is no output if there are no errors.
-    #
-    # An example might look like:
-    #
-    #   errors_for @post
-    #
-    # Might (depending on actual data) render something like this in Markaby:
-    #
-    #   ul.errors do
-    #     li "Body can't be empty"
-    #     li "Title must be unique"
-    #   end
-    #
-    # Add a simple ul.errors {color:red; font-weight:bold;} CSS rule and you
-    # have built-in, usable error checking in only one line of code. :-)
-    #
-    # See AR validation documentation for details on validations.
-    def errors_for(o); ul.errors { o.errors.each_full { |er| li er } } if o.errors.any?; end
     # Simply builds a complete path from a path +p+ within the app.  If your application is 
     # mounted at <tt>/blog</tt>:
     #
