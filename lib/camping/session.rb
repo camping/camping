@@ -18,8 +18,7 @@ module Camping::Models
 # creation timestamp, and a column of serialized data called <tt>ivars</tt>. 
 class Session < Base
     serialize :ivars
-    # SQL injection to bypass id field checks
-    set_primary_key '"="" OR "'
+    set_primary_key :hashid
 
     def []=(k, v) # :nodoc:
         self.ivars[k] = v
@@ -28,13 +27,17 @@ class Session < Base
         self.ivars[k] rescue nil
     end
 
+  protected
     RAND_CHARS = [*'A'..'Z'] + [*'0'..'9'] + [*'a'..'z']
+    def before_create
+      rand_max = RAND_CHARS.size
+      sid = (0...32).inject("") { |ret,_| ret << RAND_CHARS[rand(rand_max)] }
+      write_attribute('hashid', sid)
+    end
 
     # Generates a new session ID and creates a row for the new session in the database.
     def self.generate cookies
-        rand_max = RAND_CHARS.size
-        sid = (0...32).inject("") { |ret,_| ret << RAND_CHARS[rand(rand_max)] }
-        sess = Session.create :hashid => sid, :ivars => Camping::H[]
+        sess = Session.create :ivars => Camping::H[]
         cookies.camping_sid = sess.hashid
         sess
     end
