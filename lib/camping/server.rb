@@ -10,10 +10,7 @@ class Base < Hash
   
   def initialize(conf, paths = [])
     unless conf.database
-      unless conf.db
-        raise "!! No home directory found.  Please specify a database file, see --help."
-      end
-      conf.database = {:adapter => 'sqlite3', :database => conf.db}
+      raise "!! No home directory found.  Please specify a database file, see --help."
     end
     
     @conf = conf

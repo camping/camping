@@ -63,7 +63,7 @@ class Reloader
                 req.index(File.basename(@script) + "/") == 0 || req.index(title + "/") == 0
             end
         rescue Exception => e
-            puts "!! trouble loading #{title}: [#{e.class}] #{e.message}"
+            puts "!! trouble loading #{title.inspect}: [#{e.class}] #{e.message}"
             puts e.backtrace.join("\n")
             find_app title
             remove_app
@@ -73,14 +73,14 @@ class Reloader
         @mtime = mtime
         find_app title
         unless @klass and @klass.const_defined? :C
-            puts "!! trouble loading #{title}: not a Camping app, no #{title.capitalize} module found"
+            puts "!! trouble loading #{title.inspect}: not a Camping app, no #{title.capitalize} module found"
             remove_app
             return
         end
         
         Reloader.conditional_connect
         @klass.create if @klass.respond_to? :create
-        puts "!! loaded #{title}"
+        puts "** #{title.inspect} app loaded"
         @klass
     end
 
