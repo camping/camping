@@ -619,9 +619,9 @@ module Camping
     #
     def qsp(q, d='&;', y=nil, z=H[])
         m = proc {|_,o,n|o.u(n,&m)rescue([*o]<<n)}
-        q.to_s.
-            split(/[#{d}]+ */n).
-            inject((b,z=z,H[])[0]) { |h,p| k, v=un(p).split('=',2)
+        (q.to_s.split(/[#{d}]+ */n) - [""]).
+            inject((b,z=z,H[])[0]) { |h,p| 
+              k, v=un(p).split('=',2)
                 h.u(k.split(/[\]\[]+/).reverse.
                     inject(y||v) { |x,i| H[i,x] },&m)
             } 
