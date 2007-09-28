@@ -41,7 +41,8 @@ s.tr('+',' ').gsub(/%([\da-f]{2})/in){[$1].pack('H*')}end;def qsp q,d='&;',y=
 nil,z=H[];m=proc{|_,o,n|o.u(n,&m)rescue([*o]<<n)};(q.to_s.split(/[#{d}]+ */n)-['']).
 inject((b,z=z,H[])[0]){|h,p|k,v=un(p).split('=',2);h.u k.split(/[\]\[]+/).
 reverse.inject(y||v){|x,i|H[i,x]},&m}end;def kp s;c=qsp(s,';,')end;def
-run r=$stdin,e=ENV;X.M;e=H[e.to_hash];k,a=X.D un("/#{e.PATH_INFO}".gsub(/\/+/,'/'));k.new(
+run r=$stdin,e=ENV;X.M;e=H[e.to_hash]
+k,a=X.D e.PATH_INFO=un("/#{e.PATH_INFO}".gsub(/\/+/,'/'));k.new(
 r,e,(m=e.REQUEST_METHOD||"GET")).Y.service(*a);rescue=>x;X::ServerError.new(
 r,e,'get').service(k,m,x)end;def method_missing m,c,*a;X.M;k=X.const_get(c).
 new(StringIO.new,H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s);H.
