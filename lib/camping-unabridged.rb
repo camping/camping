@@ -353,7 +353,6 @@ module Camping
     def to_a;[status, body, headers] end
 
     def initialize(r, e, m) #:nodoc:
-      e = H[e.to_hash]
       @status, @method, @env, @headers, @root = 200, m.downcase, e, 
           {'Content-Type'=>'text/html'}, e.SCRIPT_NAME.sub(/\/$/,'')
       @k = C.kp(e.HTTP_COOKIE)
@@ -652,8 +651,9 @@ module Camping
     #
     def run(r=$stdin,e=ENV)
       X.M
-      k,a=X.D un("/#{e['PATH_INFO']}".gsub(/\/+/,'/'))
-      k.new(r,e,(m=e['REQUEST_METHOD']||"GET")).Y.service(*a)
+      e = H[e.to_hash]
+      k,a=X.D un("/#{e.PATH_INFO}".gsub(/\/+/,'/'))
+      k.new(r,e,(m=e.REQUEST_METHOD||"GET")).Y.service(*a)
     rescue=>x
       X::ServerError.new(r,e,'get').service(k,m,x)
     end
