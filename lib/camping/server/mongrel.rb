@@ -8,7 +8,7 @@ class Mongrel < Camping::Server::Base
         raise unless conf.host && conf.port
     end
     def start
-        raise "No apps loaded" unless self.apps.length > 0
+        raise "!! No apps loaded" unless self.apps.length > 0
         # get a reference to the server object for later use
         server = self
         # Need to use ::Mongrel... notation to avoid namespace clashes.
@@ -32,7 +32,7 @@ class Mongrel < Camping::Server::Base
             puts "** Camping running on #{conf.host}:#{conf.port}."
             @config.join
         rescue Errno::EADDRINUSE
-            raise "** ERROR : address #{conf.host}:#{conf.port} already in use."
+            raise "!! address #{conf.host}:#{conf.port} already in use."
         end
 
     end

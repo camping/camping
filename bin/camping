@@ -1,14 +1,13 @@
 #!/usr/bin/env ruby
 
-require 'delegate'
 require 'optparse'
 require 'ostruct'
-
 require 'stringio'
-require 'rubygems'           
+require 'yaml'
+
+begin require 'rubygems' rescue LoadError end
 require 'camping'
 require 'camping/server'
-require 'yaml'
 
 conf = OpenStruct.new(:host => '0.0.0.0', :port => 3301)
 
