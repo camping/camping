@@ -28,7 +28,7 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[active_support markaby tempfile uri].map { |l| require l }
+%w[markaby tempfile uri].map { |l| require l }
 
 # == Camping 
 #
@@ -85,8 +85,7 @@ module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
   P = "Cam\ping Problem!"
-  H = HashWithIndifferentAccess
-  # An object-like Hash, based on ActiveSupport's HashWithIndifferentAccess.
+  # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   # 
   # To access the query string, for instance, use the <tt>@input</tt> variable.
@@ -109,7 +108,7 @@ module Camping
   #
   # Use the <tt>@cookies</tt> variable in the same fashion to access cookie variables.
   # Also, the <tt>@env</tt> variable is an H containing the HTTP headers and server info.
-  class H
+  class H < Hash
     # Gets or sets keys in the hash.
     #
     #   @cookies.my_favorite = :macadamian
@@ -117,9 +116,9 @@ module Camping
     #   => :macadamian
     #
     def method_missing(m,*a)
-        m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m]:super
+        m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super
     end
-    alias u regular_update
+    alias u merge!
   end
 
   # Helpers contains methods available in your controllers and views.  You may add
@@ -369,12 +368,12 @@ module Camping
             when /^Content-D.+?: form-data;/
               fh.u H[*$'.scan(/(?:\s(\w+)="([^"]+)")/).flatten]
             when /^Content-Type: (.+?)(\r$|\Z)/m
-              fh[:type] = $1
+              fh.type = $1
             end
           end
-          fn=fh[:name]
-          o=if fh[:filename]
-            o=fh[:tempfile]=Tempfile.new(:C)
+          fn=fh.name
+          o=if fh.filename
+            o=fh.tempfile=Tempfile.new(:C)
             o.binmode
           else
             fh=""
@@ -392,7 +391,7 @@ module Camping
             l=@in.read(s) 
           end
           C.qsp(fn,'&;',fh,q) if fn
-          fh[:tempfile].rewind if fh.is_a?H
+          fh.tempfile.rewind if fh.is_a?H
         end
       when "application/x-www-form-urlencoded"
         q.u(C.qsp(@in.read))
@@ -674,7 +673,7 @@ module Camping
     #   Blog.post(:Login, :input => {'username' => 'admin', 'password' => 'camping'})
     #   #=> #<Blog::Controllers::Login @user=... >
     #
-    #   Blog.get(:Info, :env => {:HTTP_HOST => 'wagon'})
+    #   Blog.get(:Info, :env => {'HTTP_HOST' => 'wagon'})
     #   #=> #<Blog::Controllers::Info @env={'HTTP_HOST'=>'wagon'} ...>
     #
     def method_missing(m, c, *a)
