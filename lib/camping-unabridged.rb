@@ -358,7 +358,8 @@ module Camping
       @k = C.kp(e.HTTP_COOKIE)
       q = C.qsp(e.QUERY_STRING)
       @in = r
-      if %r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n.match(e.CONTENT_TYPE)
+      case e.CONTENT_TYPE
+      when %r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n
         b = /(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/
         until @in.eof?
           fh=H[]
@@ -393,7 +394,7 @@ module Camping
           C.qsp(fn,'&;',fh,q) if fn
           fh[:tempfile].rewind if fh.is_a?H
         end
-      elsif @method == "post" and e.CONTENT_TYPE == "application/x-www-form-urlencoded"
+      when "application/x-www-form-urlencoded"
         q.u(C.qsp(@in.read))
       end
       @cookies, @input = @k.dup, q.dup

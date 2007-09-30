@@ -11,19 +11,21 @@ end;def URL c='/',*a;c=R(c,*a)if c.respond_to?:urls;c=self/c;c="//"+
 shift if a[0]==:render;m=Mab.new({},self);s=m.capture{send(*a,&b)};s=m.capture{
 send(:layout){s}}if /^_/!~a[0].to_s and m.respond_to?:layout;s end;def
 redirect*a;r 302,'','Location'=>URL(*a)end;def r s,b,h={};@status=s;headers.
-merge!h;@body=b end;def to_a;[status,body,headers]end;def initialize r,e,m;@status,@method,@env,@headers,@root=200,m.downcase,e,{
+merge!h;@body=b end;def to_a;[status,body,headers]end;def initialize r,e,m;
+@status,@method,@env,@headers,@root=200,m.downcase,e,{
 'Content-Type'=>"text/html"},e.SCRIPT_NAME.sub(/\/$/,'');@k=C.kp e.HTTP_COOKIE
-q=C.qsp e.QUERY_STRING;@in=r;if%r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n.
-match e.CONTENT_TYPE;b=/(?:\r?\n|\A)#{Regexp::quote"--#$1"}(?:--)?\r$/;until
+q=C.qsp e.QUERY_STRING;@in=r
+case e.CONTENT_TYPE when %r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n
+b=/(?:\r?\n|\A)#{Regexp::quote"--#$1"}(?:--)?\r$/;until
 @in.eof?;fh=H[];for l in@in;case l;when Z;break;when/^Content-D.+?: form-data;/
 fh.u H[*$'.scan(/(?:\s(\w+)="([^"]+)")/).flatten];when
 /^Content-Type: (.+?)(\r$|\Z)/m;fh[:type]=$1;end;end;fn=fh[:name];o=if fh[
 :filename];o=fh[:tempfile]=Tempfile.new(:C);o.binmode;else;fh=""end;s=8192;k=''
 l=@in.read(s*2);while l;if(k<<l)=~b;o<<$`.chomp;@in.seek(-$'.size,IO::SEEK_CUR)
 break;end;o<<k.slice!(0...s);l=@in.read(s);end;C.qsp(fn,'&;',fh,q)if fn;fh[
-:tempfile].rewind if fh.is_a?H;end;elsif@method=="post" && e.CONTENT_TYPE==
-"application/x-www-form-urlencoded";q.u C.qsp(@in.read)end;@cookies,@input=@k.
-dup,q.dup end;def service*a;@body=send(@method,*a)if respond_to?@method
+:tempfile].rewind if fh.is_a?H;end;when "application/x-www-form-urlencoded"
+q.u C.qsp(@in.read)end;@cookies,@input=@k.dup,q.dup end
+def service*a;@body=send(@method,*a)if respond_to?@method
 headers["Set-Cookie"]=cookies.map{|k,v|"#{k}=#{C.escape v}; path=#{self/'/'}"if
 v!=@k[k]}-[nil];self end;def to_s;"Status: #@status#{Z+headers.map{|k,v|[*v].
 map{|x|[k,v]*": "}}*Z+Z}#@body"end;end;X=module Controllers;@r=[];class<<
