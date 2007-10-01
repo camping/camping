@@ -1,5 +1,4 @@
 require 'camping/reloader'
-require 'markaby'
 
 module Camping::Server
 class Base < Hash
@@ -55,38 +54,32 @@ class Base < Hash
   def index_page
       welcome = "You are Camping"
       apps = self
-      b = Markaby::Builder.new({}, {})
-      b = b.instance_eval do
-          html do
-              head do
-                  title welcome
-                  style <<-END, :type => 'text/css'
-                      body { 
-                          font-family: verdana, arial, sans-serif; 
-                          padding: 10px 40px; 
-                          margin: 0; 
-                      }
-                      h1, h2, h3, h4, h5, h6 {
-                          font-family: utopia, georgia, serif;
-                      }
-                  END
-              end
-              body do
-                  h1 welcome
-                  p %{Good day.  These are the Camping apps you've mounted.}
-                  ul do
-                      apps.values.each do |app|
-                          next unless app.klass
-                          li do
-                              h3(:style => "display: inline") { a app.klass.name, :href => "/#{app.mount}" }
-                              small { text " / " ; a "View Source", :href => "/code/#{app.mount}" }
-                          end
-                      end
-                  end
-              end
-          end
-      end
-      b.to_s
+      <<-HTML
+<html>
+  <head>
+    <title>#{welcome}</title>
+    <style type="text/css">
+      body { 
+        font-family: verdana, arial, sans-serif; 
+        padding: 10px 40px; 
+        margin: 0; 
+      }
+      h1, h2, h3, h4, h5, h6 {
+        font-family: utopia, georgia, serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>#{welcome}</h1>
+    <p>Good day.  These are the Camping apps you've mounted.</p>
+    <ul>
+      #{apps.values.select{|app|app.klass}.map do |app|
+        "<li><h3 style=\"display: inline\"><a href=\"/#{app.mount}\">#{app.klass.name}</a></h3><small> / <a href=\"/code/#{app.mount}\">View source</a></small></li>"
+      end.join("\n")}
+    </ul>
+  </body>
+</html>
+      HTML
   end
   
   def each(&b)

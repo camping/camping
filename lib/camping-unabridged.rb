@@ -28,7 +28,13 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[markaby tempfile uri].map { |l| require l }
+%w[tempfile uri].map { |l| require l }
+
+class Object
+  def meta_def(m,&b)
+    (class<<self;self end).instance_eval{define_method(m,&b)}
+  end
+end
 
 # == Camping 
 #
@@ -528,7 +534,7 @@ module Camping
     #
     class NotFound < R()
       def get(p)
-        r(404, Mab.new{h1 P;h2 p + " not found"})
+        r(404, "<h1>#{P}</h1><h2>#{p} not found</h2>")
       end
     end
 
@@ -557,12 +563,8 @@ module Camping
     #
     class ServerError < R()
       def get(k,m,e)
-        r(500, Mab.new { 
-          h1(P)
-          h2 "#{k}.#{m}"
-          h3 "#{e.class} #{e.message}:"
-          ul { e.backtrace.each { |bt| li bt } }
-        })
+        r(500, "<h1>#{P}</h1><h2>#{k}.#{m}</h2><h3>#{e.class} #{e.message
+          }:<ul>#{e.backtrace.map{ |b| "<li>#{b}</li>" } }")
       end
     end
 
@@ -724,16 +726,6 @@ module Camping
       def Y;self;end
   end
  
-  # The Mab class wraps Markaby, allowing it to run methods from Camping::Views
-  # and also to replace :href, :action and :src attributes in tags by prefixing the root
-  # path.
-  class Mab < Markaby::Builder
-      include Views
-      def tag!(*g,&b)
-          h=g[-1]
-          [:href,:action,:src].map{|a|(h[a]=self/h[a])rescue 0}
-          super 
-      end
-  end
+  autoload :Mab, 'camping/mab'
 end
 
