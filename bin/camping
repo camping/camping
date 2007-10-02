@@ -5,7 +5,6 @@ require 'ostruct'
 require 'stringio'
 require 'yaml'
 
-begin require 'rubygems' rescue LoadError end
 require 'camping'
 require 'camping/server'
 

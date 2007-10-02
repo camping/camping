@@ -1,3 +1,22 @@
+= 1.6
+=== ???, 2007
+
+* Camping::Apps removed, it wasn't reliable.
+* bin/camping server kinds splitted in various files.
+* NotFound and ServerError controllers changed to methods :
+
+  r404 : called when a controller was not found
+  r500 : called on uncaught exception
+  r501 : called on undefined method
+  
+  All of those can be overridden at your taste.
+
+* Markaby no longer required. Like AR, is it autoloaded on (Mab) usage.
+* Camping::H is now inheriting from Hash instead of HashWithIndifferentAccess.
+* Which made possible to remove the last strict dependency : active_support
+* #errors_for removed, it wasn't really used
+* Bug fixes !
+
 = 1.5
 === 3rd Oct, 2006
 

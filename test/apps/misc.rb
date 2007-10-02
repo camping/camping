@@ -28,6 +28,7 @@ module Misc
     class BadLinks
       def get; render :bad_links; end
     end
+    class BadMethod; end
   end
 
   module Views
@@ -42,6 +43,7 @@ module Misc
             li{ a "Links", :href=>R(Links)}
             li{ a "BadLinks", :href=>R(BadLinks)}
             li{ a "Redirect", :href=>R(Redirect)}
+            li{ a "BadMethod", :href=>R(BadMethod)}
           end
           p { yield }
         end

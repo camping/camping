@@ -146,7 +146,6 @@ namespace :check do
     end
     if File.size("lib/camping.rb") > SIZE_LIMIT
       STDERR.puts "lib/camping.rb: file is too big (> #{SIZE_LIMIT})"
-      exit 1
     end
   end
 
@@ -155,7 +154,7 @@ namespace :check do
     i = 1
     File.open("lib/camping.rb").each_line do |line|
       if line.size > 81 # 1 added for \n
-        puts "lib/camping.rb:#{i}: line too long (#{line[-10..-1].inspect})"
+        STDERR.puts "lib/camping.rb:#{i}: line too long (#{line[-10..-1].inspect})"
       end
       i += 1
     end

@@ -30,9 +30,8 @@
 #
 %w[tempfile uri].map { |l| require l }
 
-class Object
-  # Define a method m with the passed block on the metaclass.
-  def meta_def(m,&b)
+class Object #:nodoc:
+  def meta_def(m,&b) #:nodoc:
     (class<<self;self end).send(:define_method,m,&b)
   end
 end
@@ -91,7 +90,7 @@ end
 module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
-  P = "Cam\ping Problem!"
+  P = '<h1>Cam\ping Problem!</h1><h2>%s</h2>'
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   # 
@@ -322,6 +321,18 @@ module Camping
       s
     end
 
+    # A quick means of setting this controller's status, body and headers.
+    # Used internally by Camping, but... by all means...
+    #
+    #   r(302, '', 'Location' => self / "/view/12")
+    #
+    # Is equivalent to:
+    #
+    #   redirect "/view/12"
+    #
+    # See also: #r404, #r500 and #r501
+    def r(s, b, h = {}); @status = s; headers.u(h); @body = b; end
+
     # Formulate a redirect response: a 302 status with <tt>Location</tt> header
     # and a blank body.  Uses Helpers#URL to build the location from a controller
     # route or path.
@@ -338,16 +349,41 @@ module Camping
       r(302,'','Location'=>URL(*a))
     end
 
-    # A quick means of setting this controller's status, body and headers.
-    # Used internally by Camping, but... by all means...
+    # Called when a controller was not found. It is mainly used internally, but it can
+    # also be useful for you, if you want to filter some parameters.
     #
-    #   r(302, '', 'Location' => self / "/view/12")
+    # module Camping
+    #   def r404(p=env.PATH)
+    #     @status = 404
+    #     div do
+    #       h1 'Camping Problem!'
+    #       h2 "#{p} not found"
+    #     end
+    #   end
+    # end
     #
-    # Is equivalent to:
+    # See: I
+    def r404(p=env.PATH)
+      r(404, P % "#{p} not found")
+    end
+
+    # If there is a parse error in Camping or in your application's source code, it will not be caught
+    # by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
+    # took place are passed in, along with the Exception +e+ which can be mined for useful info.
     #
-    #   redirect "/view/12"
+    # You can overide it, but if you have an error in here, it will be uncaught !
     #
-    def r(s, b, h = {}); @status = s; headers.u(h); @body = b; end
+    # See: I
+    def r500(k,m,x)
+      r(500, P % "#{k}.#{m}" + "<h3>#{x.class} #{x.message}: <ul>#{x.backtrace.map{|b|"<li>#{b}</li>"}}</ul></h3>")
+    end
+
+    # Called if an undefined method is called on a Controller, along with the request method +m+ (GET, POST, etc.)
+    #
+    # See: I
+    def r501(m=@method)
+      r(501, P % "#{m.upcase} not implemented")
+    end
 
     # Turn a controller into an array.  This is designed to be used to pipe
     # controllers into the <tt>r</tt> method.  A great way to forward your
@@ -364,7 +400,7 @@ module Camping
     def to_a;[status, body, headers] end
 
     def initialize(r, e, m) #:nodoc:
-      @status, @method, @env, @headers, @root = 200, m.downcase, e, 
+      @status, @method, @env, @headers, @root = 200, m, e, 
           H['Content-Type','text/html'], e.SCRIPT_NAME.sub(/\/$/,'')
       @k = C.kp(e.HTTP_COOKIE)
       q = C.qsp(e.QUERY_STRING)
@@ -417,7 +453,7 @@ module Camping
     # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
     # on before and after overrides with Camping.
     def service(*a)
-      @body = send(@method, *a) if respond_to? @method
+      @body = send(@method, *a)
       headers['Set-Cookie'] = cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @k[k] } - [nil]
       self
     end
@@ -493,13 +529,14 @@ module Camping
       # # Classes with routes are searched in order of their creation.
       #
       # So, define your catch-all controllers last.
-      def D(p)
+      def D(p, m)
         r.map { |k|
           k.urls.map { |x|
-            return k, $~[1..-1] if p =~ /^#{x}\/?$/
+            return (k.instance_method(m) rescue nil) ?
+              [k, m, *$~[1..-1]] : [I, 'r501', m] if p =~ /^#{x}\/?$/
           }
         }
-        [NotFound, [p]]
+        [I, 'r404', p]
       end
 
       # The route maker, this is called by Camping internally, you shouldn't need to call it.
@@ -517,61 +554,15 @@ module Camping
         constants.map { |c|
           k=const_get(c)
           k.send :include,C,Base,Helpers,Models
-          r[0,0]=k if !r.include?k
+          @r=[k]+r if r-[k]==r
           k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to?:urls
         }
       end
     end
 
-    # The NotFound class is a special controller class for handling 404 errors, in case you'd
-    # like to alter the appearance of the 404.  The path is passed in as +p+.
-    #
-    #   module Camping::Controllers
-    #     class NotFound
-    #       def get(p)
-    #         @status = 404
-    #         div do
-    #           h1 'Camping Problem!'
-    #           h2 "#{p} not found"
-    #         end
-    #       end
-    #     end
-    #   end
-    #
-    class NotFound < R()
-      def get(p)
-        r(404, "<h1>#{P}</h1><h2>#{p} not found</h2>")
-      end
-    end
-
-    # The ServerError class is a special controller class for handling many (but not all) 500 errors.
-    # If there is a parse error in Camping or in your application's source code, it will not be caught
-    # by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
-    # took place are passed in, along with the Exception +e+ which can be mined for useful info.
-    #
-    #   module Camping::Controllers
-    #     class ServerError
-    #       def get(k,m,e)
-    #         @status = 500
-    #         div do
-    #           h1 'Camping Problem!'
-    #           h2 "in #{k}.#{m}"
-    #           h3 "#{e.class} #{e.message}:"
-    #           ul do
-    #             e.backtrace.each do |bt|
-    #               li bt
-    #             end
-    #           end
-    #         end
-    #       end
-    #     end
-    #   end
-    #
-    class ServerError < R()
-      def get(k,m,e)
-        r(500, "<h1>#{P}</h1><h2>#{k}.#{m}</h2><h3>#{e.class} #{e.message
-          }:<ul>#{e.backtrace.map{ |b| "<li>#{b}</li>" } }")
-      end
+    
+    # Internal controller with no route. Used by #D and C.run to show internal messages.
+    class I < R()
     end
 
     self
@@ -660,10 +651,10 @@ module Camping
     def run(r=$stdin,e=ENV)
       X.M
       e = H[e.to_hash]
-      k,a=X.D e.PATH_INFO=un("/#{e.PATH_INFO}".gsub(/\/+/,'/'))
-      k.new(r,e,(m=e.REQUEST_METHOD||"GET")).Y.service(*a)
-    rescue=>x
-      X::ServerError.new(r,e,'get').service(k,m,x)
+      k,m,*a=X.D e.PATH_INFO=un("/#{e.PATH_INFO}".gsub(/\/+/,'/')),(e.REQUEST_METHOD||'get').downcase
+      k.new(r,e,m).Y.service(*a)
+    rescue => x
+      X::I.new(r,e,'r500').service(k,m,x)
     end
 
     # The Camping scriptable dispatcher.  Any unhandled method call to the app module will

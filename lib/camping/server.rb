@@ -94,11 +94,8 @@ class Base < Hash
   private
   
   def insert_app(script)
-    self[script] = Application.new(script)
+    self[script] = Reloader.new(script)
   end
-end
-
-class Application < Camping::Reloader
 end
 end
 
