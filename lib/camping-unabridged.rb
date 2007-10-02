@@ -31,8 +31,9 @@
 %w[tempfile uri].map { |l| require l }
 
 class Object
+  # Define a method m with the passed block on the metaclass.
   def meta_def(m,&b)
-    (class<<self;self end).instance_eval{define_method(m,&b)}
+    (class<<self;self end).send(:define_method,m,&b)
   end
 end
 
@@ -125,6 +126,7 @@ module Camping
         m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super
     end
     alias u merge!
+    undef id, type
   end
 
   # Helpers contains methods available in your controllers and views.  You may add
@@ -199,9 +201,13 @@ module Camping
     #
     def R(c,*g)
       p,h=/\(.+?\)/,g.grep(Hash)
-      (g-=h).inject(c.urls.find{|x|x.scan(p).size==g.size}.dup){|s,a|
-        s.sub p,C.escape((a[a.class.primary_key]rescue a))
-      }+(h.any?? "?"+h[0].map{|x|x.map{|z|C.escape z}*"="}*"&": "")
+      g-=h
+      raise "bad route" unless u = c.urls.find{|x|
+        break x if x.scan(p).size == g.size && 
+          /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
+            x.sub p,C.escape((a[a.class.primary_key]rescue a))})
+      }
+      h.any?? u+"?"+h[0].map{|x|x.map{|z|C.escape z}*"="}*"&": u
     end
 
     # Simply builds a complete path from a path +p+ within the app.  If your application is 
@@ -341,7 +347,7 @@ module Camping
     #
     #   redirect "/view/12"
     #
-    def r(s, b, h = {}); @status = s; headers.merge!(h); @body = b; end
+    def r(s, b, h = {}); @status = s; headers.u(h); @body = b; end
 
     # Turn a controller into an array.  This is designed to be used to pipe
     # controllers into the <tt>r</tt> method.  A great way to forward your
@@ -359,7 +365,7 @@ module Camping
 
     def initialize(r, e, m) #:nodoc:
       @status, @method, @env, @headers, @root = 200, m.downcase, e, 
-          {'Content-Type'=>'text/html'}, e.SCRIPT_NAME.sub(/\/$/,'')
+          H['Content-Type','text/html'], e.SCRIPT_NAME.sub(/\/$/,'')
       @k = C.kp(e.HTTP_COOKIE)
       q = C.qsp(e.QUERY_STRING)
       @in = r
@@ -682,7 +688,7 @@ module Camping
       X.M
       k = X.const_get(c).new(StringIO.new,
              H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s)
-      H.new(a.pop).each { |e,f| k.send("#{e}=",f) } if Hash === a[-1]
+      H[a.pop].each { |e,f| k.send("#{e}=",f) } if Hash === a[-1]
       k.service(*a)
     end
   end

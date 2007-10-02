@@ -25,6 +25,9 @@ module Misc
     class RR
       def get; render :rr; end
     end
+    class BadLinks
+      def get; render :bad_links; end
+    end
   end
 
   module Views
@@ -37,6 +40,7 @@ module Misc
             li{ a "render partial", :href=>R(RenderPartial)}
             li{ a "X-Sendfile", :href=>R(XSendfile)}
             li{ a "Links", :href=>R(Links)}
+            li{ a "BadLinks", :href=>R(BadLinks)}
             li{ a "Redirect", :href=>R(Redirect)}
           end
           p { yield }
@@ -54,13 +58,21 @@ module Misc
 
     def links
       a "plain", :href=>R(Links); br
-      a "with hash and args", :href=>R(Links, "moo", 3, :with=>"Hash"); br
+      a "with args and hash", :href=>R(Links, "moo", 3, :with=>"Hash"); br
+      a "with args and mult. hash", :href=>R(Links, "hoi", 8, :with=>"multiple", 3=>"hash"); br
       # TODO : with <AR::Base object
+    end
+
+    def bad_links
+      a "null controller", :href=>R(nil)
+      a "bad arity", :href=>R(RR, :moo)
+      a "bad args", :href=>R(Links, 3, "moo")
     end
 
     def rr
       p "got redirected"
     end
+
 
   end
 end
