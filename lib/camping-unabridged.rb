@@ -461,7 +461,7 @@ module Camping
     # Used by the web server to convert the current request to a string.  If you need to
     # alter the way Camping builds HTTP headers, consider overriding this method.
     def to_s
-      "Status: #@status#{Z+(headers.map{|k,v|[*v].map{|x|[k,v]*": "}}*Z).gsub(Z*2,Z)+Z+Z}#@body"
+      "Status: #@status#{Z+(headers.inject([]){|a,o|[*o[1]].map{|x|a<<[o[0],v]*": "if v&&v.to_s.any?}}*Z)+Z+Z}#@body"
     end
 
   end

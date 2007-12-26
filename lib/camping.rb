@@ -34,8 +34,8 @@ C.qsp(fn,'&;',fh,q)if fn;fh.tempfile.rewind if fh.is_a?H end;when
 "application/x-www-form-urlencoded": q.u(C.qsp(@in.read))end
 @cookies,@input=@k.dup,q.dup end;def service *a;@body=send @method,*a
 headers['Set-Cookie']=cookies.map{|k,v|"#{k}=#{C.escape(v)}; path=#{self/
-"/"}"if v!=@k[k]}-[nil];self end;def to_s;"Status: #@status#{Z+(headers.map{
-|k,v|[*v].map{|x|[k,v]*": "}}*Z).gsub(Z*2,Z)+Z+Z}#@body"end
+"/"}"if v!=@k[k]}-[nil];self end;def to_s;"Status: #@status#{Z+(headers.inject([
+]){|a,o|[*o[1]].map{|x|a<<[o[0],v]*": "if v&&v.to_s.any?}}*Z)+Z+Z}#@body"end
 end;X=module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
 Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end
 def D p,m;r.map{|k|k.urls.map{|x|return(k.instance_method(m)rescue nil)?
