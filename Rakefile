@@ -7,7 +7,7 @@ require 'fileutils'
 include FileUtils
 
 NAME = "camping"
-REV = File.read(".svn/entries")[/committed-rev="(\d+)"/, 1] rescue nil
+REV = File.read(".svn/entries").split("\n")[3] rescue nil
 VERS = ENV['VERSION'] || ("1.5" + (REV ? ".#{REV}" : ""))
 CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log', '.*.pt']
 RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
