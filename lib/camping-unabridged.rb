@@ -28,7 +28,7 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[tempfile uri].map { |l| require l }
+%w[tempfile uri rack].map { |l| require l }
 
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
@@ -331,7 +331,11 @@ module Camping
     #   redirect "/view/12"
     #
     # See also: #r404, #r500 and #r501
-    def r(s, b, h = {}); @status = s; headers.u(h); @body = b; end
+    def r(s, b, h = {})
+      @status = s
+      @headers.merge!(h)
+      @body = b
+    end
 
     # Formulate a redirect response: a 302 status with <tt>Location</tt> header
     # and a blank body.  Uses Helpers#URL to build the location from a controller
@@ -397,54 +401,27 @@ module Camping
     #     end
     #   end
     #
-    def to_a;[status, body, headers] end
-
-    def initialize(r, e, m) #:nodoc:
-      @status, @method, @env, @headers, @root = 200, m, e, 
-          H['Content-Type','text/html'], e.SCRIPT_NAME.sub(/\/$/,'')
-      @k = C.kp(e.HTTP_COOKIE)
-      q = C.qsp(e.QUERY_STRING)
-      @in = r
-      case e.CONTENT_TYPE
-      when %r|\Amultipart/form-.*boundary=\"?([^\";,]+)|n
-        b = /(?:\r?\n|\A)#{Regexp::quote("--#$1")}(?:--)?\r$/
-        until @in.eof?
-          fh=H[]
-          for l in @in
-            case l
-            when Z: break
-            when /^Content-D.+?: form-data;/
-              fh.u H[*$'.scan(/(?:\s(\w+)="([^"]+)")/).flatten]
-            when /^Content-Type: (.+?)(\r$|\Z)/m
-              fh.type = $1
-            end
-          end
-          fn=fh.name
-          o=if fh.filename
-            o=fh.tempfile=Tempfile.new(:C)
-            o.binmode
-          else
-            fh=""
-          end
-          s=8192 
-          k='' 
-          l=@in.read(s*2) 
-          while l 
-            if (k<<l)=~b 
-              o<<$`.chomp
-              @in.seek(-$'.size,IO::SEEK_CUR)
-              break
-            end
-            o<<k.slice!(0...s) 
-            l=@in.read(s) 
-          end
-          C.qsp(fn,'&;',fh,q) if fn
-          fh.tempfile.rewind if fh.is_a?H
-        end
-      when "application/x-www-form-urlencoded"
-        q.u(C.qsp(@in.read))
+    def to_a
+      res = @response.to_a
+      res[1] = res[1].map do |key, value|
+        value = value.to_s if value.is_a? URI
+        [key, value]
       end
-      @cookies, @input = @k.dup, q.dup
+      res
+    end
+    
+    def initialize(env) #:nodoc:
+      @env = env
+      
+      @request = Rack::Request.new(env)
+      @root = @request.script_name.sub(/\/$/,'') 
+      @input = H.new.merge(@request.params)
+      @cookies = H.new.merge(@request.cookies)
+
+      @response = Rack::Response.new
+      @headers = @response.headers
+      @body = @response.body
+      @status = @response.status
     end
 
     # All requests pass through this method before going to the controller.  Some magic
@@ -453,17 +430,14 @@ module Camping
     # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
     # on before and after overrides with Camping.
     def service(*a)
-      @body = send(@method, *a)
-      headers['Set-Cookie'] = cookies.map { |k,v| "#{k}=#{C.escape(v)}; path=#{self/"/"}" if v != @k[k] } - [nil]
+      @response.body = send(@request.request_method.downcase, *a) || @body
+      @response.status = @status
+      @response.headers.merge!(@headers)
+      @cookies.each do |key, value|
+        @response.set_cookie(key, value)
+      end
       self
     end
-
-    # Used by the web server to convert the current request to a string.  If you need to
-    # alter the way Camping builds HTTP headers, consider overriding this method.
-    def to_s
-      "Status: #@status#{Z+(headers.inject([]){|a,o|[*o[1]].map{|v|a<<[o[0],v]*": "if v&&v.to_s.any?};a}*Z)+Z+Z}#@body"
-    end
-
   end
 
   # Controllers is a module for placing classes which handle URLs.  This is done
@@ -589,72 +563,22 @@ module Camping
     #   Camping.escape("I'd go to the museum straightway!")  
     #     #=> "I%27d+go+to+the+museum+straightway%21"
     #
-    def escape(s); s.to_s.gsub(/[^ \w.-]+/n){'%'+($&.unpack('H2'*$&.size)*'%').upcase}.tr(' ', '+') end
+    def escape(s); Rack::Utils.escape(s) end
 
     # Unescapes a URL-encoded string.
     #
     #   Camping.un("I%27d+go+to+the+museum+straightway%21") 
     #     #=> "I'd go to the museum straightway!"
     #
-    def un(s); s.tr('+', ' ').gsub(/%([\da-f]{2})/in){[$1].pack('H*')} end
-
-    # Parses a query string into an Camping::H object.
-    #
-    #   input = Camping.qsp("name=Philarp+Tremain&hair=sandy+blonde")
-    #   input.name
-    #     #=> "Philarp Tremaine"
-    #
-    # Also parses out the Hash-like syntax used in PHP and Rails and builds
-    # nested hashes from it.
-    #
-    #   input = Camping.qsp("post[id]=1&post[user]=_why")
-    #     #=> {'post' => {'id' => '1', 'user' => '_why'}}
-    #
-    # And finally, Array syntax like:
-    #
-    #   input = Camping.qsp("user[]=_why&user[]=lucky&user[]=stiff")
-    #     #=> {"user" => ["_why", "lucky", "stiff"]}
-    #
-    def qsp(q, d='&;', y=nil, z=H[])
-        m = proc {|_,o,n|o.u(n,&m)rescue([*o]<<n)}
-        (q.to_s.split(/[#{d}]+ */n) - [""]).
-            inject((b,z=z,H[])[0]) { |h,p| 
-              k, v=un(p).split('=',2)
-                h.u(k.split(/[\]\[]+/).reverse.
-                    inject(y||v) { |x,i| H[i,x] },&m)
-            } 
-    end
-
-    # Parses a string of cookies from the <tt>Cookie</tt> header.
-    def kp(s); c = qsp(s, ';,'); end
-
-    # Fields a request through Camping.  For traditional CGI applications, the method can be
-    # executed without arguments.
-    #
-    #   if __FILE__ == $0
-    #     Camping::Models::Base.establish_connection :adapter => 'sqlite3',
-    #         :database => 'blog3.db'
-    #     Camping::Models::Base.logger = Logger.new('camping.log')
-    #     puts Camping.run
-    #   end
-    #
-    # The Camping controller returned from <tt>run</tt> has a <tt>to_s</tt> method in case you
-    # are running from CGI or want to output the full HTTP output.  In the above example, <tt>puts</tt>
-    # will call <tt>to_s</tt> for you.
-    #
-    # For FastCGI and Webrick-loaded applications, you will need to use a request loop, with <tt>run</tt>
-    # at the center, passing in the read +r+ and write +w+ streams.  You will also need to mimick or
-    # pass in the <tt>ENV</tt> replacement as part of your wrapper.
-    #
-    # See Camping::FastCGI and Camping::WEBrick for examples.
-    #
-    def run(r=$stdin,e=ENV)
+    def un(s); Rack::Utils.unescape(s) end
+    
+    def call(env)
       X.M
-      e = H[e.to_hash]
-      k,m,*a=X.D e.PATH_INFO=un("/#{e.PATH_INFO}".gsub(/\/+/,'/')),(e.REQUEST_METHOD||'get').downcase
-      k.new(r,e,m).Y.service(*a)
-    rescue => x
-      X::I.new(r,e,'r500').service(k,m,x)
+      e = H[env.to_hash]
+      k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
+      e.REQUEST_METHOD = m
+      con = k.new(e).service(*a)
+      con.to_a
     end
 
     # The Camping scriptable dispatcher.  Any unhandled method call to the app module will
