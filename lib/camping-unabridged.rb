@@ -422,6 +422,14 @@ module Camping
       @headers = @response.headers
       @body = @response.body
       @status = @response.status
+      
+      @input.each do |key, value|
+        if key[-2..-1] == "[]"
+          @input[key[0..-3]] = @input.delete(key)
+        elsif key =~ /(.*)\[([^\]])\]$/
+          (@input[$1] ||= {})[$2] = @input.delete(key)
+        end
+      end
     end
 
     # All requests pass through this method before going to the controller.  Some magic
