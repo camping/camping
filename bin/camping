@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+trap("INT") { exit }
 require 'optparse'
 require 'ostruct'
 require 'stringio'
@@ -86,7 +87,6 @@ paths = ARGV.dup
 if conf.server.nil? || conf.server == "mongrel"
     begin
         require 'mongrel'
-        require 'mongrel/camping'
         conf.server = "mongrel"
     rescue LoadError 
         puts "!! could not load mongrel. Falling back to webrick."
@@ -94,7 +94,5 @@ if conf.server.nil? || conf.server == "mongrel"
     end
 end
 
-require "camping/server/#{conf.server}"
-
-server = Camping::Server.const_get(conf.server.capitalize).new(conf, paths)
+server = Camping::Server::Base.new(conf, paths)
 server.start

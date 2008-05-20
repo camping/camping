@@ -112,10 +112,10 @@ class Reloader
 
     # Conditionally reloads (using reload_app.)  Then passes the request through
     # to the wrapped Camping app.
-    def run(*a)
+    def call(*a) 
         reload_app
         if @klass
-            @klass.run(*a) 
+            @klass.call(*a) 
         else
             Camping.run(*a)
         end
