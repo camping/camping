@@ -403,10 +403,10 @@ module Camping
     #
     def to_a
       res = @response.to_a
-      res[1] = res[1].map do |key, value|
+      res[1] = Hash[*res[1].map do |key, value|
         value = value.to_s if value.is_a? URI
         [key, value]
-      end
+      end.flatten]
       res
     end
     
