@@ -219,34 +219,29 @@ module Camping
     def /(p); p[/^\//]?@root+p:p end
     # Builds a URL route to a controller or a path, returning a URI object.
     # This way you'll get the hostname and the port number, a complete URL.
-    # No scheme is given (http or https).
     #
     # You can use this to grab URLs for controllers using the R-style syntax.
     # So, if your application is mounted at <tt>http://test.ing/blog/</tt>
     # and you have a View controller which routes as <tt>R '/view/(\d+)'</tt>:
     #
-    #   URL(View, @post.id)    #=> #<URL://test.ing/blog/view/12>
+    #   URL(View, @post.id)    #=> #<URL:http://test.ing/blog/view/12>
     #
     # Or you can use the direct path:
     #
-    #   self.URL               #=> #<URL://test.ing/blog/>
-    #   self.URL + "view/12"   #=> #<URL://test.ing/blog/view/12>
-    #   URL("/view/12")        #=> #<URL://test.ing/blog/view/12>
-    #
-    # Since no scheme is given, you will need to add the scheme yourself:
-    #
-    #   "http" + URL("/view/12")   #=> "http://test.ing/blog/view/12"
+    #   self.URL               #=> #<URL:http://test.ing/blog/>
+    #   self.URL + "view/12"   #=> #<URL:http://test.ing/blog/view/12>
+    #   URL("/view/12")        #=> #<URL:http://test.ing/blog/view/12>
     #
     # It's okay to pass URL strings through this method as well:
     #
-    #   URL("http://google.com")  #=> #<URI:http://google.com>
+    #   URL("http://google.com")  #=> #<URL:http://google.com>
     #
     # Any string which doesn't begin with a slash will pass through
     # unscathed.
     def URL c='/',*a
       c = R(c, *a) if c.respond_to? :urls
       c = self/c
-      c = "//"+@env.HTTP_HOST+c if c[/^\//]
+      c = @request.url.split("/",4)[0..-2].join("/")+c if c[/^\//]
       URI(c)
     end
   end
