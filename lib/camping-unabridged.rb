@@ -330,8 +330,17 @@ module Camping
     #
     #   redirect "/view/12"
     #
+    # You can also switch the body and the header in order to support Rack:
+    #
+    #  r(302, {'Location' => self / "/view/12"}, '')
+    #
     # See also: #r404, #r500 and #r501
     def r(s, b, h = {})
+      if Hash===b
+        t = b.dup
+        b = h.dup
+        h = t
+      end
       @status = s
       @headers.merge!(h)
       @body = b
