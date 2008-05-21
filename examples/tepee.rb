@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-$:.unshift File.dirname(__FILE__) + "/../../lib"
+$:.unshift File.dirname(__FILE__) + "/../lib"
 %w(rubygems redcloth camping camping/db acts_as_versioned).each { |lib| require lib }
 
 Camping.goes :Tepee

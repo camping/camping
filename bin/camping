@@ -6,6 +6,7 @@ require 'ostruct'
 require 'stringio'
 require 'yaml'
 
+$:.unshift File.dirname(__FILE__) + "/../lib"
 require 'camping'
 require 'camping/server'
 

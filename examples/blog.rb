@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.unshift File.dirname(__FILE__) + "/../../lib"
+$:.unshift File.dirname(__FILE__) + "/../lib"
 require 'camping'
 require 'camping/db'
 require 'camping/session'
