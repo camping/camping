@@ -581,8 +581,10 @@ module Camping
       e = H[env.to_hash]
       k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
       e.REQUEST_METHOD = m
-      con = k.new(e).service(*a)
-      con.to_a
+      k.new(e).service(*a).to_a
+    rescue => x
+      e.REQUEST_METHOD = 'r500'
+      X::I.new(e).service(k,m,x).to_a
     end
 
     # The Camping scriptable dispatcher.  Any unhandled method call to the app module will
