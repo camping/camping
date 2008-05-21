@@ -433,11 +433,12 @@ module Camping
     # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
     # on before and after overrides with Camping.
     def service(*a)
+      o = @cookies.dup
       @response.body = send(@request.request_method.downcase, *a) || @body
       @response.status = @status
       @response.headers.merge!(@headers)
       @cookies.each do |key, value|
-        @response.set_cookie(key, value)
+        @response.set_cookie(key, value) if o[key] != value
       end
       self
     end
