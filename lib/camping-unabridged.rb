@@ -203,9 +203,9 @@ module Camping
       raise "bad route" unless u = c.urls.find{|x|
         break x if x.scan(p).size == g.size && 
           /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
-            x.sub p,C.escape((a[a.class.primary_key]rescue a))})
+            x.sub p,Rack::Utils.escape((a[a.class.primary_key]rescue a))})
       }
-      h.any?? u+"?"+h[0].map{|x|x.map{|z|C.escape z}*"="}*"&": u
+      h.any?? u+"?"+h[0].map{|x|x.map{|z|Rack::Utils.escape z}*"="}*"&": u
     end
 
     # Simply builds a complete path from a path +p+ within the app.  If your application is 
@@ -561,20 +561,6 @@ module Camping
     def goes(m)
       eval S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING
     end
-
-    # URL escapes a string.
-    #
-    #   Camping.escape("I'd go to the museum straightway!")  
-    #     #=> "I%27d+go+to+the+museum+straightway%21"
-    #
-    def escape(s); Rack::Utils.escape(s) end
-
-    # Unescapes a URL-encoded string.
-    #
-    #   Camping.un("I%27d+go+to+the+museum+straightway%21") 
-    #     #=> "I'd go to the museum straightway!"
-    #
-    def un(s); Rack::Utils.unescape(s) end
     
     def call(env)
       X.M
