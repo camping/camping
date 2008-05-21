@@ -613,9 +613,10 @@ module Camping
     #
     def method_missing(m, c, *a)
       X.M
-      k = X.const_get(c).new(StringIO.new,
-             H['HTTP_HOST','','SCRIPT_NAME','','HTTP_COOKIE',''],m.to_s)
-      H[a.pop].each { |e,f| k.send("#{e}=",f) } if Hash === a[-1]
+      h=Hash===a[-1]?H[a.pop]:{}
+      e=H[h[:env]||{}].u({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
+      k = X.const_get(c).new(H[e])
+      k.send("input=",h[:input]) if h[:input]
       k.service(*a)
     end
   end
