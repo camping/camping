@@ -113,7 +113,6 @@ module Camping
   # to get the value for the <tt>page</tt> query variable.
   #
   # Use the <tt>@cookies</tt> variable in the same fashion to access cookie variables.
-  # Also, the <tt>@env</tt> variable is an H containing the HTTP headers and server info.
   class H < Hash
     # Gets or sets keys in the hash.
     #
@@ -280,8 +279,7 @@ module Camping
   #   end
   #
   module Base
-    attr_accessor :input, :cookies, :env, :headers, :body, :status, :root
-    Z = "\r\n"
+    attr_accessor :input, :cookies, :headers, :body, :status, :root
 
     # Display a view, calling it by its method name +m+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
@@ -302,7 +300,7 @@ module Camping
     #
     #   module Camping::Controllers
     #     class Info
-    #       def get; code @env.inspect end
+    #       def get; code @headers.inspect end
     #     end
     #   end
     #
@@ -401,7 +399,7 @@ module Camping
     #     def get(id)
     #       Post.find(id)
     #     rescue
-    #       r *Blog.get(:NotFound, @env.REQUEST_URI)
+    #       r *Blog.get(:NotFound, @headers.REQUEST_URI)
     #     end
     #   end
     #
@@ -410,8 +408,6 @@ module Camping
     end
     
     def initialize(env) #:nodoc:
-      @env = env
-      
       @request = Rack::Request.new(env)
       @root = @request.script_name.sub(/\/$/,'') 
       @input = H[@request.params]
@@ -604,7 +600,7 @@ module Camping
     #   #=> #<Blog::Controllers::Login @user=... >
     #
     #   Blog.get(:Info, :env => {'HTTP_HOST' => 'wagon'})
-    #   #=> #<Blog::Controllers::Info @env={'HTTP_HOST'=>'wagon'} ...>
+    #   #=> #<Blog::Controllers::Info @headers={'HTTP_HOST'=>'wagon'} ...>
     #
     def method_missing(m, c, *a)
       X.M
