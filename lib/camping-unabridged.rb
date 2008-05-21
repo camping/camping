@@ -90,7 +90,7 @@ end
 module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
-  P = '<h1>Cam\ping Problem!</h1><h2>%s</h2>'
+  P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   # 
@@ -350,7 +350,7 @@ module Camping
     # You'll need to <tt>return redirect(...)</tt> if this isn't the last statement
     # in your code.
     def redirect(*a)
-      r(302,'','Location'=>URL(*a))
+      r(302,'','Location'=>URL(*a).to_s)
     end
 
     # Called when a controller was not found. It is mainly used internally, but it can
@@ -402,12 +402,7 @@ module Camping
     #   end
     #
     def to_a
-      res = @response.to_a
-      res[1] = Hash[*res[1].map do |key, value|
-        value = value.to_s if value.is_a? URI
-        [key, value]
-      end.flatten]
-      res
+      @response.to_a
     end
     
     def initialize(env) #:nodoc:
@@ -415,8 +410,8 @@ module Camping
       
       @request = Rack::Request.new(env)
       @root = @request.script_name.sub(/\/$/,'') 
-      @input = H.new.merge(@request.params)
-      @cookies = H.new.merge(@request.cookies)
+      @input = H[@request.params]
+      @cookies = H[@request.cookies]
 
       @response = Rack::Response.new
       @headers = @response.headers
