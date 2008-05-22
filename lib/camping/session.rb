@@ -57,7 +57,9 @@ module Session
       blob = Marshal.dump(data)
       unless hash_before == blob.hash
         secure_hash = secure_blob_hasher(blob)
-        @response.set_cookie("identity", Base64.encode64(blob).gsub("\n", '').strip + ':' + secure_hash)
+        content = Base64.encode64(blob).gsub("\n", '').strip + ':' + secure_hash
+        raise "The session contains to much data" if content.length > 4096
+        @response.set_cookie("identity", content)
       end
     end
     
