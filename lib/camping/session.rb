@@ -42,7 +42,7 @@ module Session
         blob, secure_hash = @cookies.identity.to_s.split(':', 2)
         blob = Base64.decode64(blob)
         data = Marshal.restore(blob)
-        data = {} unless secure_blob_hasher(blob).strip.downcase == secure_hash.strip.downcase
+        data = {} unless secure_blob_hasher(blob).strip == secure_hash.strip
       else
         blob = ''
         data = {}
