@@ -120,6 +120,7 @@ class Base < Hash
     else
       apps.first
     end
+    rapp = Rack::Lint.new(rapp)
     rapp = XSendfile.new(rapp)
     rapp = Rack::ShowExceptions.new(rapp)
     handler.run(rapp, conf) 
