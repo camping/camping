@@ -1,17 +1,17 @@
-# == About camping/session.rb
+# == About camping/ar/session.rb
 #
 # This file contains two modules which supply basic sessioning to your Camping app.
 # Again, we're dealing with a pretty little bit of code: approx. 60 lines.
 # 
 # * Camping::Models::Session is a module which adds a single <tt>sessions</tt> table
 #   to your database.
-# * Camping::Session is a module which you will mix into your application (or into
+# * Camping::ARSession is a module which you will mix into your application (or into
 #   specific controllers which require sessions) to supply a <tt>@state</tt> variable
 #   you can use in controllers and views.
 #
-# For a basic tutorial, see the *Getting Started* section of the Camping::Session module.
+# For a basic tutorial, see the *Getting Started* section of the Camping::ARSession module.
 require 'camping'
-require 'camping/db'
+require 'camping/ar'
 
 module Camping::Models
 # A database table for storing Camping sessions.  Contains a unique 32-character hashid, a
@@ -84,7 +84,7 @@ end
 end
 
 module Camping
-# The Camping::Session module is designed to be mixed into your application or into specific
+# The Camping::ARSession module is designed to be mixed into your application or into specific
 # controllers which require sessions.  This module defines a <tt>service</tt> method which
 # intercepts all requests handed to those controllers.
 #
@@ -93,7 +93,7 @@ module Camping
 # To get sessions working for your application:
 #
 # 1. <tt>require 'camping/session'</tt>
-# 2. Mixin the module: <tt>module YourApp; include Camping::Session end</tt>
+# 2. Mixin the module: <tt>module YourApp; include Camping::ARSession end</tt>
 # 3. In your application's <tt>create</tt> method, add a call to <tt>Camping::Models::Session.create_schema</tt>
 # 4. Throughout your application, use the <tt>@state</tt> var like a hash to store your application's data. 
 # 
@@ -107,7 +107,7 @@ module Camping
 # * All mounted Camping apps using this class will use the same database table.
 # * However, your application's data is stored in its own hash.
 # * Session data is only saved if it has changed. 
-module Session
+module ARSession
     # This <tt>service</tt> method, when mixed into controllers, intercepts requests
     # and wraps them with code to start and close the session.  If a session isn't found
     # in the database it is created.  The <tt>@state</tt> variable is set and if it changes,
