@@ -128,13 +128,24 @@ task :diff do
   sh "diff -u .camping-unabridged.pt .camping.pt | less"
 end
 
+task :ruby_diff do
+  require 'ruby2ruby'
+  c = Ruby2Ruby.translate(File.read("lib/camping.rb"))
+  n = Ruby2Ruby.translate(File.read("lib/camping-unabridged.rb"))
+  
+  File.open(".camping-unabridged.rb.rb","w"){|f|f<<c}
+  File.open(".camping.rb.rb","w"){|f|f<<n}
+  
+  sh "diff -u .camping-unabridged.rb.rb .camping.rb.rb | less"
+end
+
 task :check => ["check:valid", "check:size", "check:lines"]
 namespace :check do
 
   desc "Check source code validity"
   task :valid do
-    ruby "-w", "lib/camping-unabridged.rb"
-    ruby "-w", "lib/camping.rb"
+    ruby "-rubygems", "-w", "lib/camping-unabridged.rb"
+    ruby "-rubygems", "-w", "lib/camping.rb"
   end
 
   SIZE_LIMIT = 4096
