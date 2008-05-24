@@ -329,11 +329,7 @@ module Camping
     #
     # See also: #r404, #r500 and #r501
     def r(s, b, h = {})
-      if Hash===b
-        t = b.dup
-        b = h.dup
-        h = t
-      end
+      Hash===b && (b, h = h, b)
       @status = s
       @headers.merge!(h)
       @body = b
@@ -408,21 +404,20 @@ module Camping
     end
     
     def initialize(env) #:nodoc:
-      @request = Rack::Request.new(env)
-      @root = @request.script_name.sub(/\/$/,'') 
-      @input = H[@request.params]
-      @cookies = H[@request.cookies]
-
-      @response = Rack::Response.new
-      @headers = @response.headers
-      @body = @response.body
-      @status = @response.status
+      @request, @root,
+      @input, @cookies,
+      @response, @headers,
+      @body, @status =
+      Rack::Request.new(env), @request.script_name.sub(/\/$/,''), 
+      H[@request.params], H[@request.cookies],
+      Rack::Response.new, @response.headers,
+      @response.body, @response.status
       
-      @input.each do |key, value|
-        if key[-2..-1] == "[]"
-          @input[key[0..-3]] = @input.delete(key)
-        elsif key =~ /(.*)\[([^\]])\]$/
-          (@input[$1] ||= {})[$2] = @input.delete(key)
+      @input.each do |k, v|
+        if k[-2..-1] == "[]"
+          @input[k[0..-3]] = @input.delete(k)
+        elsif k =~ /(.*)\[([^\]])\]$/
+          (@input[$1] ||= {})[$2] = @input.delete(k)
         end
       end
     end
@@ -437,8 +432,8 @@ module Camping
       @response.body = send(@request.request_method.downcase, *a) || @body
       @response.status = @status
       @response.headers.merge!(@headers)
-      @cookies.each do |key, value|
-        @response.set_cookie(key, value) if o[key] != value
+      @cookies.each do |k, v|
+        @response.set_cookie(k, v) if o[k] != v
       end
       self
     end
@@ -562,9 +557,9 @@ module Camping
       eval S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING
     end
     
-    def call(env)
+    def call(e)
       X.M
-      e = H[env.to_hash]
+      e = H[e.to_hash]
       k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
       e.REQUEST_METHOD = m
       k.new(e).service(*a).to_a
