@@ -631,7 +631,7 @@ module Camping
   #
   # Models cannot be referred to in Views at this time.
   module Models
-      autoload :Base,'camping/db'
+      autoload :Base,'camping/ar'
       def Y;self;end
   end
  

@@ -71,7 +71,7 @@ module Camping
     module_eval $AR_EXTRAS
   end
 end
-Camping::S.sub! /autoload\s*:Base\s*,\s*['"]camping\/db['"]/, ""
+Camping::S.sub! /autoload\s*:Base\s*,\s*['"]camping\/ar['"]/, ""
 Camping::S.sub! /def\s*Y[;\s]*self[;\s]*end/, $AR_EXTRAS
 Object.constants.map{|c|Object.const_get(c)}.each do |c|
   c::Models.module_eval $AR_EXTRAS if c.respond_to?(:goes)

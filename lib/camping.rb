@@ -45,4 +45,4 @@ def method_missing m,c,*a;X.M;h=Hash===a[-1]?H[a.pop]:{};e=
 H[h[:env]||{}].u({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
 k=X.const_get(c).new(H[e]);k.send("input=",h[:input])if h[:input]
 k.service(*a);end;end;module Views;include X,Helpers end;module Models
-autoload:Base,'camping/db';def Y;self;end end;autoload:Mab,'camping/mab'end
+autoload:Base,'camping/ar';def Y;self;end end;autoload:Mab,'camping/mab'end
