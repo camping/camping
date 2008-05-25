@@ -123,7 +123,6 @@ module Camping
     def method_missing(m,*a)
         m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super
     end
-    alias u merge!
     undef id, type
   end
 
@@ -589,7 +588,7 @@ module Camping
     def method_missing(m, c, *a)
       X.M
       h=Hash===a[-1]?H[a.pop]:{}
-      e=H[h[:env]||{}].u({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
+      e=H[h[:env]||{}].merge!({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
       k = X.const_get(c).new(H[e])
       k.send("input=",h[:input]) if h[:input]
       k.service(*a)

@@ -3,7 +3,7 @@
 S=IO.read(__FILE__)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>"
 class H<Hash
 def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super end
-alias u merge!;undef id,type;end;module Helpers;def R c,*g
+undef id,type;end;module Helpers;def R c,*g
 p,h=/\(.+?\)/,g.grep(Hash);g-=h;raise"bad route"unless u=c.urls.find{|x|
 break x if x.scan(p).size==g.size&&/^#{x}\/?$/=~(x=g.inject(x){|x,a|
 x.sub p,Rack::Utils.escape((a[a.class.primary_key]rescue a))})}
@@ -43,7 +43,7 @@ X.M;e=H[e.to_hash];k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
 e.REQUEST_METHOD=m;k.new(e).service(*a).to_a;rescue => x
 e.REQUEST_METHOD='r500';X::I.new(e).service(k,m,x).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?H[a.pop]:{};e=
-H[h[:env]||{}].u({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
+H[h[:env]||{}].merge!({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
 k=X.const_get(c).new(H[e]);k.send("input=",h[:input])if h[:input]
 k.service(*a);end;end;module Views;include X,Helpers end;module Models
 autoload:Base,'camping/ar';def Y;self;end end;autoload:Mab,'camping/mab'end
