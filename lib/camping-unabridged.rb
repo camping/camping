@@ -416,8 +416,8 @@ module Camping
       @input.each do |k, v|
         if k[-2..-1] == "[]"
           @input[k[0..-3]] = @input.delete(k)
-        elsif k =~ /(.*)\[([^\]])\]$/
-          (@input[$1] ||= {})[$2] = @input.delete(k)
+        elsif k =~ /(.*)\[([^\]]+)\]$/
+          (@input[$1] ||= H[])[$2] = @input.delete(k)
         end
       end
     end

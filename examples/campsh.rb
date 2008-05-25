@@ -612,7 +612,7 @@ module CampSh::Views
 
             h2. Using with Firefox
 
-            For best effect, go to @about:config@ and set @keyword.URL@ to @http://#{env['HTTP_HOST']}#{self./ "/run/"}@. Restart Firefox,
+            For best effect, go to @about:config@ and set @keyword.URL@ to @http://#{env.HTTP_HOST}#{self./ "/run/"}@. Restart Firefox,
             you will then be able to run commands directly from the address bar.
 
             For example:

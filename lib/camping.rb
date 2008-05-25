@@ -25,7 +25,7 @@ r 501,P%"#{m.upcase} not implemented"end;def to_a
 @request.script_name.sub(/\/$/,''),H[@request.params],
 H[@request.cookies],@response.headers,@response.body,
 @response.status;@input.each{|k,v|if k[-2..-1]=="[]";@input[k[0..-3]]=
-@input.delete(k)elsif k=~/(.*)\[([^\]])\]$/;(@input[$1]||={})[$2]=
+@input.delete(k)elsif k=~/(.*)\[([^\]]+)\]$/;(@input[$1]||=H[])[$2]=
 @input.delete(k)end};end;def service *a;o=@cookies.dup;@response.body=
 (send(@request.request_method.downcase,*a)||@body);@response.status=@status;
 @response.headers.merge!(@headers);@cookies.each{|k,v|@response.
