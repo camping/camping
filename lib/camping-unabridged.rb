@@ -404,14 +404,14 @@ module Camping
     end
     
     def initialize(env) #:nodoc:
-      @request, @root,
-      @input, @cookies,
-      @response, @headers,
-      @body, @status =
-      Rack::Request.new(env), @request.script_name.sub(/\/$/,''), 
+      @request, @response =
+      Rack::Request.new(env), Rack::Response.new
+      @root, @input, @cookies,
+      @headers, @body, @status =
+      @request.script_name.sub(/\/$/,''), 
       H[@request.params], H[@request.cookies],
-      Rack::Response.new, @response.headers,
-      @response.body, @response.status
+      @response.headers, @response.body,
+      @response.status
       
       @input.each do |k, v|
         if k[-2..-1] == "[]"

@@ -2,7 +2,7 @@
 
 $:.unshift File.dirname(__FILE__) + "/../lib"
 require 'camping'
-require 'camping/db'
+require 'camping/ar'
 require 'camping/session'
   
 Camping.goes :Blog
@@ -263,7 +263,6 @@ module Blog::Views
 end
  
 def Blog.create
-    Camping::Models::Session.create_schema
-    Blog::Models.create_schema :assume => (Blog::Models::Post.table_exists? ? 1.0 : 0.0)
+  Blog::Models.create_schema :assume => (Blog::Models::Post.table_exists? ? 1.0 : 0.0)
 end
 

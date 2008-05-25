@@ -20,9 +20,10 @@ r 500,P%"#{k}.#{m}"+"<h3>#{x.class} #{x.message}: <ul>#{x.
 backtrace.map{|b|"<li>#{b}</li>"}}</ul></h3>"end;def r501 m=@method
 r 501,P%"#{m.upcase} not implemented"end;def to_a
 @response.to_a;end;def initialize(env)
-@request,@root,@input,@cookies,@response,@headers,@body,@status =
-Rack::Request.new(env),@request.script_name.sub(/\/$/,''),H[@request.params],
-H[@request.cookies],Rack::Response.new,@response.headers,@response.body,
+@request,@response=Rack::Request.new(env),Rack::Response.new
+@root,@input,@cookies,@headers,@body,@status =
+@request.script_name.sub(/\/$/,''),H[@request.params],
+H[@request.cookies],@response.headers,@response.body,
 @response.status;@input.each{|k,v|if k[-2..-1]=="[]";@input[k[0..-3]]=
 @input.delete(k)elsif k=~/(.*)\[([^\]])\]$/;(@input[$1]||={})[$2]=
 @input.delete(k)end};end;def service *a;o=@cookies.dup;@response.body=

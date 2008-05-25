@@ -7,8 +7,8 @@ require 'fileutils'
 include FileUtils
 
 NAME = "camping"
-REV = File.read(".svn/entries").split("\n")[3] rescue nil
-VERS = ENV['VERSION'] || ("1.5" + (REV ? ".#{REV}" : ""))
+REV = (`#{ENV['GIT'] || "git"} rev-list HEAD`.split.length + 1).to_s rescue nil
+VERS = ENV['VERSION'] || ("1.9" + (REV ? ".#{REV}" : ""))
 CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log', '.*.pt']
 RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
     "--opname", "index.html",
