@@ -404,8 +404,8 @@ module Camping
     end
     
     def initialize(env) #:nodoc:
-      @request, @response =
-      Rack::Request.new(env), Rack::Response.new
+      @request, @response, @env =
+      Rack::Request.new(env), Rack::Response.new, env
       @root, @input, @cookies,
       @headers, @body, @status =
       @request.script_name.sub(/\/$/,''), 

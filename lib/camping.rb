@@ -20,7 +20,7 @@ r 500,P%"#{k}.#{m}"+"<h3>#{x.class} #{x.message}: <ul>#{x.
 backtrace.map{|b|"<li>#{b}</li>"}}</ul></h3>"end;def r501 m=@method
 r 501,P%"#{m.upcase} not implemented"end;def to_a
 @response.to_a;end;def initialize(env)
-@request,@response=Rack::Request.new(env),Rack::Response.new
+@request,@response,@env=Rack::Request.new(env),Rack::Response.new,env
 @root,@input,@cookies,@headers,@body,@status =
 @request.script_name.sub(/\/$/,''),H[@request.params],
 H[@request.cookies],@response.headers,@response.body,
