@@ -292,24 +292,27 @@ module Camping
     #     end
     #   end
     #
-    def render(m); end; undef_method :render
-
-    # Any stray method calls will be passed to Markaby.  This means you can reply
-    # with HTML directly from your controller for quick debugging.
+    # You can also return directly html by just passing a block
     #
+    def render(v,*a,&b)
+      mab(/^_/!~v.to_s){send(v,*a,&b)}
+    end
+
+    # You can directly return HTML form your controller for quick debugging
+    # by calling this method and pass some Markaby to it.
+    # 
     #   module Camping::Controllers
     #     class Info
-    #       def get; code @headers.inspect end
+    #       def get; mab{ code @headers.inspect } end
     #     end
     #   end
     #
-    # If you have a <tt>layout</tt> method in Camping::Views, it will be used to
-    # wrap the HTML.
-    def method_missing(*a,&b)
-      a.shift if a[0]==:render
+    # You can also pass true to use the :layout HTML wrapping method
+    #
+    def mab(l=nil,&b)
       m=Mab.new({},self)
-      s=m.capture{send(*a,&b)}
-      s=m.capture{send(:layout){s}} if /^_/!~a[0].to_s and m.respond_to?:layout
+      s=m.capture(&b)
+      s=m.capture{layout{s}} if l && m.respond_to?(:layout)
       s
     end
 

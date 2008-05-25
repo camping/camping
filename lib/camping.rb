@@ -11,9 +11,10 @@ h.any?? u+"?"+h[0].map{|x|x.map{|z|Rack::Utils.escape z}*"="}*"&":u end;def / p
 p[/^\//]?@root+p:p end;def URL c='/',*a;c=R(c, *a) if c.respond_to?:urls
 c=self/c;c=@request.url.split("/",4)[0..-2].join("/")+c if c[/^\//];URI c end
 end;module Base;attr_accessor:input,:cookies,:headers,:body,:status,:root
-def method_missing *a,&b;a.shift if a[0]==:render;m=Mab.new({},self)
-s=m.capture{send(*a,&b)};s=m.capture{send(:layout){s}}if/^_/!~a[0].to_s and
-m.respond_to?:layout;s end;def r s,b,h={};(Hash===b&&(b,h=h,b));@status=s;
+def render v,*a,&b;mab(/^_/!~v.to_s){send(v,*a,&b)} end
+def mab l=nil,&b;m=Mab.new({},self);s=m.capture(&b)
+s=m.capture{layout{s}} if l && m.respond_to?(:layout);s end
+def r s,b,h={};(Hash===b&&(b,h=h,b));@status=s;
 @headers.merge!(h);@body=b;end;def redirect *a;r 302,'','Location'=>URL(*a).
 to_s;end;def r404 p=env.PATH;r 404,P%"#{p} not found"end;def r500 k,m,x
 r 500,P%"#{k}.#{m}"+"<h3>#{x.class} #{x.message}: <ul>#{x.
