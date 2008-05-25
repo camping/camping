@@ -38,11 +38,12 @@ module Session
     # in the cookie it is created.  The <tt>@state</tt> variable is set and if it changes,
     # it is saved back into the cookie.
     def service(*a)
-      if @cookies.identity
-        blob, secure_hash = @cookies.identity.to_s.split(':', 2)
-        blob = Base64.decode64(blob)
+      if ![:hash, :blob, :time].detect { |x| !@cookies.include?("camping_#{x}") } &&
+          Time.at(@cookies.camping_time.to_i) > Time.now - state_timeout &&
+          secure_blob_hasher(@cookies.camping_time + @cookies.camping_blob) ==
+            @cookies.camping_hash
+        blob = Base64.decode64(@cookies.camping_blob)
         data = Marshal.restore(blob)
-        data = {} unless secure_blob_hasher(blob).strip == secure_hash.strip
       else
         blob = ''
         data = {}
@@ -55,16 +56,25 @@ module Session
     ensure
       data[app] = @state
       blob = Marshal.dump(data)
+      time = Time.now.to_i.to_s
       unless hash_before == blob.hash
-        secure_hash = secure_blob_hasher(blob)
-        content = Base64.encode64(blob).gsub("\n", '').strip + ':' + secure_hash
+        content = Base64.encode64(blob).gsub("\n", '').strip
         raise "The session contains to much data" if content.length > 4096
-        @response.set_cookie("identity", content)
+        @response.set_cookie("camping_blob", content)
+      else
+        content = @cookies.camping_blob
       end
+      @response.set_cookie("camping_time", time)
+      @response.set_cookie("camping_hash", secure_blob_hasher(time + content))
     end
     
     def secure_blob_hasher(data)
-      Digest::SHA256.hexdigest(self.class.module_eval('@@state_secret') + data)
+      Digest::SHA256.hexdigest(self.class.module_eval('@@state_secret') +
+        @env.REMOTE_ADDR + @env.HTTP_USER_AGENT + data)
+    end
+    
+    def state_secret
+      self.class.module_eval('@@state_timeout') rescue 900
     end
 end
 end
