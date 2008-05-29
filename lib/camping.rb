@@ -28,9 +28,9 @@ H[@request.cookies],@response.headers,@response.body,
 @response.status;@input.each{|k,v|if k[-2..-1]=="[]";@input[k[0..-3]]=
 @input.delete(k)elsif k=~/(.*)\[([^\]]+)\]$/;(@input[$1]||=H[])[$2]=
 @input.delete(k)end};end;def service *a;o=@cookies.dup;@response.body=
-(send(@request.request_method.downcase,*a)||@body);@response.status=@status;
-@response.headers.merge!(@headers);@cookies.each{|k,v|@response.
-set_cookie(k,v)unless(o[k]==v)};self;end
+catch(:halt){send(@request.request_method.downcase,*a)}||@body
+@response.status=@status;@response.headers.merge!(@headers)
+@cookies.each{|k,v|@response.set_cookie(k,v)unless(o[k]==v)};self;end
 end;X=module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
 Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end
 def D p,m;r.map{|k|k.urls.map{|x|return(k.instance_method(m)rescue nil)?

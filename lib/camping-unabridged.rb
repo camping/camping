@@ -431,7 +431,7 @@ module Camping
     # on before and after overrides with Camping.
     def service(*a)
       o = @cookies.dup
-      @response.body = send(@request.request_method.downcase, *a) || @body
+      @response.body = catch(:halt){send(@request.request_method.downcase, *a)} || @body
       @response.status = @status
       @response.headers.merge!(@headers)
       @cookies.each do |k, v|
