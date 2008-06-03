@@ -33,39 +33,40 @@ module Camping
 # * The session is stored in a cookie. Look in <tt>@cookies.identity</tt>.
 # * Session data is only saved if it has changed. 
 module Session
+    @@state_secret = [$0, File.mtime($0)].join(":")
     # This <tt>service</tt> method, when mixed into controllers, intercepts requests
     # and wraps them with code to start and close the session.  If a session isn't found
     # in the cookie it is created.  The <tt>@state</tt> variable is set and if it changes,
     # it is saved back into the cookie.
     def service(*a)
-      if ![:hash, :blob, :time].detect { |x| !@cookies.include?("camping_#{x}") } &&
-          Time.at(@cookies.camping_time.to_i) > Time.now - state_timeout &&
-          secure_blob_hasher(@cookies.camping_time + @cookies.camping_blob) ==
-            @cookies.camping_hash
-        blob = Base64.decode64(@cookies.camping_blob)
-        data = Marshal.restore(blob)
-      else
-        blob = ''
-        data = {}
-      end
+      blob, data = '', {}
+      begin
+        if ![:hash, :blob, :time].detect { |x| !@cookies.include?("camping_#{x}") } &&
+            Time.at(@cookies.camping_time.to_i) > Time.now - state_timeout &&
+            secure_blob_hasher(@cookies.camping_time + @cookies.camping_blob) ==
+              @cookies.camping_hash
+          blob = Base64.decode64(@cookies.camping_blob)
+          data = Marshal.restore(blob)
+        end
 
-      app = self.class.name.gsub(/^(\w+)::.+$/, '\1')
-      @state = (data[app] ||= Camping::H[])
-      hash_before = blob.hash
-      return super(*a)
-    ensure
-      data[app] = @state
-      blob = Marshal.dump(data)
-      time = Time.now.to_i.to_s
-      unless hash_before == blob.hash
-        content = Base64.encode64(blob).gsub("\n", '').strip
-        raise "The session contains to much data" if content.length > 4096
-        @response.set_cookie("camping_blob", content)
-      else
-        content = @cookies.camping_blob
+        app = self.class.name.gsub(/^(\w+)::.+$/, '\1')
+        @state = (data[app] ||= Camping::H[])
+        hash_before = blob.hash
+        return super(*a)
+      ensure
+        data[app] = @state
+        blob = Marshal.dump(data)
+        time = Time.now.to_i.to_s
+        unless hash_before == blob.hash
+          content = Base64.encode64(blob).gsub("\n", '').strip
+          raise "The session contains to much data" if content.length > 4096
+          @response.set_cookie("camping_blob", content)
+        else
+          content = @cookies.camping_blob
+        end
+        @response.set_cookie("camping_time", time)
+        @response.set_cookie("camping_hash", secure_blob_hasher(time + content))
       end
-      @response.set_cookie("camping_time", time)
-      @response.set_cookie("camping_hash", secure_blob_hasher(time + content))
     end
     
     def secure_blob_hasher(data)
@@ -73,7 +74,7 @@ module Session
         @env.REMOTE_ADDR + @env.HTTP_USER_AGENT + data)
     end
     
-    def state_secret
+    def state_timeout
       self.class.module_eval('@@state_timeout') rescue 900
     end
 end
