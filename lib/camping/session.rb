@@ -33,7 +33,6 @@ module Camping
 # * The session is stored in a cookie. Look in <tt>@cookies.identity</tt>.
 # * Session data is only saved if it has changed. 
 module Session
-    @@state_secret = [$0, File.mtime($0)].join(":")
     # This <tt>service</tt> method, when mixed into controllers, intercepts requests
     # and wraps them with code to start and close the session.  If a session isn't found
     # in the cookie it is created.  The <tt>@state</tt> variable is set and if it changes,
@@ -70,12 +69,10 @@ module Session
     end
     
     def secure_blob_hasher(data)
-      Digest::SHA256.hexdigest(self.class.module_eval('@@state_secret') +
-        @env.REMOTE_ADDR + @env.HTTP_USER_AGENT + data)
+      Digest::SHA256.hexdigest("#{state_secret}#{@env.REMOTE_ADDR}#{@env.HTTP_USER_AGENT}#{data}")
     end
     
-    def state_timeout
-      self.class.module_eval('@@state_timeout') rescue 900
-    end
+    def state_timeout; 900 end
+    def state_secret; [__FILE__, File.mtime(__FILE__)].join(":") end
 end
 end
