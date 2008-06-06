@@ -59,12 +59,12 @@ module Session
         unless hash_before == blob.hash
           content = Base64.encode64(blob).gsub("\n", '').strip
           raise "The session contains to much data" if content.length > 4096
-          @response.set_cookie("camping_blob", :value => content, :path => "/")
+          @cookies.camping_blob = content
         else
           content = @cookies.camping_blob
         end
-        @response.set_cookie("camping_time", :value => time, :path => "/")
-        @response.set_cookie("camping_hash", :value => secure_blob_hasher(time + content), :path => "/")
+        @cookies.camping_time = time
+        @cookies.camping_hash = secure_blob_hasher(time + content)
       end
     end
     
