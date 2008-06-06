@@ -400,8 +400,13 @@ module Camping
     #       r *Blog.get(:NotFound, @headers.REQUEST_URI)
     #     end
     #   end
-    #
     def to_a
+      @response.status = @status
+      @response.headers.merge!(@headers)
+      @cookies.each do |k, v|
+        v = {:value => v, :path => self / "/"} if String===v
+        @response.set_cookie(k, v) if @c[k] != v
+      end
       @response.to_a
     end
     
@@ -430,13 +435,8 @@ module Camping
     # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
     # on before and after overrides with Camping.
     def service(*a)
-      o = @cookies.dup
+      @c = @cookies.dup
       @response.body = catch(:halt){send(@request.request_method.downcase, *a)} || @body
-      @response.status = @status
-      @response.headers.merge!(@headers)
-      @cookies.each do |k, v|
-        @response.set_cookie(k, v) if o[k] != v
-      end
       self
     end
   end
