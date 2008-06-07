@@ -411,7 +411,7 @@ module Camping
       @response.to_a
     end
     
-    def initialize(env) #:nodoc:
+    def initialize(env) #:nodoc: 
       @request, @response, @env =
       Rack::Request.new(env), Rack::Response.new, env
       @root, @input, @cookies,
@@ -505,6 +505,7 @@ module Camping
       #
       # So, define your catch-all controllers last.
       def D(p, m)
+        p ||= '/'
         r.map { |k|
           k.urls.map { |x|
             return (k.instance_method(m) rescue nil) ?
