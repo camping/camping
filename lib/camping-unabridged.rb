@@ -401,11 +401,12 @@ module Camping
     #     end
     #   end
     def to_a
+      @response.body = (@body.respond_to?(:each) ? @body : '')
       @response.status = @status
       @response.headers.merge!(@headers)
       @cookies.each do |k, v|
         v = {:value => v, :path => self / "/"} if String===v
-        @response.set_cookie(k, v) if @c[k] != v
+        @response.set_cookie(k, v) if @request.cookies[k] != v
       end
       @response.to_a
     end
@@ -414,11 +415,10 @@ module Camping
       @request, @response, @env =
       Rack::Request.new(env), Rack::Response.new, env
       @root, @input, @cookies,
-      @headers, @body, @status =
+      @headers, @status =
       @request.script_name.sub(/\/$/,''), 
       H[@request.params], H[@request.cookies],
-      @response.headers, @response.body,
-      @response.status
+      @response.headers, @response.status
       
       @input.each do |k, v|
         if k[-2..-1] == "[]"
@@ -435,8 +435,8 @@ module Camping
     # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
     # on before and after overrides with Camping.
     def service(*a)
-      @c = @cookies.dup
-      @response.body = catch(:halt){send(@request.request_method.downcase, *a)} || @body
+      r = catch(:halt){send(@request.request_method.downcase, *a)}
+      @body ||= r 
       self
     end
   end

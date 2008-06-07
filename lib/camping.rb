@@ -19,20 +19,21 @@ def r s,b,h={};(Hash===b&&(b,h=h,b));@status=s;
 to_s;end;def r404 p=env.PATH;r 404,P%"#{p} not found"end;def r500 k,m,x
 r 500,P%"#{k}.#{m}"+"<h3>#{x.class} #{x.message}: <ul>#{x.
 backtrace.map{|b|"<li>#{b}</li>"}}</ul></h3>"end;def r501 m=@method
-r 501,P%"#{m.upcase} not implemented"end;def to_a;@response.status=@status
-@response.headers.merge!(@headers)
+r 501,P%"#{m.upcase} not implemented"end;def to_a
+@response.body=@body.respond_to?(:each)?@body:""
+@response.status=@status;@response.headers.merge!(@headers)
 @cookies.each{|k,v|v={:value=>v,:path=>self/"/"} if String===v
-@response.set_cookie(k,v) if @c[k]!=v};@response.to_a;end;def initialize(env)
+@response.set_cookie(k,v) if @request.cookies[k]!=v}
+@response.to_a;end;def initialize(env)
 @request,@response,@env=Rack::Request.new(env),Rack::Response.new,env
-@root,@input,@cookies,@headers,@body,@status =
+@root,@input,@cookies,@headers,@status=
 @request.script_name.sub(/\/$/,''),H[@request.params],
-H[@request.cookies],@response.headers,@response.body,
-@response.status;@input.each{|k,v|if k[-2..-1]=="[]";@input[k[0..-3]]=
-@input.delete(k)elsif k=~/(.*)\[([^\]]+)\]$/;(@input[$1]||=H[])[$2]=
-@input.delete(k)end};end;def service *a;@c=@cookies.dup
-@response.body=catch(:halt){send(@request.request_method.downcase,*a)}||@body
-self;end
-end;X=module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
+H[@request.cookies],@response.headers,@response.status
+@input.each{|k,v|if k[-2..-1]=="[]";@input[k[0..-3]]=
+@input.delete(k)elsif k=~/(.*)\[([^\]]+)\]$/
+(@input[$1]||=H[])[$2]=@input.delete(k)end};end;def service *a
+r=catch(:halt){send(@request.request_method.downcase,*a)};@body||=r
+self;end;end;X=module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
 Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end
 def D p,m;r.map{|k|k.urls.map{|x|return(k.instance_method(m)rescue nil)?
 [k,m,*$~[1..-1]]:[I,'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p]
