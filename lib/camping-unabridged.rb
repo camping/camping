@@ -28,7 +28,7 @@
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[tempfile uri rack].map { |l| require l }
+%w[tempfile uri stringio rack].map { |l| require l }
 
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
