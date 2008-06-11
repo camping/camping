@@ -419,7 +419,7 @@ module Camping
       @request.script_name.sub(/\/$/,''), 
       H[@request.params], H[@request.cookies],
       @response.headers, @response.status
-      
+            
       @input.each do |k, v|
         if k[-2..-1] == "[]"
           @input[k[0..-3]] = @input.delete(k)
@@ -505,7 +505,7 @@ module Camping
       #
       # So, define your catch-all controllers last.
       def D(p, m)
-        p ||= '/'
+        p = '/' if !p || !p[0]
         r.map { |k|
           k.urls.map { |x|
             return (k.instance_method(m) rescue nil) ?
