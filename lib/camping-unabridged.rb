@@ -524,6 +524,7 @@ module Camping
       #
       # Anyway, if you are calling the URI dispatcher from outside of a Camping server, you'll
       # definitely need to call this at least once to set things up.
+      N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '(\w+)', "Index" => ''
       def M
         def M #:nodoc:
         end
@@ -531,7 +532,7 @@ module Camping
           k=const_get(c)
           k.send :include,C,Base,Helpers,Models
           @r=[k]+r if r-[k]==r
-          k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to?:urls
+          k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
       end
     end

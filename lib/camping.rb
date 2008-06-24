@@ -37,10 +37,12 @@ self;end;end;X=module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
 Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end
 def D p,m;p='/'if !p||!p[0]
 r.map{|k|k.urls.map{|x|return(k.instance_method(m)rescue nil)?
-[k,m,*$~[1..-1]]:[I,'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p]
-end;def M;def M;end;constants.map{|c|k=const_get(c)
+[k,m,*$~[1..-1]]:[I,'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end
+N=H.new{|_,x|x.downcase}.merge! "N"=>'(\d+)',"X"=>'(\w+)',"Index"=>''
+def M;def M;end;constants.map{|c|k=const_get(c)
 k.send:include,C,Base,Helpers,Models;@r=[k]+r if r-[k]==r
-k.meta_def(:urls){["/#{c.downcase}"]}if !k.respond_to?:urls}end end;class I<R()
+k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]
+}if !k.respond_to?:urls}end end;class I<R()
 end;self end;class<<self;def goes m
 eval S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING end;def call e
 X.M;e=H[e.to_hash];k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
