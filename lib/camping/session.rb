@@ -40,10 +40,8 @@ module Session
     def service(*a)
       blob, data = '', {}
       begin
-        if ![:hash, :blob, :time].detect { |x| !@cookies.include?("camping_#{x}") } &&
-            Time.at(@cookies.camping_time.to_i) > Time.now - state_timeout &&
-            secure_blob_hasher(@cookies.camping_time + @cookies.camping_blob) ==
-              @cookies.camping_hash
+        if ![:hash, :blob].detect { |x| !@cookies.include?("camping_#{x}") } &&
+            secure_blob_hasher(@cookies.camping_blob) == @cookies.camping_hash
           blob = Base64.decode64(@cookies.camping_blob)
           data = Marshal.restore(blob)
         end
@@ -55,7 +53,6 @@ module Session
       ensure
         data[app] = @state
         blob = Marshal.dump(data)
-        time = Time.now.to_i.to_s
         unless hash_before == blob.hash
           content = Base64.encode64(blob).gsub("\n", '').strip
           raise "The session contains to much data" if content.length > 4096
@@ -63,8 +60,7 @@ module Session
         else
           content = @cookies.camping_blob
         end
-        @cookies.camping_time = time
-        @cookies.camping_hash = secure_blob_hasher(time + content)
+        @cookies.camping_hash = secure_blob_hasher(content)
       end
     end
     
@@ -72,7 +68,6 @@ module Session
       Digest::SHA256.hexdigest("#{state_secret}#{@env.REMOTE_ADDR}#{@env.HTTP_USER_AGENT}#{data}")
     end
     
-    def state_timeout; 900 end
     def state_secret; [__FILE__, File.mtime(__FILE__)].join(":") end
 end
 end
