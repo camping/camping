@@ -454,13 +454,7 @@ module Camping
   # If no route is set, Camping will guess the route from the class name.
   # The rule is very simple: the route becomes a slash followed by the lowercased
   # class name.  See Controllers::D for the complete rules of dispatch.
-  #
-  # == Special classes
-  #
-  # There are two special classes used for handling 404 and 500 errors.  The
-  # NotFound class handles URLs not found.  The ServerError class handles exceptions
-  # uncaught by your application.
-  X = module Controllers
+  module Controllers
     @r = []
     class << self
       def r #:nodoc:
@@ -537,13 +531,11 @@ module Camping
       end
     end
 
-    
     # Internal controller with no route. Used by #D and C.run to show internal messages.
     class I < R()
     end
-
-    self
   end
+  X = Controllers
 
   class << self
     # When you are running many applications, you may want to create independent
@@ -561,6 +553,9 @@ module Camping
       eval S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING
     end
     
+    # Ruby web servers use this method to enter the Camping realm. The e
+    # argument is the environment variables hash as per the Rack specification.
+    # And array with [statuc, headers, body] is expected at the output.
     def call(e)
       X.M
       e = H[e.to_hash]
