@@ -457,6 +457,7 @@ module Camping
   module Controllers
     @r = []
     class << self
+      # An array containing the various controllers available for dispatch.
       def r #:nodoc:
         @r
       end
@@ -509,6 +510,7 @@ module Camping
         [I, 'r404', p]
       end
 
+      N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '(\w+)', "Index" => ''
       # The route maker, this is called by Camping internally, you shouldn't need to call it.
       #
       # Still, it's worth know what this method does.  Since Ruby doesn't keep track of class
@@ -518,7 +520,6 @@ module Camping
       #
       # Anyway, if you are calling the URI dispatcher from outside of a Camping server, you'll
       # definitely need to call this at least once to set things up.
-      N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '(\w+)', "Index" => ''
       def M
         def M #:nodoc:
         end
@@ -531,7 +532,7 @@ module Camping
       end
     end
 
-    # Internal controller with no route. Used by #D and C.run to show internal messages.
+    # Internal controller with no route. Used by #D and C.call to show internal messages.
     class I < R()
     end
   end
