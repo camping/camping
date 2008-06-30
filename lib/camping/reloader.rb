@@ -117,7 +117,7 @@ class Reloader
         if @klass
             @klass.call(*a) 
         else
-            Camping.run(*a)
+            Camping.call(*a)
         end
     end
 
