@@ -33,7 +33,7 @@ H[@request.cookies],@response.headers,@response.status
 @input.delete(k)elsif k=~/(.*)\[([^\]]+)\]$/
 (@input[$1]||=H[])[$2]=@input.delete(k)end};end;def service *a
 r=catch(:halt){send(@request.request_method.downcase,*a)};@body||=r
-self;end;end;X=module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
+self;end;end;module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
 Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end
 def D p,m;p='/'if !p||!p[0]
 r.map{|k|k.urls.map{|x|return(k.instance_method(m)rescue nil)?
@@ -43,11 +43,10 @@ def M;def M;end;constants.map{|c|k=const_get(c)
 k.send:include,C,Base,Helpers,Models;@r=[k]+r if r-[k]==r
 k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]
 }if !k.respond_to?:urls}end end;class I<R()
-end;self end;class<<self;def goes m
+end; end;X=Controllers;class<<self;def goes m
 eval S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING end;def call e
 X.M;e=H[e.to_hash];k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
-e.REQUEST_METHOD=m;k.new(e).service(*a).to_a;rescue => x
-e.REQUEST_METHOD='r500';X::I.new(e).service(k,m,x).to_a;end
+e.REQUEST_METHOD=m;k.new(e).service(*a).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?H[a.pop]:{};e=
 H[h[:env]||{}].merge!({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
 k=X.const_get(c).new(H[e]);k.send("input=",h[:input])if h[:input]
