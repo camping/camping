@@ -78,7 +78,7 @@ Interested yet?  Okay, okay, one step at a time.
 
 Or for the bleeding edge:
 
-* <tt>gem install camping --source code.whytheluckystiff.net</tt>
+* <tt>gem install camping --source http://code.whytheluckystiff.net</tt>
 
 You are encourage to install Camping and SQLite3, since it is a small database
 which fits perfectly with our compact bylaws, works well with the examples.
