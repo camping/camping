@@ -81,6 +81,7 @@ class Session < Base
         end
     end
 end
+Session.partial_updates = false if Session.respond_to?(:partial_updates=)
 end
 
 module Camping
