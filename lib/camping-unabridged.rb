@@ -415,7 +415,7 @@ module Camping
       Rack::Request.new(env), Rack::Response.new, env
       @root, @input, @cookies,
       @headers, @status =
-      @request.script_name.sub(/\/$/,''), 
+      @env.SCRIPT_NAME.sub(/\/$/,''), 
       H[@request.params], H[@request.cookies],
       @response.headers, @response.status
             
@@ -434,7 +434,7 @@ module Camping
     # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
     # on before and after overrides with Camping.
     def service(*a)
-      r = catch(:halt){send(@request.request_method.downcase, *a)}
+      r = catch(:halt){send(@env.REQUEST_METHOD.downcase, *a)}
       @body ||= r 
       self
     end

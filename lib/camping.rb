@@ -27,12 +27,12 @@ r 501,P%"#{m.upcase} not implemented"end;def to_a
 @response.to_a;end;def initialize(env)
 @request,@response,@env=Rack::Request.new(env),Rack::Response.new,env
 @root,@input,@cookies,@headers,@status=
-@request.script_name.sub(/\/$/,''),H[@request.params],
+@env.SCRIPT_NAME.sub(/\/$/,''),H[@request.params],
 H[@request.cookies],@response.headers,@response.status
 @input.each{|k,v|if k[-2..-1]=="[]";@input[k[0..-3]]=
 @input.delete(k)elsif k=~/(.*)\[([^\]]+)\]$/
 (@input[$1]||=H[])[$2]=@input.delete(k)end};end;def service *a
-r=catch(:halt){send(@request.request_method.downcase,*a)};@body||=r
+r=catch(:halt){send(@env.REQUEST_METHOD.downcase,*a)};@body||=r
 self;end;end;module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
 Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end
 def D p,m;p='/'if !p||!p[0]
