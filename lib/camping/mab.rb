@@ -21,6 +21,6 @@ $MAB_CODE = %{
 }
 
 Camping::S.sub! /autoload\s*:Mab\s*,\s*['"]camping\/mab['"]/, $MAB_CODE
-Object.constants.map{|c|Object.const_get(c)}.each do |c|
-  c.module_eval $MAB_CODE if c.respond_to?(:goes)
+Camping::Apps.each do |c|
+  c.module_eval $MAB_CODE
 end

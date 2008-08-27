@@ -90,6 +90,13 @@ module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
+  Apps = [].instance_eval do
+    def <<(i)
+      delete_if { |f| f.to_s == i.to_s}
+      super
+    end
+    self
+  end
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   # 
@@ -550,7 +557,8 @@ module Camping
     #   module Blog::Views;       ... end
     #
     def goes(m)
-      eval S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING
+      eval S.gsub(/Camping/,m=m.to_s), t=TOPLEVEL_BINDING
+      Apps << eval(m,t)
     end
     
     # Ruby web servers use this method to enter the Camping realm. The e

@@ -1,6 +1,7 @@
 %w[uri stringio rack].map{|l|require l};class Object;def meta_def m,&b
 (class<<self;self end).send:define_method,m,&b end end;module Camping;C=self
-S=IO.read(__FILE__)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>"
+S=IO.read(__FILE__)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";Apps=[].
+instance_eval{def << i;delete_if{|f|f.to_s==i.to_s};super;end;self}
 class H<Hash
 def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super end
 undef id,type;end;module Helpers;def R c,*g
@@ -44,8 +45,8 @@ k.send:include,C,Base,Helpers,Models;@r=[k]+r if r-[k]==r
 k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]
 }if !k.respond_to?:urls}end end;class I<R()
 end; end;X=Controllers;class<<self;def goes m
-eval S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING end;def call e
-X.M;e=H[e.to_hash];k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
+eval S.gsub(/Camping/,m=m.to_s),t=TOPLEVEL_BINDING;Apps<<eval(m,t) end;def call(
+e)X.M;e=H[e.to_hash];k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
 e.REQUEST_METHOD=m;k.new(e).service(*a).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?H[a.pop]:{};e=
 H[h[:env]||{}].merge!({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
