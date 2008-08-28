@@ -22,13 +22,12 @@
 #   for SQLite3, MySQL, PostgreSQL, SQL Server and more.
 # * Markaby, used in your views to describe HTML in plain Ruby.
 # * MetAid, a few metaprogramming methods which Camping uses.
-# * Tempfile, for storing file uploads.
 #
 # Camping also works well with Mongrel, the swift Ruby web server.
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
 # in its <tt>examples/camping</tt> directory. 
 #
-%w[tempfile uri stringio rack].map { |l| require l }
+%w[uri stringio rack].map { |l| require l }
 
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
