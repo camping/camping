@@ -14,7 +14,7 @@ $MAB_CODE = %{
     include Views
     def tag!(*g,&b)
       h=g[-1]
-      [:href,:action,:src].map{|a|(h[a]=self/h[a])rescue 0}
+      [:href,:action,:src].map{|a|(h[a]&&=self/h[a])rescue 0}
       super
     end
   end
