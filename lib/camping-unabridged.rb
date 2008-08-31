@@ -90,13 +90,7 @@ module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
-  Apps = [].instance_eval do
-    def <<(i)
-      delete_if { |f| f.to_s == i.to_s}
-      super
-    end
-    self
-  end
+  Apps = []
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   # 

@@ -49,6 +49,7 @@ module Camping
     # namespace, this will be sure to do so and set @klass to nil.
     def remove_app
       if @klass
+        Camping::Apps.delete(@klass)
         Object.send :remove_const, @klass.name
         @klass = nil
       end 
