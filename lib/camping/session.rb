@@ -38,29 +38,30 @@ module Session
     # in the cookie it is created.  The <tt>@state</tt> variable is set and if it changes,
     # it is saved back into the cookie.
     def service(*a)
-      blob, data = '', {}
+      input_blob = @input.camping_blob || @cookies.camping_blob
+      input_hash = @input.camping_hash || @cookies.camping_hash
+      decoded_blob, data = '', {}
       begin
-        if ![:hash, :blob].detect { |x| !@cookies.include?("camping_#{x}") } &&
-            secure_blob_hasher(@cookies.camping_blob) == @cookies.camping_hash
-          blob = Base64.decode64(@cookies.camping_blob)
-          data = Marshal.restore(blob)
+        if input_blob && input_hash && secure_blob_hasher(input_blob) == input_hash
+          decoded_blob = Base64.decode64(input_blob)
+          data = Marshal.restore(decoded_blob)
         end
 
         app = self.class.name.gsub(/^(\w+)::.+$/, '\1')
         @state = (data[app] ||= Camping::H[])
-        hash_before = blob.hash
+        hash_before = decoded_blob.hash
         return super(*a)
       ensure
         data[app] = @state
-        blob = Marshal.dump(data)
-        unless hash_before == blob.hash
-          content = Base64.encode64(blob).gsub("\n", '').strip
-          raise "The session contains to much data" if content.length > 4096
-          @cookies.camping_blob = content
+        decoded_blob = Marshal.dump(data)
+        unless hash_before == decoded_blob.hash
+          @session_blob = Base64.encode64(decoded_blob).gsub("\n", '').strip
+          raise "The session contains to much data" if @session_blob.length > 4096
+          @cookies.camping_blob = @session_blob
         else
-          content = @cookies.camping_blob
+          @session_blob = @cookies.camping_blob
         end
-        @cookies.camping_hash = secure_blob_hasher(content)
+        @cookies.camping_hash = @session_hash = secure_blob_hasher(@session_blob)
       end
     end
     
@@ -71,3 +72,4 @@ module Session
     def state_secret; [__FILE__, File.mtime(__FILE__)].join(":") end
 end
 end
+
