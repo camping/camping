@@ -38,12 +38,12 @@ module Session
     # in the cookie it is created.  The <tt>@state</tt> variable is set and if it changes,
     # it is saved back into the cookie.
     def service(*a)
-      input_blob = @input.camping_blob || @cookies.camping_blob
-      input_hash = @input.camping_hash || @cookies.camping_hash
+      @session_blob = @input.camping_blob || @cookies.camping_blob
+      @session_hash = @input.camping_hash || @cookies.camping_hash
       decoded_blob, data = '', {}
       begin
-        if input_blob && input_hash && secure_blob_hasher(input_blob) == input_hash
-          decoded_blob = Base64.decode64(input_blob)
+        if @session_blob && @session_hash && secure_blob_hasher(@session_blob) == @session_hash
+          decoded_blob = Base64.decode64(@session_blob)
           data = Marshal.restore(decoded_blob)
         end
 
@@ -56,12 +56,11 @@ module Session
         decoded_blob = Marshal.dump(data)
         unless hash_before == decoded_blob.hash
           @session_blob = Base64.encode64(decoded_blob).gsub("\n", '').strip
+          @session_hash = secure_blob_hasher(@session_blob)
           raise "The session contains to much data" if @session_blob.length > 4096
           @cookies.camping_blob = @session_blob
-        else
-          @session_blob = @cookies.camping_blob
+          @cookies.camping_hash = @session_hash
         end
-        @cookies.camping_hash = @session_hash = secure_blob_hasher(@session_blob)
       end
     end
     
@@ -72,4 +71,3 @@ module Session
     def state_secret; [__FILE__, File.mtime(__FILE__)].join(":") end
 end
 end
-
