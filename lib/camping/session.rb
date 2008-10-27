@@ -66,7 +66,7 @@ module Session
     end
     
     def secure_blob_hasher(data)
-      OpenSSL::HMAC.hexdigest(DIGEST, state_secret, "#{@env.REMOTE_ADDR}#{@env.HTTP_USER_AGENT}#{data}")
+      OpenSSL::HMAC.hexdigest(DIGEST, state_secret, "#{@env.REMOTE_ADDR}#{data}")
     end
     
     def state_secret; [__FILE__, File.mtime(__FILE__)].join(":") end
