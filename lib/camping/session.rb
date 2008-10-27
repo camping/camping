@@ -12,7 +12,7 @@
 # For a basic tutorial, see the *Getting Started* section of the Camping::Session module.
 #require 'camping'
 require 'base64'
-require 'digest/sha2'
+require 'openssl'
 
 module Camping
 # The Camping::Session module is designed to be mixed into your application or into specific
@@ -33,6 +33,7 @@ module Camping
 # * The session is stored in a cookie. Look in <tt>@cookies.identity</tt>.
 # * Session data is only saved if it has changed. 
 module Session
+    DIGEST = OpenSSL::Digest::SHA1.new
     # This <tt>service</tt> method, when mixed into controllers, intercepts requests
     # and wraps them with code to start and close the session.  If a session isn't found
     # in the cookie it is created.  The <tt>@state</tt> variable is set and if it changes,
@@ -47,7 +48,7 @@ module Session
           data = Marshal.restore(decoded_blob)
         end
 
-        app = self.class.name.gsub(/^(\w+)::.+$/, '\1')
+        app = C.name
         @state = (data[app] ||= Camping::H[])
         hash_before = decoded_blob.hash
         return super(*a)
@@ -65,7 +66,7 @@ module Session
     end
     
     def secure_blob_hasher(data)
-      Digest::SHA256.hexdigest("#{state_secret}#{@env.REMOTE_ADDR}#{@env.HTTP_USER_AGENT}#{data}")
+      OpenSSL::HMAC.hexdigest(DIGEST, state_secret, "#{@env.REMOTE_ADDR}#{@env.HTTP_USER_AGENT}#{data}")
     end
     
     def state_secret; [__FILE__, File.mtime(__FILE__)].join(":") end
