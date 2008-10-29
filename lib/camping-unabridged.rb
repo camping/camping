@@ -331,7 +331,7 @@ module Camping
     #
     # See also: #r404, #r500 and #r501
     def r(s, b, h = {})
-      Hash===b && (b, h = h, b)
+      b, h = h, b if Hash === b
       @status = s
       @headers.merge!(h)
       @body = b
@@ -551,8 +551,7 @@ module Camping
     #   module Blog::Views;       ... end
     #
     def goes(m)
-      eval S.gsub(/Camping/,m=m.to_s), t=TOPLEVEL_BINDING
-      Apps << eval(m,t)
+      Apps << eval(S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING)
     end
     
     # Ruby web servers use this method to enter the Camping realm. The e
@@ -634,5 +633,6 @@ module Camping
   end
  
   autoload :Mab, 'camping/mab'
+  C
 end
 

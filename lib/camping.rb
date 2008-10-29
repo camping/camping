@@ -14,7 +14,7 @@ end;module Base;attr_accessor:input,:cookies,:headers,:body,:status,:root
 def render v,*a,&b;mab(/^_/!~v.to_s){send(v,*a,&b)} end
 def mab l=nil,&b;m=Mab.new({},self);s=m.capture(&b)
 s=m.capture{layout{s}} if l && m.respond_to?(:layout);s end
-def r s,b,h={};(Hash===b&&(b,h=h,b));@status=s;
+def r s,b,h={};b,h=h,b if Hash===b;@status=s;
 @headers.merge!(h);@body=b;end;def redirect *a;r 302,'','Location'=>URL(*a).
 to_s;end;def r404 p=env.PATH;r 404,P%"#{p} not found"end;def r500 k,m,x
 r 500,P%"#{k}.#{m}"+"<h3>#{x.class} #{x.message}: <ul>#{x.
@@ -44,11 +44,11 @@ k.send:include,C,Base,Helpers,Models;@r=[k]+r if r-[k]==r
 k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]
 }if !k.respond_to?:urls}end end;class I<R()
 end; end;X=Controllers;class<<self;def goes m
-eval S.gsub(/Camping/,m=m.to_s),t=TOPLEVEL_BINDING;Apps<<eval(m,t) end;def call(
+Apps<<eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING) end;def call(
 e)X.M;e=H[e.to_hash];k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
 e.REQUEST_METHOD=m;k.new(e).service(*a).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?H[a.pop]:{};e=
 H[h[:env]||{}].merge!({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
 k=X.const_get(c).new(H[e]);k.send("input=",h[:input])if h[:input]
 k.service(*a);end;end;module Views;include X,Helpers end;module Models
-autoload:Base,'camping/ar';def Y;self;end end;autoload:Mab,'camping/mab'end
+autoload:Base,'camping/ar';def Y;self;end end;autoload:Mab,'camping/mab';C end
