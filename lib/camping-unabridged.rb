@@ -214,7 +214,7 @@ module Camping
     #   self / "styles.css" #=> "styles.css"
     #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
-    def /(p); p[/^\//]?@root+p:p end
+    def /(p); p[0]==?/?@root+p:p end
     # Builds a URL route to a controller or a path, returning a URI object.
     # This way you'll get the hostname and the port number, a complete URL.
     #
@@ -239,7 +239,7 @@ module Camping
     def URL c='/',*a
       c = R(c, *a) if c.respond_to? :urls
       c = self/c
-      c = @request.url.split("/",4)[0..-2].join("/")+c if c[/^\//]
+      c = @request.url[/.{8,}?(?=\/)/]+c if c[0]==?/
       URI(c)
     end
   end
