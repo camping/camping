@@ -1,13 +1,13 @@
 %w[uri stringio rack].map{|l|require l};class Object;def meta_def m,&b
 (class<<self;self end).send:define_method,m,&b end end;module Camping;C=self
-S=IO.read(__FILE__)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";Apps=[]
-class H<Hash
+S=IO.read(__FILE__)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>"
+U=Rack::Utils;Apps=[];class H<Hash
 def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super end
 undef id,type;end;module Helpers;def R c,*g
 p,h=/\(.+?\)/,g.grep(Hash);g-=h;raise"bad route"unless u=c.urls.find{|x|
 break x if x.scan(p).size==g.size&&/^#{x}\/?$/=~(x=g.inject(x){|x,a|
-x.sub p,Rack::Utils.escape((a[a.class.primary_key]rescue a))})}
-h.any?? u+"?"+h[0].map{|x|x.map{|z|Rack::Utils.escape z}*"="}*"&":u end;def / p
+x.sub p,U.escape((a[a.class.primary_key]rescue a))})}
+h.any?? u+"?"+U.build_query(h[0]):u end;def / p
 p[/^\//]?@root+p:p end;def URL c='/',*a;c=R(c, *a) if c.respond_to?:urls
 c=self/c;c=@request.url.split("/",4)[0..-2].join("/")+c if c[/^\//];URI c end
 end;module Base;attr_accessor:input,:cookies,:headers,:body,:status,:root

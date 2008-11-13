@@ -21,7 +21,6 @@
 #   ActiveRecord is an object-to-relational database mapper with adapters
 #   for SQLite3, MySQL, PostgreSQL, SQL Server and more.
 # * Markaby, used in your views to describe HTML in plain Ruby.
-# * MetAid, a few metaprogramming methods which Camping uses.
 #
 # Camping also works well with Mongrel, the swift Ruby web server.
 # http://rubyforge.org/projects/mongrel  Mongrel comes with examples
@@ -90,6 +89,7 @@ module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
+  U = Rack::Utils
   Apps = []
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
@@ -202,9 +202,9 @@ module Camping
       raise "bad route" unless u = c.urls.find{|x|
         break x if x.scan(p).size == g.size && 
           /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
-            x.sub p,Rack::Utils.escape((a[a.class.primary_key]rescue a))})
+            x.sub p,U.escape((a[a.class.primary_key]rescue a))})
       }
-      h.any?? u+"?"+h[0].map{|x|x.map{|z|Rack::Utils.escape z}*"="}*"&": u
+      h.any?? u+"?"+U.build_query(h[0]) : u
     end
 
     # Simply builds a complete path from a path +p+ within the app.  If your application is 
