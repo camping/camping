@@ -10,7 +10,7 @@ module Misc
     class RenderPartial
       def get; render :_partial; end
     end
-    class XSendfile
+    class Xsendfile
       def get
         @headers["X-Sendfile"] = File.expand_path(__FILE__)
         "You shouldn't get this text"
@@ -39,7 +39,7 @@ module Misc
           ul do
             li{ a "index", :href=>R(Index)}
             li{ a "render partial", :href=>R(RenderPartial)}
-            li{ a "X-Sendfile", :href=>R(XSendfile)}
+            li{ a "X-Sendfile", :href=>R(Xsendfile)}
             li{ a "Links", :href=>R(Links)}
             li{ a "BadLinks", :href=>R(BadLinks)}
             li{ a "Redirect", :href=>R(Redirect)}
