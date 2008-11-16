@@ -27,7 +27,7 @@ r 501,P%"#{m.upcase} not implemented"end;def to_a
 @response.to_a;end;def initialize(env)
 @request,@response,@env=Rack::Request.new(env),Rack::Response.new,env
 @root,@input,@cookies,@headers,@status=
-@env.SCRIPT_NAME.sub(/\/$/,''),H[@request.params],
+(@env.SCRIPT_NAME||'').sub(/\/$/,''),H[@request.params],
 H[@request.cookies],@response.headers,@response.status
 @input.each{|k,v|if k[-2..-1]=="[]";@input[k[0..-3]]=
 @input.delete(k)elsif k=~/(.*)\[([^\]]+)\]$/
@@ -45,7 +45,8 @@ k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]
 }if !k.respond_to?:urls}end end;class I<R()
 end; end;X=Controllers;class<<self;def goes m
 Apps<<eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING) end;def call(
-e)X.M;e=H[e.to_hash];k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
+e)X.M;e=H[e.to_hash];e.PATH_INFO=U.unescape e.PATH_INFO
+k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
 e.REQUEST_METHOD=m;k.new(e).service(*a).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?H[a.pop]:{};e=
 H[h[:env]||{}].merge!({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})

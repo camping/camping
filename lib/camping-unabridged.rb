@@ -416,7 +416,7 @@ module Camping
       Rack::Request.new(env), Rack::Response.new, env
       @root, @input, @cookies,
       @headers, @status =
-      @env.SCRIPT_NAME.sub(/\/$/,''), 
+      (@env.SCRIPT_NAME||'').sub(/\/$/,''), 
       H[@request.params], H[@request.cookies],
       @response.headers, @response.status
             
@@ -560,6 +560,7 @@ module Camping
     def call(e)
       X.M
       e = H[e.to_hash]
+      e.PATH_INFO = U.unescape(e.PATH_INFO)
       k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
       e.REQUEST_METHOD = m
       k.new(e).service(*a).to_a
