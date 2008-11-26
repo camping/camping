@@ -1,36 +1,46 @@
 #!/usr/bin/env ruby
 
-$:.unshift File.dirname(__FILE__) + "/../lib"
+$:.unshift File.dirname(__FILE__) + '/../lib'
 require 'camping'
 require 'camping/ar'
 require 'camping/session'
-  
+require 'redcloth'
+
 Camping.goes :Blog
 
 module Blog
-    include Camping::Session
-end
+  include Camping::Session
 
-module Blog::Models
-    class Post < Base; belongs_to :user; end
+  module Models
+    class Post < Base
+      belongs_to :user
+      
+      before_save do |record|
+        cloth = RedCloth.new(record.body)
+        cloth.hard_breaks = false
+        record.html_body = cloth.to_html
+      end
+    end
+    
     class Comment < Base; belongs_to :user; end
     class User < Base; end
 
-    class CreateTheBasics < V 1.0
+    class BasicFields < V 1.1
       def self.up
-        create_table :blog_posts do |t|
-          t.column :user_id,  :integer, :null => false
-          t.column :title,    :string,  :limit => 255
-          t.column :body,     :text
+        create_table :blog_posts, :force => true do |t|
+          t.integer :user_id,          :null => false
+          t.string  :title,            :limit => 255
+          t.text    :body, :html_body
+          t.timestamps 
         end
-        create_table :blog_users do |t|
-          t.column :username, :string
-          t.column :password, :string
+        create_table :blog_users, :force => true do |t|
+          t.string  :username, :password
         end
-        create_table :blog_comments do |t|
-          t.column :post_id,  :integer, :null => false
-          t.column :username, :string
-          t.column :body,     :text
+        create_table :blog_comments, :force => true do |t|
+          t.integer :post_id,          :null => false
+          t.string  :username
+          t.text    :body, :html_body
+          t.timestamps
         end
         User.create :username => 'admin', :password => 'camping'
       end
@@ -40,130 +50,133 @@ module Blog::Models
         drop_table :blog_comments
       end
     end
-end
+  end
 
-module Blog::Controllers
-    class Index < R '/'
-        def get
-            @posts = Post.find :all
-            render :index
-        end
-    end
-     
-    class Add
-        def get
-            unless @state.user_id.blank?
-                @user = User.find @state.user_id
-                @post = Post.new
-            end
-            render :add
-        end
-        def post
-            unless @state.user_id.blank?
-                post = Post.create :title => input.post_title, :body => input.post_body,
-                                   :user_id => @state.user_id
-                redirect View, post
-            end
-        end
+  module Controllers
+    class Index
+      def get
+        @posts = Post.all(:order => 'updated_at DESC')
+        render :index
+      end
     end
 
-    class Info < R '/info/(\d+)', '/info/(\w+)/(\d+)', '/info', '/info/(\d+)/(\d+)/(\d+)/([\w-]+)'
-        def get(*args)
-            div do
-                code args.inspect; br; br
-                code @env.inspect; br
-                code "Link: #{R(Info, 1, 2)}"
-            end
-        end
+    class PostNew
+      def get
+        require_login!
+        @post = Post.new
+        render :add
+      end
+      
+      def post
+        require_login!
+        post = Post.create(:title => input.post_title, :body => input.post_body,
+          :user_id => @state.user_id)
+        redirect PostN, post
+      end
     end
 
-    class View < R '/view/(\d+)'
-        def get post_id 
-            @post = Post.find post_id
-            @comments = Models::Comment.find :all, :conditions => ['post_id = ?', post_id]
-            render :view
-        end
+    class PostN
+      def get(post_id) 
+        @post = Post.find(post_id)
+        render :view
+      end
     end
-     
-    class Edit < R '/edit/(\d+)', '/edit'
-        def get post_id 
-            unless @state.user_id.blank?
-                @user = User.find @state.user_id
-            end
-            @post = Post.find post_id
-            render :edit
-        end
-     
-        def post
-            unless @state.user_id.blank?
-                @post = Post.find input.post_id
-                @post.update_attributes :title => input.post_title, :body => input.post_body
-                redirect View, @post
-            end
-        end
+
+    class Edit < R '/post/(\d+)/edit'
+      def get(post_id)
+        require_login! 
+        @post = Post.find(post_id)
+        render :edit
+      end
+
+      def post(post_id)
+        require_login!
+        @post = Post.find(post_id)
+        @post.update_attributes :title => input.post_title, :body => input.post_body
+        redirect PostN, @post  
+      end
     end
-     
-    class Comment
-        def post
-            Models::Comment.create(:username => input.post_username,
-                       :body => input.post_body, :post_id => input.post_id)
-            redirect View, input.post_id
-        end
-    end
-     
+
     class Login
-        def post
-            @user = User.find :first, :conditions => ['username = ? AND password = ?', input.username, input.password]
-     
-            if @user
-                @login = 'login success !'
-                @state.user_id = @user.id
-            else
-                @login = 'wrong user name or password'
-            end
-            render :login
+      def get
+        @to = input.to
+        render :login
+      end
+      
+      def post
+        @user = User.find_by_username_and_password(input.username, input.password)
+        @to = input.to
+
+        if @user
+          @state.user_id = @user.id
+          if @to
+            redirect @to
+          else
+            redirect R(Index)
+          end
+        else
+          @info = 'Wrong username or password'
         end
+        render :login
+      end
     end
-     
+
     class Logout
-        def get
-            @state.user_id = nil
-            render :logout
-        end
+      def get
+        @state.user_id = nil
+        redirect Index
+      end
     end
-     
-    class Style < R '/styles.css'
-        def get
-            @headers["Content-Type"] = "text/css; charset=utf-8"
-            @body = %{
-                body {
-                    font-family: Utopia, Georga, serif;
-                }
-                h1.header {
-                    background-color: #fef;
-                    margin: 0; padding: 10px;
-                }
-                div.content {
-                    padding: 10px;
-                }
-            }
-        end
+
+    class Style < R '/styles\.css'
+      STYLE = File.read(__FILE__).gsub(/.*__END__/m, '')
+
+      def get
+        @headers['Content-Type'] = 'text/css; charset=utf-8'
+        STYLE
+      end
     end
-end
+  end
+  
+  module Helpers
+    def logged_in?
+      !!@state.user_id
+    end
+    
+    def require_login!
+      unless logged_in?
+        redirect X::Login, :to => @env.REQUEST_URI
+        throw :halt
+      end
+    end
+  end
 
-module Blog::Views
-
+  module Views
     def layout
       html do
         head do
-          title 'blog'
+          title 'My Blog'
           link :rel => 'stylesheet', :type => 'text/css', 
-               :href => '/styles.css', :media => 'screen'
+          :href => '/styles.css', :media => 'screen'
         end
         body do
-          h1.header { a 'blog', :href => R(Index) }
-          div.content do
-            self << yield
+          h1 { a 'My Blog', :href => R(Index) }
+          
+          div.wrapper! do
+            text yield
+          end
+          
+          hr
+          
+          p.footer! do
+            if logged_in?
+              _admin_menu
+            else
+              a 'Login', :href => R(Login, :to => @env.REQUEST_URI)
+              text ' to the adminpanel'
+            end
+            text ' &ndash; Powered by '
+            a 'Camping', :href => 'http://code.whytheluckystiff.net/camping'
           end
         end
       end
@@ -171,98 +184,192 @@ module Blog::Views
 
     def index
       if @posts.empty?
-        p 'No posts found.'
-        p { a 'Add', :href => R(Add) }
+        h2 'No posts'
+        p do
+          text 'Could not find any posts. Feel free to '
+          a 'add one', :href => R(PostNew)
+          text ' yourself'
+        end
       else
-        for post in @posts
+        @posts.each do |post|
           _post(post)
         end
       end
     end
 
     def login
-      p { b @login }
-      p { a 'Continue', :href => R(Add) }
-    end
+      h2 'Login'
+      p.info @info if @info
+      
+      form :action => R(Login), :method => 'post' do
+        input :name => 'to', :type => 'hidden', :value => @to if @to
+        
+        label 'Username', :for => 'username'
+        input :name => 'username', :id => 'username', :type => 'text'
 
-    def logout
-      p "You have been logged out."
-      p { a 'Continue', :href => R(Index) }
+        label 'Password', :for => 'password'
+        input :name => 'password', :id => 'password', :type => 'password'
+
+        input :type => 'submit', :class => 'submit', :value => 'Login'
+      end
     end
 
     def add
-      if @user
-        _form(@post, :action => R(Add))
-      else
-        _login
-      end
+      _form(@post, :action => R(PostNew))
     end
 
     def edit
-      if @user
-        _form(@post, :action => R(Edit))
-      else
-        _login
-      end
+      _form(@post, :action => R(Edit, @post))
     end
 
     def view
-        _post(@post)
-
-        p "Comment for this post:"
-        for c in @comments
-          h1 c.username
-          p c.body
-        end
-
-        form :action => R(Comment), :method => 'post' do
-          label 'Name', :for => 'post_username'; br
-          input :name => 'post_username', :type => 'text'; br
-          label 'Comment', :for => 'post_body'; br
-          textarea :name => 'post_body' do; end; br
-          input :type => 'hidden', :name => 'post_id', :value => @post.id
-          input :type => 'submit'
-        end
+      _post(@post)
     end
 
     # partials
-    def _login
-      form :action => R(Login), :method => 'post' do
-        label 'Username', :for => 'username'; br
-        input :name => 'username', :type => 'text'; br
-
-        label 'Password', :for => 'password'; br
-        input :name => 'password', :type => 'text'; br
-
-        input :type => 'submit', :name => 'login', :value => 'Login'
-      end
+    def _admin_menu
+      text [['Log out', R(Logout)], ['New', R(PostNew)]].map { |name, to|
+        capture { a name, :href => to}
+      }.join(' &ndash; ')
     end
 
     def _post(post)
-      h1 post.title
-      p post.body
-      p do
-        [a("Edit", :href => R(Edit, post)), a("View", :href => R(View, post))].join " | "
+      h2 post.title
+      p.info do
+        text "Written by <strong>#{post.user.username}</strong> "
+        text post.updated_at.strftime('%B %M, %Y @ %H:%M ')
+        _post_menu(post)
       end
+      text post.html_body
+    end
+    
+    def _post_menu(post)
+      text '('
+      a 'view', :href => R(PostN, post)
+      if logged_in?
+        text ', '
+        a 'edit', :href => R(Edit, post)
+      end
+      text ')'
     end
 
     def _form(post, opts)
-      p { "You are logged in as #{@user.username} | #{a 'Logout', :href => R(Logout)}" }
       form({:method => 'post'}.merge(opts)) do
-        label 'Title', :for => 'post_title'; br
-        input :name => 'post_title', :type => 'text', 
-              :value => post.title; br
+        label 'Title', :for => 'post_title'
+        input :name => 'post_title', :id => 'post_title', :type => 'text', 
+              :value => post.title
 
-        label 'Body', :for => 'post_body'; br
-        textarea post.body, :name => 'post_body'; br
+        label 'Body', :for => 'post_body'
+        textarea post.body, :name => 'post_body', :id => 'post_body'
 
         input :type => 'hidden', :name => 'post_id', :value => post.id
-        input :type => 'submit'
+        input :type => 'submit', :class => 'submit', :value => 'Submit'
       end
     end
+  end
 end
- 
+
 def Blog.create
   Blog::Models.create_schema :assume => (Blog::Models::Post.table_exists? ? 1.0 : 0.0)
 end
+
+__END__
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font: normal 14px Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+  font-family: Georgia, serif;
+  font-weight: normal;
+}
+
+h1 {  
+  background-color: #EEE;
+  border-bottom: 5px solid #6F812D;
+  outline: 5px solid #9CB441;       
+  font-weight: normal;
+  font-size: 3em;  
+  padding: 0.5em 0;
+  text-align: center;
+}
+
+h1 a { color: #143D55; text-decoration: none }
+h1 a:hover { color: #143D55; text-decoration: underline }
+
+h2 {
+  font-size: 2em;
+  color: #287AA9;  
+}
+
+#wrapper { 
+  margin: 3em auto;
+  width: 700px;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+p.info, p#footer {
+  color: #999;
+  margin-left: 1em;
+}
+
+p.info a, p#footer a {
+  color: #999;
+}
+
+p.info a:hover, p#footer a:hover {
+  text-decoration: none;
+}
+
+a {
+  color: #6F812D;
+}
+
+a:hover {
+  color: #9CB441;
+}
+
+hr {
+  border-width: 5px 0;
+  border-style: solid;     
+  border-color: #9CB441;
+  border-bottom-color: #6F812D;
+  height: 0;   
+}
+
+p#footer {    
+  font-size: 0.9em;
+  margin: 0;      
+  padding: 1em;
+  text-align: center;
+}
+
+label {  
+  display: inline-block;
+  width: 100%;
+}
+
+input, textarea {     
+  margin-bottom: 1em;
+  width: 200px;  
+}
+
+input.submit {
+  float: left;
+  width: auto;
+}
+
+textarea {
+  font: normal 14px Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+  height: 300px;
+  width: 400px;
+}
 
