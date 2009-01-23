@@ -279,6 +279,7 @@ module Camping
   #
   module Base
     attr_accessor :input, :cookies, :headers, :body, :status, :root
+    M = proc { |_, o, n| o.merge(n, &M) }
 
     # Display a view, calling it by its method name +m+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
@@ -412,18 +413,14 @@ module Camping
     
     def initialize(env, m) #:nodoc: 
       r = @request = Rack::Request.new(@env = env)
-      @root, @input, @cookies,
+      @root, p, @cookies,
       @headers, @status, @method =
       (env.SCRIPT_NAME||'').sub(/\/$/,''), 
       H[r.params], H[r.cookies],
       {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
-            
-      @input.each do |k, v|
-        if k[-2..-1] == "[]"
-          @input[k[0..-3]] = @input.delete(k)
-        elsif k =~ /(.*)\[([^\]]+)\]$/
-          (@input[$1] ||= H[])[$2] = @input.delete(k)
-        end
+      
+      @input = p.inject(H[]) do |h, (k, v)|
+        h.merge(k.split(/[\]\[]+/).reverse.inject(v) { |x, i| H[i => x] }, &M)
       end
     end
 
