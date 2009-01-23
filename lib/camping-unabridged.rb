@@ -505,7 +505,7 @@ module Camping
         [I, 'r404', p]
       end
 
-      N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '(\w+)', "Index" => ''
+      N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '([^/]+)', "Index" => ''
       # The route maker, this is called by Camping internally, you shouldn't need to call it.
       #
       # Still, it's worth know what this method does.  Since Ruby doesn't keep track of class
@@ -528,8 +528,7 @@ module Camping
     end
 
     # Internal controller with no route. Used by #D and C.call to show internal messages.
-    class I < R()
-    end
+    I = R()
   end
   X = Controllers
 
