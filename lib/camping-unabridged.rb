@@ -368,8 +368,8 @@ module Camping
     # end
     #
     # See: I
-    def r404(p=env.PATH)
-      r(404, P % "#{p} not found")
+    def r404(p)
+      P % "#{p} not found"
     end
 
     # If there is a parse error in Camping or in your application's source code, it will not be caught
@@ -379,15 +379,15 @@ module Camping
     # You can overide it, but if you have an error in here, it will be uncaught !
     #
     # See: I
-    def r500(k,m,x)
-      r(500, P % "#{k}.#{m}" + "<h3>#{x.class} #{x.message}: <ul>#{x.backtrace.map{|b|"<li>#{b}</li>"}}</ul></h3>")
+    def r500(k,m,e)
+      raise e
     end
 
     # Called if an undefined method is called on a Controller, along with the request method +m+ (GET, POST, etc.)
     #
     # See: I
-    def r501(m=@method)
-      r(501, P % "#{m.upcase} not implemented")
+    def r501(m)
+      P % "#{m.upcase} not implemented"
     end
 
     # Turn a controller into an array.  This is designed to be used to pipe
@@ -410,13 +410,13 @@ module Camping
       r.to_a
     end
     
-    def initialize(env) #:nodoc: 
-      @request = Rack::Request.new(@env = env)
+    def initialize(env, m) #:nodoc: 
+      r = @request = Rack::Request.new(@env = env)
       @root, @input, @cookies,
-      @headers, @status =
-      (@env.SCRIPT_NAME||'').sub(/\/$/,''), 
-      H[@request.params], H[@request.cookies],
-      {}, 200
+      @headers, @status, @method =
+      (env.SCRIPT_NAME||'').sub(/\/$/,''), 
+      H[r.params], H[r.cookies],
+      {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
             
       @input.each do |k, v|
         if k[-2..-1] == "[]"
@@ -433,7 +433,7 @@ module Camping
     # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
     # on before and after overrides with Camping.
     def service(*a)
-      r = catch(:halt){send(@env.REQUEST_METHOD.downcase, *a)}
+      r = catch(:halt){send(@method, *a)}
       @body ||= r 
       self
     end
@@ -557,11 +557,12 @@ module Camping
     # And array with [statuc, headers, body] is expected at the output.
     def call(e)
       X.M
-      e = H[e.to_hash]
-      e.PATH_INFO = U.unescape(e.PATH_INFO)
-      k,m,*a=X.D e.PATH_INFO,(e.REQUEST_METHOD||'get').downcase
-      e.REQUEST_METHOD = m
-      k.new(e).service(*a).to_a
+      e = H[e]
+      p = e.PATH_INFO = U.unescape(e.PATH_INFO)
+      k,m,*a=X.D p,(e.REQUEST_METHOD||'get').downcase
+      k.new(e,m).service(*a).to_a
+    rescue
+      r500(:I, k, m, $!, :env => e).to_a
     end
 
     # The Camping scriptable dispatcher.  Any unhandled method call to the app module will
@@ -584,10 +585,10 @@ module Camping
     #
     def method_missing(m, c, *a)
       X.M
-      h=Hash===a[-1]?H[a.pop]:{}
-      e=H[h[:env]||{}].merge!({'rack.input'=>StringIO.new,'REQUEST_METHOD'=>m.to_s})
-      k = X.const_get(c).new(H[e])
-      k.send("input=",h[:input]) if h[:input]
+      h = Hash === a[-1] ? a.pop : {}
+      e = H[Rack::MockRequest.env_for('',h[:env]||{})]
+      k = X.const_get(c).new(e,m.to_s)
+      k.send("input=", h[:input]) if h[:input]
       k.service(*a)
     end
   end
