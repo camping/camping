@@ -12,7 +12,7 @@ module Camping
   #
   # == Wrapping Your Apps
   #
-  # Since bin/camping and the Camping::FastCGI class already use the Reloader,
+  # Since bin/camping and the Camping::Server class already use the Reloader,
   # you probably don't need to hack it on your own.  But, if you're rolling your
   # own situation, here's how.
   #
@@ -23,140 +23,160 @@ module Camping
   # Use this:
   #
   #   require 'camping/reloader'
-  #   Camping::Reloader.new('/path/to/yourapp.rb')
+  #   reloader = Camping::Reloader.new('/path/to/yourapp.rb')
+  #   blog = reloader.apps[:Blog]
+  #   wiki = reloader.apps[:Wiki]
   #
-  # The reloader will take care of requiring the app and monitoring all files
-  # for alterations.
+  # The <tt>blog</tt> and <tt>wiki</tt> objects will behave exactly like your
+  # Blog and Wiki, but they will update themselves if yourapp.rb changes.
+  #
+  # You can also give Reloader more than one script.
   class Reloader
-    attr_accessor :klass, :mtime, :mount, :requires
+    attr_reader :scripts
+    
+    # This is a simple wrapper which causes the script to reload (if needed)
+    # on any method call.  Then the method call will be forwarded to the
+    # app.
+    class App # :nodoc:
+      instance_methods.each { |m| undef_method m unless m =~ /^__/ }
+      attr_accessor :app, :script
+      
+      def initialize(script)
+        @script = script
+      end
+      
+      # Reloads if needed, before calling the method on the app.
+      def method_missing(meth, *args, &blk)
+        @script.reload!
+        @app.send(meth, *args, &blk)
+      end
+    end
+    
+    # This class is doing all the hard work; however, it only works on
+    # single files.  Reloader just wraps up support for multiple scripts
+    # and hides away some methods you normally won't need.
+    class Script # :nodoc:
+      attr_reader :apps, :file, :dir, :extras
+      
+      def initialize(file)
+        @file = File.expand_path(file)
+        @dir = File.dirname(@file)
+        @extras = File.join(@dir, File.basename(@file, ".rb"))
+        @mtime = Time.at(0)
+        @requires = []
+        @apps = {}
+      end
+      
+      # Loads the apps availble in this script.  Use <tt>apps</tt> to get
+      # the loaded apps.
+      def load_apps
+        all_requires = $LOADED_FEATURES.dup
+        all_apps = Camping::Apps.dup
+        
+        begin
+          load(@file)
+        rescue Exception => e
+          puts "!! Error loading #{@file}:"
+          puts "#{e.class}: #{e.message}"
+          puts e.backtrace
+          puts "!! Error loading #{@file}, see backtrace above"
+        end
+        
+        @requires = ($LOADED_FEATURES - all_requires).map do |req|
+          full = full_path(req)
+          full if full == @file or full.index(@extras) == 0
+        end
+        
+        @mtime = mtime
+        
+        new_apps = (Camping::Apps - all_apps)
+        old_apps = @apps.dup
+        @apps = new_apps.inject({}) do |hash, app|
+          key = app.name.to_sym
+          hash[key] = old_apps[key] || App.new(self)
+          hash[key].app = app
+          hash
+        end
+        self
+      end
+      
+      # Removes all the apps defined in this script.
+      def remove_apps
+        @apps.each do |name, app|
+          Camping::Apps.delete(app.app)
+          Object.send :remove_const, name
+        end
+      end
+      
+      # Reloads the file if needed.  No harm is done by calling this multiple
+      # times, so feel free call just to be sure.
+      def reload!
+        return if @mtime >= mtime
+        remove_apps
+        load_apps
+      end
+      
+      # Checks if both scripts watches the same file.
+      def ==(other)
+        @file == other.file
+      end
+      
+      private
+      
+      def mtime
+        (@requires + [@file]).compact.map do |fname|
+          File.mtime(fname)
+        end.reject{|t| t > Time.now }.max
+      end
+      
+      # Figures out the full path of a required file. 
+      def full_path(req)
+        dir = File.expand_path($LOAD_PATH.detect { |l| File.exists?(File.join(l, req)) })
+        File.join(dir, req)
+      end
+    end
 
     # Creates the reloader, assigns a +script+ to it and initially loads the
     # application.  Pass in the full path to the script, otherwise the script
     # will be loaded relative to the current working directory.
-    def initialize(script)
-      @script = File.expand_path(script)
-      @mount = File.basename(script, '.rb')
-      @requires = nil
-      load_app
+    def initialize(*scripts)
+      @scripts = []
+      update(*scripts)
     end
-
-    # Find the application, based on the script name.
-    def find_app(title)
-      @klass = Object.const_get(Object.constants.grep(/^#{title}$/i)[0]) rescue nil
-    end
-
-    # If the file isn't found, if we need to remove the app from the global
-    # namespace, this will be sure to do so and set @klass to nil.
-    def remove_app
-      if @klass
-        Camping::Apps.delete(@klass)
-        Object.send :remove_const, @klass.name
-        @klass = nil
-      end 
-    end
-
-    # Loads (or reloads) the application.  The reloader will take care of calling
-    # this for you.  You can certainly call it yourself if you feel it's warranted.
-    def load_app
-      title = File.basename(@script)[/^([\w_]+)/,1].gsub /_/,'' 
-      begin
-        all_requires = $LOADED_FEATURES.dup
-        load @script
-        @requires = ($LOADED_FEATURES - all_requires).select do |req|
-          req.index(File.basename(@script) + "/") == 0 || req.index(title + "/") == 0
+    
+    # Updates the reloader to only use the scripts provided:
+    #
+    #   reloader.update("examples/blog.rb", "examples/wiki.rb")
+    def update(*scripts)
+      old = @scripts.dup
+      clear
+      @scripts = scripts.map do |script|
+        s = Script.new(script)
+        if pos = old.index(s)
+          # We already got a script, so we use the old (which might got a mtime)
+          old[pos]
+        else
+          s.load_apps
         end
-      rescue Exception => e
-        puts "!! trouble loading #{title.inspect}: [#{e.class}] #{e.message}"
-        puts e.backtrace.join("\n")
-        find_app title
-        remove_app
-        return
-      end
-
-      @mtime = mtime
-      find_app title
-      unless @klass and @klass.const_defined? :C
-        puts "!! trouble loading #{title.inspect}: not a Camping app, no #{title.capitalize} module found"
-        remove_app
-        return
-      end
-
-      Reloader.conditional_connect
-      @klass.create if @klass.respond_to? :create
-      puts "** #{title.inspect} app loaded"
-      @klass
-    end
-
-    # The timestamp of the most recently modified app dependency.
-    def mtime
-      ((@requires || []) + [@script]).map do |fname|
-        fname = fname.gsub(/^#{Regexp::quote File.dirname(@script)}\//, '')
-        begin
-          File.mtime(File.join(File.dirname(@script), fname))
-        rescue Errno::ENOENT
-          remove_app
-          @mtime
-        end
-      end.reject{|t| t > Time.now }.max
-    end
-
-    # Conditional reloading of the app.  This gets called on each request and
-    # only reloads if the modification times on any of the files is updated.
-    def reload_app 
-      return if @klass and @mtime and mtime <= @mtime
-
-      if @requires
-        @requires.each { |req| $LOADED_FEATURES.delete(req) }
-      end
-      remove_app
-      load_app
-    end
-
-    # Conditionally reloads (using reload_app.)  Then passes the request through
-    # to the wrapped Camping app.
-    def call(*a) 
-      reload_app
-      if @klass
-        @klass.call(*a) 
-      else
-        Camping.call(*a)
       end
     end
-
-    # Returns source code for the main script in the application.
-    def view_source
-      File.read(@script)
+    
+    # Removes all the scripts from the reloader.
+    def clear
+      @scrips = []
     end
-
-    class << self
-      attr_writer :database, :log
-
-      def conditional_connect
-        # If database models are present, `autoload?` will return nil.
-        unless Camping::Models.autoload? :Base
-          if @database and @database[:adapter] == 'sqlite3'
-            begin
-              require 'sqlite3_api'
-            rescue LoadError
-              puts "!! Your SQLite3 adapter isn't a compiled extension."
-              abort "!! Please check out http://code.whytheluckystiff.net/camping/wiki/BeAlertWhenOnSqlite3 for tips."
-            end
-          end
-
-          case @log
-          when Logger
-            Camping::Models::Base.logger = @log
-          when String
-            require 'logger'
-            Camping::Models::Base.logger = Logger.new(@log == "-" ? STDOUT : @log)
-          end
-
-          Camping::Models::Base.establish_connection @database if @database
-
-          if Camping::Models.const_defined?(:Session)
-            Camping::Models::Session.create_schema
-          end
-        end
+    
+    # Simply calls reload! on all the Script objects.
+    def reload!
+      @scripts.each { |script| script.reload! }
+    end
+    
+    # Returns a Hash of all the apps available in the scripts, where the key
+    # would be the name of the app (the one you gave to Camping.goes) and the
+    # value would be the app (wrapped inside App).
+    def apps
+      @scripts.inject({}) do |hash, script|
+        hash.merge(script.apps)
       end
     end
   end

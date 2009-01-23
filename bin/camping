@@ -23,35 +23,33 @@ end
 
 # Parse options
 opts = OptionParser.new do |opts|
-    opts.banner = "Usage: camping app1.rb, app2.rb..."
-    opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
-    opts.separator ""
-    opts.separator "Specific options:"
+  opts.banner = "Usage: camping app1.rb, app2.rb..."
+  opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
+  opts.separator ""
+  opts.separator "Specific options:"
 
-    opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") { |conf.host| }
-    opts.on("-p", "--port NUM", "Port for web server (defaults to #{conf.port})") { |conf.port| }
-    opts.on("-d", "--database FILE", "SQLite3 database path (defaults to #{db_path ? db_path : '<none>'})") { |db_path| conf.database = {:adapter => 'sqlite3', :database => db_path} }
-    opts.on("-l", "--log FILE", "Start a database log ('-' for STDOUT)") { |conf.log| }
-    opts.on("-C", "--console", "Run in console mode with IRB") { conf.server = "console" }
-    server_list = ["mongrel", "webrick", "console"]
-    opts.on("-s", "--server NAME", server_list, "Server to force (#{server_list.join(', ')})") { |conf.server| }
+  opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") { |conf.host| }
+  opts.on("-p", "--port NUM", "Port for web server (defaults to #{conf.port})") { |conf.port| }
+  opts.on("-d", "--database FILE", "SQLite3 database path (defaults to #{db_path ? db_path : '<none>'})") { |db_path| conf.database = {:adapter => 'sqlite3', :database => db_path} }
+  opts.on("-C", "--console", "Run in console mode with IRB") { conf.server = "console" }
+  server_list = ["mongrel", "webrick", "console"]
+  opts.on("-s", "--server NAME", server_list, "Server to force (#{server_list.join(', ')})") { |conf.server| }
 
-    opts.separator ""
-    opts.separator "Common options:"
-  
-    # No argument, shows at tail.  This will print an options summary.
-    # Try it and see!
-    opts.on_tail("-?", "--help", "Show this message") do
-        puts opts
-        exit
-    end
-  
-    # Another typical switch to print the version.
-    opts.on_tail("-v", "--version", "Show version") do
-        class << Gem; attr_accessor :loaded_specs; end
-        puts Gem.loaded_specs['camping'].version
-        exit
-    end
+  opts.separator ""
+  opts.separator "Common options:"
+
+  # No argument, shows at tail.  This will print an options summary.
+  # Try it and see!
+  opts.on_tail("-?", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+
+  # Another typical switch to print the version.
+  opts.on_tail("-v", "--version", "Show version") do
+    puts Gem.loaded_specs['camping'].version
+    exit
+  end
 end
 
 begin
@@ -63,12 +61,12 @@ rescue OptionParser::ParseError => ex
 end
 
 if ARGV.length < 1
-    puts opts
-    exit 1
+  puts opts
+  exit 1
 end
 
 # Load configuration if any
-if rc_path and File.exists?( rc_path )
+if rc_path and File.exists?(rc_path)
   YAML.load_file(rc_path).each do |k,v|
     conf.send("#{k}=", v) unless conf.send(k)
   end 
@@ -77,7 +75,7 @@ end
 
 # Default db
 if conf.database.nil? and db_path
-  conf.database = {:adapter => 'sqlite3', :database => db_path} if db_path
+  conf.database = { :adapter => 'sqlite3', :database => db_path }
 end
 
 
@@ -86,14 +84,14 @@ paths = ARGV.dup
 
 # Check that mongrel exists 
 if conf.server.nil? || conf.server == "mongrel"
-    begin
-        require 'mongrel'
-        conf.server = "mongrel"
-    rescue LoadError 
-        puts "!! could not load mongrel. Falling back to webrick."
-        conf.server = "webrick"
-    end
+  begin
+    require 'mongrel'
+    conf.server = "mongrel"
+  rescue LoadError 
+    puts "!! could not load mongrel. Falling back to webrick."
+    conf.server = "webrick"
+  end
 end
 
-server = Camping::Server::Base.new(conf, paths)
+server = Camping::Server.new(conf, paths)
 server.start

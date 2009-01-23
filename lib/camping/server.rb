@@ -2,61 +2,38 @@ require 'irb'
 require 'rack'
 require 'camping/reloader'
 
-module Camping::Server
-class Base < Hash
-  include Enumerable
-  
-  attr_reader :paths
+class Camping::Server
+  attr_reader :reloader
   attr_accessor :conf
-  
-  def initialize(conf, paths = [])
-    unless conf.database
-      raise "!! No home directory found.  Please specify a database file, see --help."
-    end
-    
-    @conf = conf
-    Camping::Reloader.database = conf.database
-    Camping::Reloader.log = conf.log
-    
-    @paths = []
-    paths.each { |script| add_app script }
-    # TODO exception instead of abort()
-    # abort("** No apps successfully loaded") unless self.detect { |app| app.klass }
-    
-  end
 
-  def add_app(path)
-    @paths << path
-    if File.directory? path
-        Dir[File.join(path, '*.rb')].each { |s| insert_app(s)}
-    else
-        insert_app(path)
+  def initialize(conf, paths)
+    @conf = conf
+    @paths = paths
+    @reloader = Camping::Reloader.new
+    connect(@conf.database) if @conf.database
+  end
+  
+  def connect(db)
+    unless Camping.autoload?(:Models)
+      Camping::Models::Base.establish_connection(db)
     end
-    # TODO check to see if the application is created or not... exception perhaps?
   end
   
-  def find_new_scripts
-      self.values.each { |app| app.reload_app }
-      @paths.each do |path|
-          Dir[File.join(path, '*.rb')].each do |script|
-              smount = File.basename(script, '.rb')
-              next if detect { |x| x.mount == smount }
-  
-              puts "** Discovered new #{script}"
-              # TODO hmm. the next should be handled by the add_app thingy
-              app = insert_app(script)
-              next unless app
-  
-              yield app
-              
-          end
+  def find_scripts
+    scripts = @paths.map do |path|
+      case
+      when File.file?(path)
+        path
+      when File.directory?(path)
+        Dir[File.join(path, '*.rb')]
       end
-      self.values.sort! { |x, y| x.mount <=> y.mount }
+    end.flatten.compact
+    @reloader.update(*scripts)
   end
-  def index_page
-      welcome = "You are Camping"
-      apps = self
-      <<-HTML
+  
+  def index_page(apps)
+    welcome = "You are Camping"
+    header = <<-HTML
 <html>
   <head>
     <title>#{welcome}</title>
@@ -73,29 +50,66 @@ class Base < Hash
   </head>
   <body>
     <h1>#{welcome}</h1>
-    <p>Good day.  These are the Camping apps you've mounted.</p>
-    <ul>
-      #{apps.values.select{|app|app.klass}.map do |app|
-        "<li><h3 style=\"display: inline\"><a href=\"/#{app.mount}\">#{app.klass.name}</a></h3><small> / <a href=\"/code/#{app.mount}\">View source</a></small></li>"
-      end.join("\n")}
-    </ul>
-  </body>
-</html>
-      HTML
+    HTML
+    footer = '</body></html>'
+    main = if apps.empty?
+      "<p>Good day.  I'm sorry, but I could not find any Camping apps."\
+      "You might want to take a look at the console to see if any errors"\
+      "have been raised</p>"
+    else
+      "<p>Good day.  These are the Camping apps you've mounted.</p><ul>" + 
+      apps.map do |mount, app|
+        "<li><h3 style=\"display: inline\"><a href=\"/#{mount}\">#{app}</a></h3><small> / <a href=\"/code/#{mount}\">View source</a></small></li>"
+      end.join("\n") + '</ul>'
+    end
+    
+    header + main + footer
   end
   
-  def each(&b)
-      self.values.each(&b)
+  def app
+    reload!
+    all_apps = apps
+    rapp = case all_apps.length
+    when 0
+      proc{|env|[200,{'Content-Type'=>'text/html'},index_page([])]}
+    when 1
+      apps.values.first
+    else
+      hash = {
+        "/" => proc {|env|[200,{'Content-Type'=>'text/html'},index_page(all_apps)]}
+      }
+      all_apps.each do |mount, wrapp|
+        # We're doing @reloader.reload! ourself, so we don't need the wrapper.
+        app = wrapp.app
+        hash["/#{mount}"] = app
+        hash["/code/#{mount}"] = proc do |env|
+          [200,{'Content-Type'=>'text/plain','X-Sendfile'=>wrapp.script.file},'']
+        end
+      end
+      Rack::URLMap.new(hash)
+    end
+    rapp = Rack::Lint.new(rapp)
+    rapp = XSendfile.new(rapp)
+    rapp = Rack::ShowExceptions.new(rapp)
   end
-
-  # for RSpec tests
+  
   def apps
-      self.values
+    @reloader.apps.inject({}) do |h, (mount, wrapp)|
+      h[mount.to_s.downcase] = wrapp
+      h
+    end
+  end
+  
+  def call(env)
+    app.call(env)
   end
   
   def start
     handler, conf = case @conf.server
     when "console"
+      puts "** Starting console"
+      this = self
+      eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { this.reload!; nil }
       ARGV.clear
       IRB.start
       exit
@@ -103,56 +117,40 @@ class Base < Hash
       puts "** Starting Mongrel on #{@conf.host}:#{@conf.port}"
       [Rack::Handler::Mongrel, {:Port => @conf.port, :Host => @conf.host}]
     when "webrick"
+      puts "** Starting WEBrick on #{@conf.host}:#{@conf.port}"
       [Rack::Handler::WEBrick, {:Port => @conf.port, :BindAddress => @conf.host}]
     end
     
-    rapp = if apps.length > 1
-      hash = {
-        "/" => proc {|env|[200,{'Content-Type'=>'text/html'},index_page]}
-      }
-      apps.each do |app|
-        hash["/#{app.mount}"] = app
-        hash["/code/#{app.mount}"] = proc do |env|
-          [200,{'Content-Type'=>'text/plain'},app.view_source]
-        end
+    handler.run(self, conf) 
+  end
+  
+  def reload!
+    find_scripts
+    @reloader.reload!
+  end
+
+  # A Rack middleware for reading X-Sendfile. Should only be used in
+  # development.
+  class XSendfile
+  
+    HEADERS = [
+      "X-Sendfile",
+      "X-Accel-Redirect",
+      "X-LIGHTTPD-send-file"
+    ]
+  
+    def initialize(app)
+      @app = app
+    end
+
+    def call(env)
+      status, headers, body = @app.call(env)
+      headers = Utils::HeaderHash.new(headers)
+      if path = HEADERS.detect { |header| headers.include?(header) }
+        body = File.read(path)
+        headers['Content-Length'] = body.length
       end
-      Rack::URLMap.new(hash)
-    else
-      apps.first
+      [status, headers, body]
     end
-    rapp = Rack::Lint.new(rapp)
-    rapp = XSendfile.new(rapp)
-    rapp = Rack::ShowExceptions.new(rapp)
-    handler.run(rapp, conf) 
-  end
-  
-  private
-  
-  def insert_app(script)
-    self[script] = Camping::Reloader.new(script)
-  end
-end
-
-# A Rack middleware for reading X-Sendfile. Should only be used in
-# development.
-class XSendfile
-  
-  HEADERS = [
-    "X-Sendfile",
-    "X-Accel-Redirect",
-    "X-LIGHTTPD-send-file"
-  ]
-  
-  def initialize(app)
-    @app = app
-  end
-
-  def call(env)
-    status, headers, body = @app.call(env)
-    if path = headers.values_at(*HEADERS).compact.first
-      body = File.read(path)
-    end
-    [status, headers, body]
-  end
-end
+  end    
 end
