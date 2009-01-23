@@ -190,7 +190,7 @@ module Camping
     # is assigned to route <tt>/logout</tt>.  The HTML will come out as:
     #
     #   <div id="menu">
-    #     <a href="//localhost:3301/frodo/">Home</a>
+    #     <a href="http://localhost:3301/frodo/">Home</a>
     #     <a href="/frodo/profile">Profile</a>
     #     <a href="/frodo/logout">Logout</a>
     #     <a href="http://google.com">Google</a>
@@ -328,6 +328,7 @@ module Camping
     # You can also switch the body and the header in order to support Rack:
     #
     #  r(302, {'Location' => self / "/view/12"}, '')
+    #  r(another_app.call(@env))
     #
     # See also: #r404, #r500 and #r501
     def r(s, b, h = {})
@@ -401,24 +402,21 @@ module Camping
     #     end
     #   end
     def to_a
-      @response.body = (@body.respond_to?(:each) ? @body : '')
-      @response.status = @status
-      @response.headers.merge!(@headers)
+      r = Rack::Response.new(@body, @status, @headers)
       @cookies.each do |k, v|
         v = {:value => v, :path => self / "/"} if String===v
-        @response.set_cookie(k, v) if @request.cookies[k] != v
+        r.set_cookie(k, v)
       end
-      @response.to_a
+      r.to_a
     end
     
     def initialize(env) #:nodoc: 
-      @request, @response, @env =
-      Rack::Request.new(env), Rack::Response.new, env
+      @request = Rack::Request.new(@env = env)
       @root, @input, @cookies,
       @headers, @status =
       (@env.SCRIPT_NAME||'').sub(/\/$/,''), 
       H[@request.params], H[@request.cookies],
-      @response.headers, @response.status
+      {}, 200
             
       @input.each do |k, v|
         if k[-2..-1] == "[]"
