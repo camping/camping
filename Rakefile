@@ -4,6 +4,14 @@ require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/testtask'
 require 'fileutils'
+begin
+  gem 'rdoc', '~> 2.2'
+  require 'rdoc'
+  $:.unshift 'extras'
+rescue Gem::LoadError
+  puts "RDoc 2.2 required to build docs"
+  puts "Please run `gem install rdoc`"
+end
 include FileUtils
 
 NAME = "camping"
@@ -30,7 +38,7 @@ end
 Rake::RDocTask.new do |rdoc|
     rdoc.rdoc_dir = 'doc/rdoc'
     rdoc.options += RDOC_OPTS
-    rdoc.template = "extras/flipbook_rdoc.rb"
+    rdoc.template = "flipbook"
     rdoc.main = "README"
     rdoc.title = "Camping, the Documentation"
     rdoc.rdoc_files.add ['README', 'CHANGELOG', 'COPYING', 'lib/camping.rb', 'lib/camping/*.rb']
@@ -41,7 +49,6 @@ task :after_doc do
     mv "lib/camping-mural.rb", "lib/camping.rb"
     cp "extras/Camping.gif", "doc/rdoc/"
     cp "extras/permalink.gif", "doc/rdoc/"
-    sh %{scp -r doc/rdoc/* #{ENV['USER']}@rubyforge.org:/var/www/gforge-projects/camping/}
 end
 
 spec =
@@ -61,7 +68,6 @@ spec =
 
         s.add_dependency('markaby', '>=0.5')
         s.add_dependency('rack', '>=0.3')
-        s.add_dependency('metaid')
         s.required_ruby_version = '>= 1.8.2'
 
         s.files = %w(COPYING README Rakefile) +
