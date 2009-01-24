@@ -93,8 +93,9 @@ module Camping
         old_apps = @apps.dup
         @apps = new_apps.inject({}) do |hash, app|
           key = app.name.to_sym
-          hash[key] = old_apps[key] || App.new(self)
+          hash[key] = (old = old_apps[key]) || App.new(self)
           hash[key].app = app
+          app.create if app.respond_to?(:create) && !old
           hash
         end
         self

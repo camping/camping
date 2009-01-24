@@ -88,6 +88,7 @@ class Camping::Server
       end
       Rack::URLMap.new(hash)
     end
+    rapp = Rack::ContentLength.new(rapp)
     rapp = Rack::Lint.new(rapp)
     rapp = XSendfile.new(rapp)
     rapp = Rack::ShowExceptions.new(rapp)
@@ -108,8 +109,8 @@ class Camping::Server
     handler, conf = case @conf.server
     when "console"
       puts "** Starting console"
-      this = self
-      eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { this.reload!; nil }
+      reload!
+      this = self; eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { this.reload!; nil }
       ARGV.clear
       IRB.start
       exit
@@ -145,10 +146,11 @@ class Camping::Server
 
     def call(env)
       status, headers, body = @app.call(env)
-      headers = Utils::HeaderHash.new(headers)
-      if path = HEADERS.detect { |header| headers.include?(header) }
+      headers = Rack::Utils::HeaderHash.new(headers)
+      if header = HEADERS.detect { |header| headers.include?(header) }
+        path = headers[header]
         body = File.read(path)
-        headers['Content-Length'] = body.length
+        headers['Content-Length'] = body.length.to_s
       end
       [status, headers, body]
     end
