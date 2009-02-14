@@ -9,25 +9,6 @@
 # nicely with piles of documentation everywhere.  This documentation is entirely
 # generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
 # found in the extras directory of any camping distribution.
-#
-# == Requirements
-#
-# TODO: Move into README. Also, they're not true dependecies...
-#
-# Camping requires at least Ruby 1.8.2.
-#
-# Camping depends on the following libraries.  If you install through RubyGems,
-# these will be automatically installed for you.
-#
-# * ActiveRecord, used in your models.
-#   ActiveRecord is an object-to-relational database mapper with adapters
-#   for SQLite3, MySQL, PostgreSQL, SQL Server and more.
-# * Markaby, used in your views to describe HTML in plain Ruby.
-#
-# Camping also works well with Mongrel, the swift Ruby web server.
-# http://rubyforge.org/projects/mongrel  Mongrel comes with examples
-# in its <tt>examples/camping</tt> directory. 
-#
 %w[uri stringio rack].map { |l| require l }
 
 class Object #:nodoc:
