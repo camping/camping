@@ -1,4 +1,5 @@
 # == About camping/session.rb
+# TODO: Clean everything up. Lots of just plain wrong stuff in here.
 #
 # This file contains two modules which supply basic sessioning to your Camping app.
 # Again, we're dealing with a pretty little bit of code: approx. 60 lines.

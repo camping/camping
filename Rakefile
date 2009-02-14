@@ -5,12 +5,12 @@ require 'rake/rdoctask'
 require 'rake/testtask'
 require 'fileutils'
 begin
-  gem 'rdoc', '~> 2.2'
+  gem 'rdoc', '~> 2.2.0'
   require 'rdoc'
   $:.unshift 'extras'
 rescue Gem::LoadError
   puts "RDoc 2.2 required to build docs"
-  puts "Please run `gem install rdoc`"
+  puts "Please run `gem install rdoc --version 2.2`"
 end
 include FileUtils
 

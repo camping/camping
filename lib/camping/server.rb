@@ -2,6 +2,7 @@ require 'irb'
 require 'rack'
 require 'camping/reloader'
 
+# TODO: I guess we should documentate this too...
 class Camping::Server
   attr_reader :reloader
   attr_accessor :conf

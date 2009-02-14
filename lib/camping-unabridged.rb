@@ -12,6 +12,8 @@
 #
 # == Requirements
 #
+# TODO: Move into README. Also, they're not true dependecies...
+#
 # Camping requires at least Ruby 1.8.2.
 #
 # Camping depends on the following libraries.  If you install through RubyGems,
@@ -34,7 +36,11 @@ class Object #:nodoc:
   end
 end
 
-# == Camping 
+# == Camping
+# TODO: Tutorial: Camping.goes, MVC (link to Controllers, Models, Views where
+#       they're described in detail), Camping Server (for development), Rack
+#       (for production). the create-method. Service overload too, perhaps?
+#       Overriding r404, r500 and r501.
 #
 # The camping module contains three modules for separating your application:
 #
@@ -47,6 +53,7 @@ end
 # * Camping::Helpers which can be used in controllers and views.
 #
 # == The Camping Server
+# TODO: Only for development.
 #
 # How do you run Camping apps?  Oh, uh... The Camping Server!
 #
@@ -84,6 +91,7 @@ end
 #     end
 #   end 
 #
+# TODO: Wiki is down.
 # For more tips, see http://code.whytheluckystiff.net/camping/wiki/GiveUsTheCreateMethod.
 module Camping
   C = self
@@ -91,6 +99,7 @@ module Camping
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
   Apps = []
+  # TODO: @input[:page] != @input['page']
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   # 
@@ -125,7 +134,8 @@ module Camping
     end
     undef id, type
   end
-
+  
+  # TODO: Fair enough. Maybe complete the ActionPack example?
   # Helpers contains methods available in your controllers and views.  You may add
   # methods of your own to this module, including many helper methods from Rails.
   # This is analogous to Rails' <tt>ApplicationHelper</tt> module.
@@ -251,6 +261,7 @@ module Camping
   # Forgivable, considering that it's only really a handful of methods and accessors.
   #
   # == Treating controller methods like Response objects
+  # TODO: I don't think this belongs here. Either Controllers or Camping.
   #
   # Camping originally came with a barebones Response object, but it's often much more readable
   # to just use your controller as the response.
@@ -424,6 +435,7 @@ module Camping
       end
     end
 
+    # TODO: The wiki is down. Service overload should probably go in Camping.
     # All requests pass through this method before going to the controller.  Some magic
     # in Camping can be performed by overriding this method.
     #
@@ -435,7 +447,8 @@ module Camping
       self
     end
   end
-
+  
+  # TODO: @input & @cookies at least.
   # Controllers is a module for placing classes which handle URLs.  This is done
   # by defining a route to each class using the Controllers::R method.
   #
@@ -588,7 +601,8 @@ module Camping
       k.service(*a)
     end
   end
-
+  
+  # TODO: More examples.
   # Views is an empty module for storing methods which create HTML.  The HTML is described
   # using the Markaby language.
   #
@@ -597,7 +611,8 @@ module Camping
   # If your Views module has a <tt>layout</tt> method defined, it will be called with a block
   # which will insert content from your view.
   module Views; include X, Helpers end
- 
+  
+  # TODO: Migrations
   # Models is an empty Ruby module for housing model classes derived
   # from ActiveRecord::Base.  As a shortcut, you may derive from Base
   # which is an alias for ActiveRecord::Base.
