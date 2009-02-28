@@ -17,63 +17,182 @@ class Object #:nodoc:
   end
 end
 
-# == Camping
-# TODO: Tutorial: Camping.goes, MVC (link to Controllers, Models, Views where
-#       they're described in detail), Camping Server (for development), Rack
-#       (for production). the create-method. Service overload too, perhaps?
-#       Overriding r404, r500 and r501.
+# TODO: Rack (for production). Overriding r404, r500 and r501.
 #
-# The camping module contains three modules for separating your application:
+# Ready for developing with Camping?  Just follow along and we'll explain
+# everything in a few minutes.  If there's a specific thing you're wondering
+# about, here are some guidelines of how Camping and the documentation is organized:
 #
-# * Camping::Models for your database interaction classes, all derived from ActiveRecord::Base.
-# * Camping::Controllers for storing controller classes, which map URLs to code.
-# * Camping::Views for storing methods which generate HTML.
+# * All the modules are documentated with a little overview, followed by
+#   all the methods defined there.
+# * Camping::Controllers explains all you need to know about taking care
+#   of the request and returning a response.
+# * Camping::Models explains how you interact with the database, or other data sources.
+# * Camping::Views explains how you can easily generate HTML from plain Ruby.
+# * Camping::Helpers is a module with useful helpers, both for the controllers and the views.
+# * Camping::Base is a module which is included in all your controllers.
 #
-# Of use to you is also one module for storing helpful additional methods:
 #
-# * Camping::Helpers which can be used in controllers and views.
+# == Starting My First App
+# 
+# When you're going to start a new app in Camping, you simply open
+# your favorite text editor and start writing:
 #
-# == The Camping Server
-# TODO: Only for development.
+#   require 'camping'
+#   Camping.goes :Blog
+#   
+#   module Blog
+#     # lots of code
+#   end
+# 
+# What's important to know, is that <tt>Camping.goes :Blog</tt> copies the
+# Camping-module into the Blog-module.  So whenever you see Camping in this
+# documentation, you can replace it with Blog and everything should work
+# as expected.
 #
-# How do you run Camping apps?  Oh, uh... The Camping Server!
+# By not modifying the Camping-module itself, you can have all your apps
+# running in the same process and have less moving parts.  In fact, we recommend
+# splitting larger apps into several, smaller ones to make it more manageable.
 #
-# The Camping Server is, firstly and thusly, a set of rules.  At the very least, The Camping Server must:
+# == The Camping Server (for development)
 #
-# * Load all Camping apps in a directory.
-# * Load new apps that appear in that directory.
-# * Mount those apps according to their filename. (e.g. blog.rb is mounted at /blog.)
+# Camping includes a pretty nifty server which is built for development.
+# It follows these rules:
+# 
+# * Load all Camping apps in a directory or a file.
+# * Load new apps that appear in that directory or that file.
+# * Mount those apps according to their name. (e.g. Blog is mounted at /blog.)
 # * Run each app's <tt>create</tt> method upon startup.
 # * Reload the app if its modification time changes.
 # * Reload the app if it requires any files under the same directory and one of their modification times changes.
-# * Support the X-Sendfile header. 
+# * Support the X-Sendfile header.
 #
-# In fact, Camping comes with its own little The Camping Server.
+# Run it like this:
 #
-# At a command prompt, run: <tt>camping examples/</tt> and the entire <tt>examples/</tt> directory will be served.
+#   camping examples/        # Mounts all apps in that directory
+#   camping blog.rb          # Mounts Blog at /
 #
-# Configurations also exist for Apache and Lighttpd.  See http://code.whytheluckystiff.net/camping/wiki/TheCampingServer.
+# And visit http://localhost:3301/ in your browser.  Ready for some development?
 #
-# == The <tt>create</tt> method
 #
-# Many postambles will check for your application's <tt>create</tt> method and will run it
-# when the web server starts up.  This is a good place to check for database tables and create
-# those tables to save users of your application from needing to manually set them up.
+# == MVC
 #
-#   def Blog.create
-#     unless Blog::Models::Post.table_exists?
-#       ActiveRecord::Schema.define do
-#         create_table :blog_posts, :force => true do |t|
-#           t.column :user_id,  :integer, :null => false
-#           t.column :title,    :string,  :limit => 255
-#           t.column :body,     :text
+# Camping follows the MVC-pattern, which means you'll separate your app into
+# three parts: Models, views and controllers.  Let's start with the last:
+#
+# === Controllers
+#
+#   module Blog::Controllers
+#     class Index
+#       def get
+#         @posts = Post.all
+#         render :index
+#       end
+#     end
+#   end   
+# 
+# The controllers are the heart of your app: They respond to a request from
+# the user, process it and return an appropriate response.  Have a look at
+# Camping::Controllers in order to fully understand how controllers work
+# and how you should use them in Camping.
+#
+# === Models
+#
+#   module Blog::Models
+#     class Post < Base; belongs_to :user; end
+#     class Comment < Base; belongs_to :user; end
+#     class User < Base; end
+#   end
+#
+# Most apps needs to handle _data_ in some way: A blog needs a place to save
+# and retrieve posts and comments; a wiki needs to store the pages somewhere.
+# A _database_ is (most of the time) a great place to save such data.  Camping
+# uses (just like Rails) ActiveRecord to abstract the boring details down to
+# beautiful Ruby.  Read Camping::Models to learn how to use them in your app.
+#
+# === Views
+#
+#   module Blog::Views
+#     def layout
+#       html do
+#         head { title "My Blog" }
+#         body do
+#           h1 "My Blog"
+#           self << yield
 #         end
 #       end
 #     end
+#   
+#     def index
+#       @posts.each do |post|
+#         h2 post.title
+#         self << post.content
+#       end
+#     end
+#   end
+#
+# Since we're on the web, we need to return the language which the web speaks:
+# HTML. Writing HTML manually can be tedious and boring.  Camping uses Markaby
+# which lets you write HTML in Ruby - simple and elegant.  As always, read
+# Camping::Views to get a overview of how to use views.
+#
+# === Helpers
+#
+# I know, I know: Helpers don't fit into the MVC-pattern.  That doesn't mean
+# they're useless, though.  Whenever you need a snippet in several controllers
+# or views, you should refactor it out to a helper.  Camping includes a
+# sensible collection of helpers in Camping::Helpers.
+#
+#
+# == Tips & Tricks
+# 
+# === The <tt>create</tt> method
+#
+# It's a rule in Camping which says that the <tt>create</tt> method should be
+# called when the server starts up.  The Camping Server does this, and so
+# should you in your environment.
+#
+# This is a good place to check for database tables and create those tables
+# to save users of your application from needing to manually set them up.
+#
+#   def Blog.create
+#     Blog::Models::Base.establish_connection(
+#       :adapter => 'sqlite3',
+#       :database => 'blog.db'
+#     )
+#     Blog::Models.create_schama 
 #   end 
 #
-# TODO: Wiki is down.
-# For more tips, see http://code.whytheluckystiff.net/camping/wiki/GiveUsTheCreateMethod.
+# === Service Override
+#
+# Occassionally, you may want to intercept controller calls or do some cleanup
+# afterwards.  Many other frameworks have before-, after- and around-filters
+# to do that.  Camping has no facility for doing this. It's not worth the bytes.
+#
+# Instead, you can override <tt>service</tt>, which handles all controller calls.
+# You can do include into specific controllers or right into the main application module.
+#
+#   module MySession
+#     def service(*a)
+#       # Do stuff before
+#       @session = MyApp::Session.new
+#       # Run regular controller
+#       super(*a)
+#     ensure
+#       # Do stuff after
+#       @session.close
+#     end
+#   end
+#   
+#   module MyApp
+#     include MySession
+#
+#     module Controllers
+#       class Index
+#         include OtherOverload
+#       end
+#     end
+#   end
 module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
@@ -198,14 +317,15 @@ module Camping
       h.any?? u+"?"+U.build_query(h[0]) : u
     end
 
-    # Simply builds a complete path from a path +p+ within the app.  If your application is 
-    # mounted at <tt>/blog</tt>:
+    # Simply builds a complete path from a path +p+ within the app.  If your
+    # application is mounted at <tt>/blog</tt>:
     #
     #   self / "/view/1"    #=> "/blog/view/1"
     #   self / "styles.css" #=> "styles.css"
     #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
     def /(p); p[0]==?/?@root+p:p end
+    
     # Builds a URL route to a controller or a path, returning a URI object.
     # This way you'll get the hostname and the port number, a complete URL.
     #
@@ -273,7 +393,7 @@ module Camping
     attr_accessor :input, :cookies, :headers, :body, :status, :root
     M = proc { |_, o, n| o.merge(n, &M) }
 
-    # Display a view, calling it by its method name +m+.  If a <tt>layout</tt>
+    # Display a view, calling it by its method name +v+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
     #
     #   module Camping::Controllers
@@ -285,7 +405,7 @@ module Camping
     #     end
     #   end
     #
-    # You can also return directly html by just passing a block
+    # You can also return directly HTML by just passing a block
     #
     def render(v,*a,&b)
       mab(/^_/!~v.to_s){send(v,*a,&b)}
@@ -321,7 +441,7 @@ module Camping
     # You can also switch the body and the header in order to support Rack:
     #
     #  r(302, {'Location' => self / "/view/12"}, '')
-    #  r(another_app.call(@env))
+    #  r(*another_app.call(@env))
     #
     # See also: #r404, #r500 and #r501
     def r(s, b, h = {})
@@ -343,6 +463,8 @@ module Camping
     # <b>NOTE:</b> This method doesn't magically exit your methods and redirect.
     # You'll need to <tt>return redirect(...)</tt> if this isn't the last statement
     # in your code.
+    #
+    # See: Controllers
     def redirect(*a)
       r(302,'','Location'=>URL(*a).to_s)
     end
@@ -350,35 +472,26 @@ module Camping
     # Called when a controller was not found. It is mainly used internally, but it can
     # also be useful for you, if you want to filter some parameters.
     #
-    # module Camping
-    #   def r404(p=env.PATH)
-    #     @status = 404
-    #     div do
-    #       h1 'Camping Problem!'
-    #       h2 "#{p} not found"
-    #     end
-    #   end
-    # end
-    #
-    # See: I
+    # See: Controllers
     def r404(p)
       P % "#{p} not found"
     end
 
-    # If there is a parse error in Camping or in your application's source code, it will not be caught
-    # by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
+    # If there is a parse error in Camping or in your application's source code,
+    # it will not be caught
+ by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
     # took place are passed in, along with the Exception +e+ which can be mined for useful info.
     #
     # You can overide it, but if you have an error in here, it will be uncaught !
     #
-    # See: I
+    # See: Controllers
     def r500(k,m,e)
       raise e
     end
 
-    # Called if an undefined method is called on a Controller, along with the request method +m+ (GET, POST, etc.)
+    # Called if an undefined method is called on a controller, along with the request method +m+ (GET, POST, etc.)
     #
-    # See: I
+    # See: Controllers
     def r501(m)
       P % "#{m.upcase} not implemented"
     end
@@ -416,12 +529,10 @@ module Camping
       end
     end
 
-    # TODO: The wiki is down. Service overload should probably go in Camping.
-    # All requests pass through this method before going to the controller.  Some magic
-    # in Camping can be performed by overriding this method.
+    # All requests pass through this method before going to the controller.
+    # Some magic in Camping can be performed by overriding this method.
     #
-    # See http://code.whytheluckystiff.net/camping/wiki/BeforeAndAfterOverrides for more
-    # on before and after overrides with Camping.
+    # See: Camping
     def service(*a)
       r = catch(:halt){send(@method, *a)}
       @body ||= r 
