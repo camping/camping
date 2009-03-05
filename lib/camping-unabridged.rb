@@ -540,6 +540,190 @@ module Camping
     end
   end
   
+  # In order to fully understand controllers and how they are used, you
+  # should know a bit about HTTP - the protocol behind The World Wide Web.
+  #
+  # == Request
+  #
+  # HTTP is built around _requests_.  When a user types "http://yoursite.com/"
+  # in his web browser, the browser starts making requests to the server.
+  # It's basically asking the server to do what the user want.  When the server
+  # has decided what to do, it sends a _response_ back to the browser which
+  # is then showed to the user.
+  #
+  # We can brutually split a request into three parts: a resource, a method
+  # and the rest.
+  #
+  # === Resource
+  #
+  # A _resource_ in HTTP is simply a name of a _thing_ - it's a noun. Just like
+  # "home", "blog post" and "comment" are nouns in our world, are "/",
+  # "/post/123" and "/post/123/comment/456" resources in HTTP.
+  #
+  # Nouns are well and good, but just like you can't build a sentence with
+  # only nouns, you can't build a request with only a resource.  We need verbs!
+  #
+  # === Method
+  #
+  # _Methods_ are the verbs in HTTP.  It's not enough to have the name of
+  # what you want, you have to tell _what_ you want to do too.  Since
+  # we're speaking with machines, we have to stick to these:
+  #
+  # * GET
+  # * POST
+  # * (PUT)
+  # * (DELTE)
+  #
+  # GET is the default method.  When you type an address or click a link in
+  # your browser, it's smart enough to realize that you want to get that
+  # resource.  GET also is the simplest of the methods: it should not _do_
+  # anything, just return the content.
+  #
+  # The three others are focused on actions. POST for create, PUT for
+  # update and DELETE for, uhm, delete.  You may have noticed the parenthesis
+  # around PUT and DELETE, and the reason for that is quite sad:
+  #
+  # When the web was still young, some realized that they didn't _need_
+  # PUT and DELETE; they could just use POST and put the verb in the
+  # resource: POST /posts/delete/1.  This doesn't make sense at all, but
+  # it happened and <strong>right now browsers only support GET and POST.</strong>
+  #
+  # === The Rest
+  #
+  # HTTP is also very flexible, so the browser can send all kind of other
+  # metadata (called _headers_).  This includes the name of the browser, the  
+  # preferred language, the domain of the server and much, much more.
+  # 
+  # In POST, PUT and DELETE you can also send some arbitrary data (called
+  # the _body_).  This is used for instance when you upload a file.
+  #
+  # Probably the most important part is that the browser can send parameters.
+  # In all the methods you can tack them on to the end after a question mark
+  # (<tt>/search?query=camping</tt>), while POST, PUT and DELETE also allows
+  # to send them, hidden from the user, in the body.
+  #
+  # == Response
+  #
+  # When the browser has sent the request to the server, the server has
+  # to return a response.  We can also split the response into three parts:
+  # a status code, headers and a body.
+  #
+  # === Status Code
+  #
+  # The status code tells a bit about the response.  For instance:
+  #
+  # * 200 means everything went fine and no problems occured.
+  # * 401 means you have to login.
+  # * 404 means the resource couldn't be found.
+  # * 500 means the server encountered an error.
+  #
+  # This is just a small selection.  Wikipedia has a {nice list with _all_ the
+  # codes}[http://en.wikipedia.org/wiki/List_of_HTTP_status_codes].
+  #
+  # === Headers
+  #
+  # Just like the headers in the request, the headers in the response are
+  # used to send useful metadata back to the browser.  Examples of this
+  # are what kind of content this is, the length of the body and if the
+  # browser should give a "File Download" dialogue box.
+  #
+  # === Body
+  #
+  # The body is simply what the user is going to see.
+  #
+  # == Using controllers in Camping
+  #
+  # I guess you're bored with all of this (seemingly useless) theory, but we
+  # believe it's better to understand HTTP now than later.  Let's however
+  # start with some coding.
+  #
+  # In Camping, a controller is simply a resource:
+  #
+  #   module Blog::Controllers
+  #     class Posts < R '/posts'
+  #       def get
+  #         "Hello from GET"
+  #       end
+  # 
+  #       def post
+  #         "Hello from POST"
+  #       end
+  #     end
+  #   end
+  #
+  # Camping will take care if of all the boring stuff, and whenever someone
+  # tries to GET or POST <tt>/posts</tt> it will display this nice message.
+  #
+  # If someone tries to DELETE <tt>/posts</tt>, Camping will return a 501
+  # response (which means the method wasn't implemented).  If someone tries to
+  # access <tt>/postsss</tt>, it will return a 404 response (no such resource).
+  #
+  # === Specialized resources
+  #
+  # Most of the time your resources needs to match more than a single, static
+  # path (like <tt>/posts</tt> above).  Luckily, you can use regular expressions
+  # in your routes.  Wrap the rules with some parethesis and it will also be
+  # sent as arguments to your method:
+  #
+  #   module Blog::Controllers
+  #     class Post < R '/post/(\d+)'
+  #       def get(id)
+  #         case id.to_i
+  #         when 1
+  #           "You're looking at the first post (/post/1)!"
+  #         when 2
+  #           "You're looking at the second post (/post/2)!"
+  #         else
+  #           "Meh."
+  #         end
+  #       end
+  #     end
+  #   
+  #     class Page < R '/user/(\w+)/page/(\w+)', '/u/(\w+)/(\w+)'
+  #       def get(user, page_name)
+  #         "You're visiting #{user}'s #{page_name}"
+  #       end
+  #     end
+  #   end
+  #
+  # As you can see, you can also give your controllers several routes to match.
+  #
+  # === Magic resources
+  # 
+  # Very often, you will name your controllers identical to it's route.  If
+  # you leave out the route and just define the controller as a class
+  # (+class Posts+), Camping will automatically build the route using some magic:
+  #
+  # First it will split the controller name up by words.  For instance
+  # +VeryNiftyRoute+ will be split up into +Very+, +Nifty+ and +Route+.
+  #
+  # Then it substitutes each part using these rules:
+  # 
+  # * Index turns into /
+  # * X turns into ([^/]+)
+  # * N turns into (\d+)
+  # * Everything else turns into lowercase
+  #
+  # Finally it puts a slash between the parts.
+  #
+  # It can take some time to grasp, but it's actually very nice since you
+  # avoid repeating the route in the name (or vica versa).  Have a look at the
+  # examples below if you're still a little confused. 
+  #
+  #   module Blog::Controllers
+  #     # Matches: /
+  #     class Index
+  #     end
+  #     
+  #     # Matches: /post/(\d+)
+  #     class PostN
+  #     end
+  #     
+  #     # Matches: /very/nifty/route
+  #     class VeryNiftyRoute
+  #     end
+  #   end
+  #
   # TODO: @input & @cookies at least.
   # Controllers is a module for placing classes which handle URLs.  This is done
   # by defining a route to each class using the Controllers::R method.
