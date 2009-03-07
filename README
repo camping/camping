@@ -52,7 +52,9 @@ A skeletal Camping blog could look like this:
   
 == Installation
 
-Interested yet?  Luckily it's quite easy to install Camping. We'll be using a tool called RubyGems, so if you don't have that installed yet, go grab it! Once that's sorted out, open up a Terminal or Command Line and enter:
+Interested yet?  Luckily it's quite easy to install Camping.  We'll be using
+a tool called RubyGems, so if you don't have that installed yet, go grab it!
+Once that's sorted out, open up a Terminal or Command Line and enter:
 
 * <tt>gem install camping</tt>
 
@@ -60,25 +62,28 @@ Or for the bleeding edge:
 
 * <tt>gem install camping --source http://gems.judofyr.net</tt>
 
-This will download everything you need and get you all set up. If you're installing camping manually, you'll need to make sure you have 'rack' installed as well, the interface Camping uses to talk to your web server. You'll also need 'markaby' for the views, and 'activerecord' if you're going to be using databases.
+Camping itself only depends on Rack[http://rack.rubyforge.org] and using the
+command above will only install Camping and Rack.  However, if you intend to
+use the views you also need to install +markaby+, and if you're going to use
+the database you need +activerecord+ as well:
+
+* <tt>gem install markaby</tt>
+* <tt>gem install activerecord</tt>
 
 == Learning
 
-* Start by reading the documentation in {the Camping module}[link:classes/Camping.html]
-  - it should get you started pretty quick.
+* Start by reading the documentation in {the Camping module}[link:classes/Camping.html],
+  it should get you started pretty quick.
 * {The wiki}[http://wiki.github.com/why/camping] is the place for all tiny,
   useful tricks that we've collected over the years.  Don't be afraid to
   share your own discoveries; the more, the better!
-* Still wondering?  Subscribe to {the mailing list}[http://rubyforge.org/mailman/listinfo/camping-list].
-  This is where it's all happening!  Don't worry, though, the volume is just
+* Still wondering?  Subscribe to {the mailing list}[http://rubyforge.org/mailman/listinfo/camping-list],
+  the place where it's all happening!  Don't worry, though, the volume is just
   as micro as Camping itself.  
   
 == Authors
 
-Camping was originally started by{why the lucky stiff}[http://en.wikipedia.org/wiki/Why_the_lucky_stiff],
+Camping was originally started by {why the lucky stiff}[http://en.wikipedia.org/wiki/Why_the_lucky_stiff],
 but is now maintained by the _community_.  This simply means that if we like your
 patch, it will be applied.  Everything is managed through {the mailing list}[http://rubyforge.org/mailman/listinfo/camping-list],
-so just subscribe and you'll become a contributor too.  Remember: writing the
-code is just half the job, without some serious thinking from you we won't get
-any further.
-
+so just subscribe and you can instantly take a part in shaping Camping.

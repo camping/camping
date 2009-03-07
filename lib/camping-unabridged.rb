@@ -557,8 +557,8 @@ module Camping
   # === Resource
   #
   # A _resource_ in HTTP is simply a name of a _thing_ - it's a noun. Just like
-  # "home", "blog post" and "comment" are nouns in our world, are "/",
-  # "/post/123" and "/post/123/comment/456" resources in HTTP.
+  # "home", "blog post" and "comment" are nouns in our world, are +/+,
+  # +/post/123+ and +/post/123/comment/456+ resources in HTTP.
   #
   # Nouns are well and good, but just like you can't build a sentence with
   # only nouns, you can't build a request with only a resource.  We need verbs!
@@ -692,7 +692,7 @@ module Camping
   # 
   # Very often, you will name your controllers identical to it's route.  If
   # you leave out the route and just define the controller as a class
-  # (+class Posts+), Camping will automatically build the route using some magic:
+  # (<tt>class Posts</tt>), Camping will automatically build the route using some magic:
   #
   # First it will split the controller name up by words.  For instance
   # +VeryNiftyRoute+ will be split up into +Very+, +Nifty+ and +Route+.
@@ -701,7 +701,7 @@ module Camping
   # 
   # * Index turns into /
   # * X turns into ([^/]+)
-  # * N turns into (\d+)
+  # * N turns into (\\\d+)
   # * Everything else turns into lowercase
   #
   # Finally it puts a slash between the parts.
@@ -896,7 +896,7 @@ module Camping
   #     end
   #   end
   #
-  # In your controllers you just call +render :template_name+ which will
+  # In your controllers you just call <tt>render :template_name</tt> which will
   # invoke the template.  The views and controllers will share instance
   # variables (as you can see above).
   #
