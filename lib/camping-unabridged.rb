@@ -878,14 +878,41 @@ module Camping
     end
   end
   
-  # TODO: More examples.
-  # Views is an empty module for storing methods which create HTML.  The HTML is described
-  # using the Markaby language.
+  # Views is an empty module for storing methods which create HTML.  The HTML
+  # is described using the Markaby language.
+  #
+  # == Defining and calling templates
+  #
+  # Templates are simply Ruby methods with Markaby inside:
+  #
+  #   module Blog::Views
+  #     def index
+  #       p "Welcome to my blog"
+  #     end
+  #   
+  #     def show
+  #       h1 @post.title
+  #       self << @post.content
+  #     end
+  #   end
+  #
+  # In your controllers you just call +render :template_name+ which will
+  # invoke the template.  The views and controllers will share instance
+  # variables (as you can see above).
   #
   # == Using the layout method
   #
-  # If your Views module has a <tt>layout</tt> method defined, it will be called with a block
-  # which will insert content from your view.
+  # If your Views module has a <tt>layout</tt> method defined, it will be
+  # called with a block which will insert content from your view:
+  #
+  #   module Blog::Views
+  #     def layout
+  #       html do
+  #         head { title "My Blog "}
+  #         body { self << yield }
+  #       end
+  #     end
+  #   end
   module Views; include X, Helpers end
   
   # TODO: Migrations
