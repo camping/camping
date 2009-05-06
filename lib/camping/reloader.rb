@@ -132,8 +132,12 @@ module Camping
       
       # Figures out the full path of a required file. 
       def full_path(req)
-        dir = File.expand_path($LOAD_PATH.detect { |l| File.exists?(File.join(l, req)) })
-        File.join(dir, req)
+        dir = $LOAD_PATH.detect { |l| File.exists?(File.join(l, req)) }
+        if dir 
+          File.join(File.expand_path(dir), req)
+        else
+          req
+        end
       end
     end
 
