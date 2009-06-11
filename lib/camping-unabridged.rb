@@ -875,6 +875,17 @@ module Camping
       k.send("input=", h[:input]) if h[:input]
       k.service(*a)
     end
+    
+    # Injects a middleware:
+    #
+    #   module Blog
+    #     use Rack::MethodOverride
+    #     use Rack::Session::Memcache, :key => "session"
+    #   end
+    def use(*a)
+      m = a.shift.new(method(:call), *a)
+      meta_def(:call) { |e| m.call(e) }
+    end
   end
   
   # Views is an empty module for storing methods which create HTML.  The HTML

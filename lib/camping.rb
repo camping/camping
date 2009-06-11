@@ -48,5 +48,6 @@ k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {}
 e=H[Rack::MockRequest.env_for('',h[:env]||{})]
 k=X.const_get(c).new(e,m.to_s);k.send("input=",h[:input])if h[:input]
-k.service(*a);end;end;module Views;include X,Helpers end;module Models
+k.service(*a);end;def use*a;m=a.shift.new(method(:call),*a);meta_def(:call){|e|
+m.call(e)}end end;module Views;include X,Helpers end;module Models
 autoload:Base,'camping/ar';def Y;self;end end;autoload:Mab,'camping/mab';C end
