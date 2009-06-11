@@ -44,6 +44,7 @@ module Blog
         end
         User.create :username => 'admin', :password => 'camping'
       end
+      
       def self.down
         drop_table :blog_posts
         drop_table :blog_users
@@ -84,7 +85,7 @@ module Blog
 
     class Edit < R '/post/(\d+)/edit'
       def get(post_id)
-        require_login! 
+        require_login!
         @post = Post.find(post_id)
         render :edit
       end
@@ -99,24 +100,19 @@ module Blog
 
     class Login
       def get
-        @to = input.to
         render :login
       end
       
       def post
         @user = User.find_by_username_and_password(input.username, input.password)
-        @to = input.to
 
         if @user
           @state.user_id = @user.id
-          if @to
-            redirect @to
-          else
-            redirect R(Index)
-          end
+          redirect R(Index)
         else
-          @info = 'Wrong username or password'
+          @info = 'Wrong username or password.'
         end
+        
         render :login
       end
     end
@@ -145,7 +141,7 @@ module Blog
     
     def require_login!
       unless logged_in?
-        redirect X::Login, :to => @env.REQUEST_URI
+        redirect Controllers::Login
         throw :halt
       end
     end
@@ -172,11 +168,11 @@ module Blog
             if logged_in?
               _admin_menu
             else
-              a 'Login', :href => R(Login, :to => @env.REQUEST_URI)
+              a 'Login', :href => R(Login)
               text ' to the adminpanel'
             end
             text ' &ndash; Powered by '
-            a 'Camping', :href => 'http://code.whytheluckystiff.net/camping'
+            a 'Camping', :href => 'http://camping.rubyforge.org/'
           end
         end
       end
@@ -188,7 +184,7 @@ module Blog
         p do
           text 'Could not find any posts. Feel free to '
           a 'add one', :href => R(PostNew)
-          text ' yourself'
+          text ' yourself. '
         end
       else
         @posts.each do |post|
@@ -234,7 +230,7 @@ module Blog
     end
 
     def _post(post)
-      h2 post.title
+      h2 { a post.title, :href => R(PostN, post) }
       p.info do
         text "Written by <strong>#{post.user.username}</strong> "
         text post.updated_at.strftime('%B %M, %Y @ %H:%M ')
@@ -244,13 +240,9 @@ module Blog
     end
     
     def _post_menu(post)
-      text '('
-      a 'view', :href => R(PostN, post)
       if logged_in?
-        text ', '
-        a 'edit', :href => R(Edit, post)
+        a '(edit)', :href => R(Edit, post)
       end
-      text ')'
     end
 
     def _form(post, opts)
@@ -299,13 +291,15 @@ h1 {
   text-align: center;
 }
 
+h2 {
+  margin-top: 1em;
+  font-size: 2em;
+}
+
 h1 a { color: #143D55; text-decoration: none }
 h1 a:hover { color: #143D55; text-decoration: underline }
-
-h2 {
-  font-size: 2em;
-  color: #287AA9;  
-}
+h2 a { color: #287AA9; text-decoration: none }
+h2 a:hover { color: #287AA9; text-decoration: underline }
 
 #wrapper { 
   margin: 3em auto;
@@ -353,17 +347,18 @@ p#footer {
 }
 
 label {  
-  display: inline-block;
+  display: block;
   width: 100%;
 }
 
-input, textarea {     
+input, textarea {
+  padding: 5px;     
   margin-bottom: 1em;
+  margin-right: 490px;
   width: 200px;  
 }
 
 input.submit {
-  float: left;
   width: auto;
 }
 
