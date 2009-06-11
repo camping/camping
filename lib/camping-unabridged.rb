@@ -478,8 +478,7 @@ module Camping
     end
 
     # If there is a parse error in Camping or in your application's source code,
-    # it will not be caught
- by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
+    # it will not be caught by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
     # took place are passed in, along with the Exception +e+ which can be mined for useful info.
     #
     # You can overide it, but if you have an error in here, it will be uncaught !
