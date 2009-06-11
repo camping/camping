@@ -19,14 +19,14 @@ def r s,b,h={};b,h=h,b if Hash===b;@status=s;
 @headers.merge!(h);@body=b;end;def redirect *a;r 302,'','Location'=>URL(*a).
 to_s;end;def r404 p;P%"#{p} not found"end;def r500 k,m,e;raise e;end
 def r501 m;P%"#{m.upcase} not implemented"end;def to_a
-r=Rack::Response.new(@body,@status,@headers)
+@env['rack.session']=@state;r=Rack::Response.new(@body,@status,@headers)
 @cookies.each{|k,v|v={:value=>v,:path=>self/"/"} if String===v
 r.set_cookie(k,v)}
 r.to_a;end;def initialize(env,m)
 r=@request=Rack::Request.new(@env=env)
-@root,p,@cookies,@headers,@status,@method=
-(env.SCRIPT_NAME||'').sub(/\/$/,''),H[r.params],
-H[r.cookies],{},m=~/r(\d+)/?$1.to_i: 200,m
+@root,p,@cookies,@state,@headers,@status,@method=
+(env['SCRIPT_NAME']||'').sub(/\/$/,''),H[r.params],
+H[r.cookies],H[r.session],{},m=~/r(\d+)/?$1.to_i: 200,m
 @input=p.inject(H[]){|h,(k,v)|h.merge k.split(/[\]\[]+/).reverse.inject(v){|x,i|
 H[i=>x]},&M};end;def service *a
 r=catch(:halt){send(@method,*a)};@body||=r
@@ -42,8 +42,8 @@ k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]
 }if !k.respond_to?:urls}end end;I=R()
 end;X=Controllers;class<<self;def goes m
 Apps<<eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING) end;def call e
-X.M;e=H[e];p=e.PATH_INFO=U.unescape(e.PATH_INFO)
-k,m,*a=X.D p,(e.REQUEST_METHOD||'get').downcase
+X.M;p=e['PATH_INFO']=U.unescape(e['PATH_INFO'])
+k,m,*a=X.D p,(e['REQUEST_METHOD']||'get').downcase
 k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {}
 e=H[Rack::MockRequest.env_for('',h[:env]||{})]

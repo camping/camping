@@ -507,6 +507,7 @@ module Camping
     #     end
     #   end
     def to_a
+      @env['rack.session'] = @state
       r = Rack::Response.new(@body, @status, @headers)
       @cookies.each do |k, v|
         v = {:value => v, :path => self / "/"} if String===v
@@ -517,10 +518,10 @@ module Camping
     
     def initialize(env, m) #:nodoc: 
       r = @request = Rack::Request.new(@env = env)
-      @root, p, @cookies,
+      @root, p, @cookies, @state,
       @headers, @status, @method =
-      (env.SCRIPT_NAME||'').sub(/\/$/,''), 
-      H[r.params], H[r.cookies],
+      (env['SCRIPT_NAME']||'').sub(/\/$/,''), 
+      H[r.params], H[r.cookies], H[r.session],
       {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
       
       @input = p.inject(H[]) do |h, (k, v)|
@@ -841,9 +842,8 @@ module Camping
     # And array with [statuc, headers, body] is expected at the output.
     def call(e)
       X.M
-      e = H[e]
-      p = e.PATH_INFO = U.unescape(e.PATH_INFO)
-      k,m,*a=X.D p,(e.REQUEST_METHOD||'get').downcase
+      p = e['PATH_INFO'] = U.unescape(e['PATH_INFO'])
+      k,m,*a=X.D p,(e['REQUEST_METHOD']||'get').downcase
       k.new(e,m).service(*a).to_a
     rescue
       r500(:I, k, m, $!, :env => e).to_a
