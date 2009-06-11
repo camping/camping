@@ -391,7 +391,6 @@ module Camping
   #
   module Base
     attr_accessor :input, :cookies, :headers, :body, :status, :root
-    M = proc { |_, o, n| o.merge(n, &M) }
 
     # Display a view, calling it by its method name +v+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
@@ -510,7 +509,7 @@ module Camping
       @env['rack.session'] = @state
       r = Rack::Response.new(@body, @status, @headers)
       @cookies.each do |k, v|
-        v = {:value => v, :path => self / "/"} if String===v
+        v = {:value => v, :path => self / "/"} if String === v
         r.set_cookie(k, v)
       end
       r.to_a
@@ -518,14 +517,21 @@ module Camping
     
     def initialize(env, m) #:nodoc: 
       r = @request = Rack::Request.new(@env = env)
-      @root, p, @cookies, @state,
+      @root, @input, @cookies, @state,
       @headers, @status, @method =
-      (env['SCRIPT_NAME']||'').sub(/\/$/,''), 
-      H[r.params], H[r.cookies], H[r.session],
+      r.script_name.sub(/\/$/,''), n(r.params),
+      H[r.cookies], H[r.session],
       {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
-      
-      @input = p.inject(H[]) do |h, (k, v)|
-        h.merge(k.split(/[\]\[]+/).reverse.inject(v) { |x, i| H[i => x] }, &M)
+    end
+    
+    def n(h) # :nodoc:
+      if Hash === h
+        h.inject(H[]) do |m, (k, v)|
+          m[k] = n(v)
+          m
+        end
+      else
+        h
       end
     end
 
@@ -843,7 +849,7 @@ module Camping
     def call(e)
       X.M
       p = e['PATH_INFO'] = U.unescape(e['PATH_INFO'])
-      k,m,*a=X.D p,(e['REQUEST_METHOD']||'get').downcase
+      k,m,*a=X.D p,e['REQUEST_METHOD'].downcase
       k.new(e,m).service(*a).to_a
     rescue
       r500(:I, k, m, $!, :env => e).to_a

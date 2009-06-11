@@ -11,7 +11,6 @@ h.any?? u+"?"+U.build_query(h[0]):u end;def / p
 p[0]==?/?@root+p:p end;def URL c='/',*a;c=R(c, *a) if c.respond_to?:urls
 c=self/c;c=@request.url[/.{8,}?(?=\/)/]+c if c[0]==?/;URI c end
 end;module Base;attr_accessor:input,:cookies,:headers,:body,:status,:root
-M=proc{|_,o,n|o.merge(n,&M)}
 def render v,*a,&b;mab(/^_/!~v.to_s){send(v,*a,&b)} end
 def mab l=nil,&b;m=Mab.new({},self);s=m.capture(&b)
 s=m.capture{layout{s}} if l && m.respond_to?(:layout);s end
@@ -24,11 +23,10 @@ def r501 m;P%"#{m.upcase} not implemented"end;def to_a
 r.set_cookie(k,v)}
 r.to_a;end;def initialize(env,m)
 r=@request=Rack::Request.new(@env=env)
-@root,p,@cookies,@state,@headers,@status,@method=
-(env['SCRIPT_NAME']||'').sub(/\/$/,''),H[r.params],
+@root,@input,@cookies,@state,@headers,@status,@method=
+r.script_name.sub(/\/$/,''),n(r.params),
 H[r.cookies],H[r.session],{},m=~/r(\d+)/?$1.to_i: 200,m
-@input=p.inject(H[]){|h,(k,v)|h.merge k.split(/[\]\[]+/).reverse.inject(v){|x,i|
-H[i=>x]},&M};end;def service *a
+end;def n h;Hash===h ?h.inject(H[]){|m,(k,v)|m[k]=n(v);m}: h end;def service *a
 r=catch(:halt){send(@method,*a)};@body||=r
 self;end;end;module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r
 Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end
@@ -43,7 +41,7 @@ k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]
 end;X=Controllers;class<<self;def goes m
 Apps<<eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING) end;def call e
 X.M;p=e['PATH_INFO']=U.unescape(e['PATH_INFO'])
-k,m,*a=X.D p,(e['REQUEST_METHOD']||'get').downcase
+k,m,*a=X.D p,e['REQUEST_METHOD'].downcase
 k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {}
 e=H[Rack::MockRequest.env_for('',h[:env]||{})]
