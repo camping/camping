@@ -1,114 +1,152 @@
+$:.unshift 'extras'
 require 'rake'
 require 'rake/clean'
 require 'rake/gempackagetask'
-require 'rake/rdoctask'
 require 'rake/testtask'
-require 'fileutils'
-begin
-  gem 'rdoc', '~> 2.3.0'
-  require 'rdoc'
-  $:.unshift 'extras'
-rescue Gem::LoadError
-  puts "RDoc 2.4 required to build docs"
-  puts "Please run `gem install rdoc`"
-end
-include FileUtils
+require 'tempfile'
+require 'open3'
 
+task :default => :check
+
+## Constants
 NAME = "camping"
-REV = (`#{ENV['GIT'] || "git"} rev-list HEAD`.split.length + 1).to_s rescue nil
-VERS = ENV['VERSION'] || ("1.9" + (REV ? ".#{REV}" : ""))
+BRANCH = "1.9"
+GIT = ENV['GIT'] || "git"
+REV = `#{GIT} rev-list HEAD`.strip.split.length
+VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
+
 CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log', '.*.pt']
-RDOC_OPTS = ['--quiet', '--title', "Camping, the Documentation",
-    "--opname", "index.html",
-    "--line-numbers", 
-    "--main", "README",
-    "--inline-source"]
-
-desc "Packages up Camping."
-task :default => [:check]
-task :package => [:clean]
-
-task :doc => [:before_doc, :rdoc, :after_doc]
-
-task :before_doc do 
-    mv "lib/camping.rb", "lib/camping-mural.rb"
-    mv "lib/camping-unabridged.rb", "lib/camping.rb"
-end
-
-Rake::RDocTask.new do |rdoc|
-    rdoc.rdoc_dir = 'doc/rdoc'
-    rdoc.options += RDOC_OPTS
-    rdoc.template = "flipbook"
-    rdoc.main = "README"
-    rdoc.title = "Camping, the Documentation"
-    rdoc.rdoc_files.add ['README', 'CHANGELOG', 'COPYING', 'lib/camping.rb', 'lib/camping/*.rb']
-end
-
-task :after_doc do
-    mv "lib/camping.rb", "lib/camping-unabridged.rb"
-    mv "lib/camping-mural.rb", "lib/camping.rb"
-    cp "extras/Camping.gif", "doc/rdoc/"
-    cp "extras/permalink.gif", "doc/rdoc/"
-end
-
+RDOC_OPTS = ['--title', "Camping, a Microframework",
+    "--line-numbers",
+    "--quiet",
+    "--main", "README"]
+    
+## Packaging
 spec =
-    Gem::Specification.new do |s|
-        s.name = NAME
-        s.version = VERS
-        s.platform = Gem::Platform::RUBY
-        s.has_rdoc = true
-        s.extra_rdoc_files = ["README", "CHANGELOG", "COPYING"]
-        s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping.rb']
-        s.summary = "minature rails for stay-at-home moms"
-        s.description = s.summary
-        s.author = "why the lucky stiff"
-        s.email = 'why@ruby-lang.org'
-        s.homepage = 'http://code.whytheluckystiff.net/camping/'
-        s.executables = ['camping']
+  Gem::Specification.new do |s|
+    s.name = NAME
+    s.version = VERS
+    s.platform = Gem::Platform::RUBY
+    s.has_rdoc = true
+    s.extra_rdoc_files = FileList["README", "CHANGELOG", "COPYING", "book/*"].to_a
+    s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping.rb']
+    s.summary = "minature rails for stay-at-home moms"
+    s.author = "why the lucky stiff"
+    s.email = 'why@ruby-lang.org'
+    s.homepage = 'http://camping.rubyforge.org/'
+    s.rubyforge_project = 'camping'
+    s.executables = ['camping']
 
-        s.add_dependency('markaby', '>=0.5')
-        s.add_dependency('rack', '>=0.3')
-        s.required_ruby_version = '>= 1.8.2'
+    s.add_dependency('rack', '>=1.0')
+    s.required_ruby_version = '>= 1.8.2'
 
-        s.files = %w(COPYING README Rakefile) +
-          Dir.glob("{bin,doc,test,lib,extras}/**/*") + 
-          Dir.glob("ext/**/*.{h,c,rb}") +
-          Dir.glob("examples/**/*.rb") +
-          Dir.glob("tools/*.rb")
-        
-        s.require_path = "lib"
-        # s.extensions = FileList["ext/**/extconf.rb"].to_a
-        s.bindir = "bin"
-    end
+    s.files = %w(COPYING README Rakefile) +
+    Dir.glob("{bin,doc,test,lib,extras,book}/**/*") + 
+    Dir.glob("ext/**/*.{h,c,rb}") +
+    Dir.glob("examples/**/*.rb") +
+    Dir.glob("tools/*.rb")
+
+    s.require_path = "lib"
+    s.bindir = "bin"
+  end                   
 
 omni =
-    Gem::Specification.new do |s|
-        s.name = "camping-omnibus"
-        s.version = VERS
-        s.platform = Gem::Platform::RUBY
-        s.summary = "the camping meta-package for updating ActiveRecord, Mongrel and SQLite3 bindings"
-        s.description = s.summary
-        %w[author email homepage].each { |x| s.__send__("#{x}=", spec.__send__(x)) }
+  Gem::Specification.new do |s|
+    s.name = "camping-omnibus"
+    s.version = VERS
+    s.platform = Gem::Platform::RUBY
+    s.summary = "the camping meta-package for updating ActiveRecord, Mongrel and SQLite3 bindings"
+    %w[author email homepage rubyforge_project].each { |x| s.__send__("#{x}=", spec.__send__(x)) }
 
-        s.add_dependency('camping', "=#{VERS}")
-        s.add_dependency('activerecord')
-        s.add_dependency('sqlite3-ruby', '>=1.1.0.1')
-        s.add_dependency('mongrel')
-        s.add_dependency('acts_as_versioned')
-        s.add_dependency('RedCloth')
+    s.add_dependency('camping', "=#{VERS}")
+    s.add_dependency('activerecord')
+    s.add_dependency('sqlite3-ruby', '>=1.1.0.1')
+    s.add_dependency('mongrel')
+    s.add_dependency('acts_as_versioned')
+    s.add_dependency('RedCloth')
+  end
+  
+## RDoc
+
+gem 'rdoc', '~> 2.4.0' rescue nil
+require 'rdoc'
+
+if defined?(RDoc::VERSION) && RDoc::VERSION[0,3] == "2.4"
+  require 'rdoc/generator/singledarkfish'
+  require 'rdoc/generator/book'
+  require 'rdoctask'
+
+  Camping::RDocTask.new(:rdoc) do |rdoc|
+    rdoc.before_running_rdoc do
+      mv "lib/camping.rb", "lib/camping-mural.rb"
+      mv "lib/camping-unabridged.rb", "lib/camping.rb"
     end
+    
+    rdoc.after_running_rdoc do
+      mv "lib/camping.rb", "lib/camping-unabridged.rb"
+      mv "lib/camping-mural.rb", "lib/camping.rb"
+    end
+    
+    rdoc.rdoc_dir = 'doc/api'
+    rdoc.options += ['-f', 'singledarkfish', *RDOC_OPTS]
+    rdoc.template = "flipbook"
+    rdoc.title = "Camping, the Reference"
+    rdoc.rdoc_files.add ['lib/camping.rb', 'lib/camping/**/*.rb']
+  end
+
+  Camping::RDocTask.new(:readme) do |rdoc|
+    rdoc.rdoc_dir = 'doc'
+    rdoc.options += RDOC_OPTS
+    rdoc.template = "flipbook"
+    rdoc.title = "Camping, a Microframework"
+    rdoc.rdoc_files.add ['README']
+  end
+
+  Camping::RDocTask.new(:book) do |rdoc|
+    rdoc.rdoc_dir = 'doc/book'
+    rdoc.options += ['-f', 'book', *RDOC_OPTS]
+    rdoc.template = "flipbook"
+    rdoc.title = "Camping, the Book"
+    rdoc.rdoc_files.add ['book/*']
+  end
+
+  desc "Build full documentation."
+  task :docs => [:readme, :rdoc, :book]
+  desc "Rebuild full documentation."
+  task :redocs => [:rereadme, :rerdoc, :rebook]
+  desc "Remove full documentation."
+  task :clobber_docs => [:clobber_readme, :clobber_rdoc, :clobber_book]
+
+  %w(docs redocs clobber_docs).each do |task_name|
+    task = Rake::Task[task_name]
+    task.prerequisites.each do |pre|
+      Rake::Task[pre].instance_eval { @comment = nil }
+    end
+  end
+  
+  task :rubygems_docs do
+    require 'rubygems/doc_manager'
+    
+    def spec.installation_path; '.' end
+    def spec.full_gem_path;     '.' end
+    manager = Gem::DocManager.new(spec)
+    manager.generate_rdoc
+  end
+end
+
+desc "Packages Camping."
+task :package => :clean
 
 Rake::GemPackageTask.new(spec) do |p|
-    p.need_tar = true
-    p.gem_spec = spec
+  p.need_tar = true
+  p.gem_spec = spec
 end
 
 Rake::GemPackageTask.new(omni) do |p|
-    p.gem_spec = omni
+  p.gem_spec = omni
 end
 
-task :install do
-  sh %{rake package}
+task :install => :package do
   sh %{sudo gem install pkg/#{NAME}-#{VERS}}
 end
 
@@ -116,42 +154,43 @@ task :uninstall => [:clean] do
   sh %{sudo gem uninstall #{NAME}}
 end
 
+## Tests
 Rake::TestTask.new(:test) do |t|
   t.test_files = FileList['test/test_*.rb']
 #  t.warning = true
 #  t.verbose = true
 end
 
-desc "Compare camping and camping-unabridged parse trees"
+## Diff
+desc "Compare camping and camping-unabridged"
 task :diff do
-  if `which parse_tree_show`.strip.empty?
-    STDERR.puts "ERROR: parse_tree_show missing : `gem install ParseTree`"
-    exit 1
-  end
-
-  sh "parse_tree_show lib/camping.rb > .camping.pt"
-  sh "parse_tree_show lib/camping-unabridged.rb > .camping-unabridged.pt"
-  sh "diff -u .camping-unabridged.pt .camping.pt | less"
-end
-
-task :ruby_diff do
   require 'ruby2ruby'
-  c = Ruby2Ruby.translate(File.read("lib/camping.rb"))
-  n = Ruby2Ruby.translate(File.read("lib/camping-unabridged.rb"))
+  require 'ruby_parser'
+  u = Tempfile.new('unabridged')
+  m = Tempfile.new('mural')
   
-  File.open(".camping-unabridged.rb.rb","w"){|f|f<<c}
-  File.open(".camping.rb.rb","w"){|f|f<<n}
+  u << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping.rb")))
+  m << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping-unabridged.rb")))
   
-  sh "diff -u .camping-unabridged.rb.rb .camping.rb.rb | less"
+  sh "diff -u #{u.path} #{m.path} | less"
+  
+  u.delete
+  m.delete
 end
 
+## Check
 task :check => ["check:valid", "check:size", "check:lines"]
 namespace :check do
 
   desc "Check source code validity"
   task :valid do
-    ruby "-rubygems", "-w", "lib/camping-unabridged.rb"
-    ruby "-rubygems", "-w", "lib/camping.rb"
+    require 'ruby_parser'
+    u = RubyParser.new.parse(File.read("lib/camping-unabridged.rb"))
+    m = RubyParser.new.parse(File.read("lib/camping.rb"))
+    
+    unless u == m
+      STDERR.puts "camping.rb and camping-unabridged.rb are not synchronized."
+    end
   end
 
   SIZE_LIMIT = 4096
