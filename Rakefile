@@ -16,10 +16,7 @@ REV = `#{GIT} rev-list HEAD`.strip.split.length
 VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
 
 CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log', '.*.pt']
-RDOC_OPTS = ['--title', "Camping, a Microframework",
-    "--line-numbers",
-    "--quiet",
-    "--main", "README"]
+RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
     
 ## Packaging
 spec =
@@ -73,10 +70,9 @@ require 'rdoc'
 
 if defined?(RDoc::VERSION) && RDoc::VERSION[0,3] == "2.4"
   require 'rdoc/generator/singledarkfish'
-  require 'rdoc/generator/book'
   require 'rdoctask'
-
-  Camping::RDocTask.new(:rdoc) do |rdoc|
+  
+  Camping::RDocTask.new(:docs) do |rdoc|
     rdoc.before_running_rdoc do
       mv "lib/camping.rb", "lib/camping-mural.rb"
       mv "lib/camping-unabridged.rb", "lib/camping.rb"
@@ -87,41 +83,11 @@ if defined?(RDoc::VERSION) && RDoc::VERSION[0,3] == "2.4"
       mv "lib/camping-mural.rb", "lib/camping.rb"
     end
     
-    rdoc.rdoc_dir = 'doc/api'
+    rdoc.rdoc_dir = 'doc'
     rdoc.options += ['-f', 'singledarkfish', *RDOC_OPTS]
     rdoc.template = "flipbook"
-    rdoc.title = "Camping, the Reference"
-    rdoc.rdoc_files.add ['lib/camping.rb', 'lib/camping/**/*.rb']
-  end
-
-  Camping::RDocTask.new(:readme) do |rdoc|
-    rdoc.rdoc_dir = 'doc'
-    rdoc.options += RDOC_OPTS
-    rdoc.template = "flipbook"
     rdoc.title = "Camping, a Microframework"
-    rdoc.rdoc_files.add ['README']
-  end
-
-  Camping::RDocTask.new(:book) do |rdoc|
-    rdoc.rdoc_dir = 'doc/book'
-    rdoc.options += ['-f', 'book', *RDOC_OPTS]
-    rdoc.template = "flipbook"
-    rdoc.title = "Camping, the Book"
-    rdoc.rdoc_files.add ['book/*']
-  end
-
-  desc "Build full documentation."
-  task :docs => [:readme, :rdoc, :book]
-  desc "Rebuild full documentation."
-  task :redocs => [:rereadme, :rerdoc, :rebook]
-  desc "Remove full documentation."
-  task :clobber_docs => [:clobber_readme, :clobber_rdoc, :clobber_book]
-
-  %w(docs redocs clobber_docs).each do |task_name|
-    task = Rake::Task[task_name]
-    task.prerequisites.each do |pre|
-      Rake::Task[pre].instance_eval { @comment = nil }
-    end
+    rdoc.rdoc_files.add ['README', 'lib/camping.rb', 'lib/camping/**/*.rb', 'book/*']
   end
   
   task :rubygems_docs do

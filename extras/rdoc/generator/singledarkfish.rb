@@ -2,7 +2,7 @@
 # vim: noet ts=2 sts=8 sw=2
 
 require 'rubygems'
-gem 'rdoc', '>= 2.4' unless defined? $rdoc_rakefile
+gem 'rdoc', '>= 2.4'
 
 require 'pp'
 require 'pathname'
@@ -122,10 +122,10 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
     '#file-'
   end
   
-  def index_template
-    'reference.rhtml'
+  def template(name)
+    "#{name}.rhtml"
   end
-
+  
 	### Build the initial indices and output objects
 	### based on an array of TopLevel objects containing
 	### the extracted information.
@@ -137,17 +137,20 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 		@methods = @classes.map { |m| m.method_list }.flatten.sort
 		@modsort = get_sorted_module_list( @classes )
 
-		# Now actually write the output
-		generate_index
+		# Now actually write the output 
+		write_style_sheet
+    generate_thing(:readme,    'index.html')
+	  generate_thing(:reference, 'api.html')
+    generate_thing(:book,      'book.html')
 	rescue StandardError => err
 		debug_msg "%s: %s\n  %s" % [ err.class.name, err.message, err.backtrace.join("\n  ") ]
 		raise
 	end
 	
-	def generate_index
-		debug_msg "Rendering the index page..."
+	def generate_thing(name, to)
+		debug_msg "Rendering #{name}..."
 
-		templatefile = @template_dir + index_template
+		templatefile = @template_dir + template(name)
 		template_src = templatefile.read
 		template = ERB.new( template_src, nil, '<>' )
 		template.filename = templatefile.to_s
@@ -165,7 +168,9 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 			], err.backtrace
 		end
 
-		outfile = @basedir + @options.op_dir + 'index.html'
+		outfile = @basedir + @options.op_dir + to
+		FileUtils.mkdir_p(File.dirname(outfile))
+		
 		unless $dryrun
 			debug_msg "Outputting to %s" % [outfile.expand_path]
 			outfile.open( 'w', 0644 ) do |fh|
@@ -175,6 +180,36 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 			debug_msg "Would have output to %s" % [outfile.expand_path]
 		end
 	end
+	
+	## For book.rhtml
+	
+	def chapters
+    @chapters ||= @files.select do |file|
+      next unless file.full_name =~ /^book\//
+      
+      (class << file; self; end).class_eval { attr_accessor :title, :content, :toc, :id }
+      file.toc = []
+      file.content = file.description
+      
+      file.content.gsub!(%r{<h2>(.*?)</h2>}) do
+        file.title = $1
+        file.id = make_id($1)
+        '<h2 class="ruled" id="%s">%s</h2>' % [file.id, file.title]
+      end
+      
+      file.content.gsub!(%r{<h3>(.*?)</h3>}) do |match|
+        arr = [file.id + '-' + make_id($1), $1]
+        file.toc << arr
+        '<h3 id="%s">%s</h3>' % arr
+      end
+      
+      true 
+    end
+  end
+  
+  def make_id(title)
+    title.downcase.gsub(/\s/, '-').gsub(/[^\w-]+/, '')
+  end
 end # Roc::Generator::SingleDarkfish
 
 # :stopdoc:
