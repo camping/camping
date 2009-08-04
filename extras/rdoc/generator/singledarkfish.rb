@@ -80,24 +80,6 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
       end
     end
   end
-
-  RDoc::Generator::Markup.instance_eval do
-    org = instance_method(:description)
-    define_method(:description) do
-      old = org.bind(self).call
-      if RDoc::Generator::SingleDarkfish.current?
-	      old.gsub(/ href="\d\d_([^"]+)"/) do |m|
-	        id, sub = $1.split("#")
-	        id = File.basename(id, ".html")
-	        id << "-#{sub}" if sub
-	        
-	        " href=\"book.html##{id}\""
-        end
-      else
-        old
-      end
-    end
-  end
   
   def self.current?
     RDoc::RDoc.current.generator.class.ancestors.include?(self)
@@ -136,10 +118,6 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 	  '#class-'
   end 
   
-  def file_dir
-    '#file-'
-  end
-  
   def template(name)
     "#{name}.rhtml"
   end
@@ -159,44 +137,29 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 		write_style_sheet
     generate_thing(:readme,    'index.html')
 	  generate_thing(:reference, 'api.html')
-    generate_thing(:book,      'book.html')
+    generate_thing(:toc,       'book.html')
+    generate_book
 	rescue StandardError => err
 		debug_msg "%s: %s\n  %s" % [ err.class.name, err.message, err.backtrace.join("\n  ") ]
 		raise
 	end
 	
+	def generate_book
+	  chapters.each do |file|
+	  	templatefile = @template_dir + template(:page)
+  		outfile = @basedir + @options.op_dir + file.path
+  	  render_template(templatefile, binding, outfile)
+    end
+  end
+	
 	def generate_thing(name, to)
 		debug_msg "Rendering #{name}..."
 
 		templatefile = @template_dir + template(name)
-		template_src = templatefile.read
-		template = ERB.new( template_src, nil, '<>' )
-		template.filename = templatefile.to_s
-		context = binding()
-
-		output = nil
-
-		begin
-			output = template.result( context )
-		rescue NoMethodError => err
-			raise RDoc::Error, "Error while evaluating %s: %s (at %p)" % [
-				templatefile,
-				err.message,
-				eval( "_erbout[-50,50]", context )
-			], err.backtrace
-		end
-
 		outfile = @basedir + @options.op_dir + to
 		FileUtils.mkdir_p(File.dirname(outfile))
-		
-		unless $dryrun
-			debug_msg "Outputting to %s" % [outfile.expand_path]
-			outfile.open( 'w', 0644 ) do |fh|
-				fh.print( output )
-			end
-		else
-			debug_msg "Would have output to %s" % [outfile.expand_path]
-		end
+
+    render_template(templatefile, binding, outfile)
 	end
 	
 	## For book.rhtml
@@ -207,18 +170,13 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
       
       (class << file; self; end).class_eval { attr_accessor :title, :content, :toc, :id }
       file.toc = []
-      file.id = file.base_name[/\d\d_([^.]+)/, 1]
       file.content = file.description
+      file.title = file.content[%r{<h1>(.*?)</h1>}, 1]
       
-      file.content.gsub!(%r{<h2>(.*?)</h2>}) do
-        file.title = $1
-        '<h2 class="ruled" id="%s">%s</h2>' % [file.id, file.title]
-      end
-      
-      file.content.gsub!(%r{<h3>(.*?)</h3>}) do |match|
-        arr = [file.id + '-' + make_id($1), $1]
+      file.content.gsub!(%r{<h2>(.*?)</h2>}) do |match|
+        arr = [make_id($1), $1]
         file.toc << arr
-        '<h3 id="%s">%s</h3>' % arr
+        '<h2 class="ruled" id="%s">%s</h2>' % arr
       end
       
       true 
