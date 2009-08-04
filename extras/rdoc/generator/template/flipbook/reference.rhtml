@@ -24,8 +24,7 @@
     	  <h1>Camping, the Reference</h1>
     	
     	<% @modsort.each do |klass| %>
-    		<h2 class="ruled">
-    		  <%# puts klass.class.ancestors;exit %>
+    		<h2 class="ruled" id="class-<%= klass.full_name %>">
     		  <%= klass.type.capitalize %>
     		  <%= klass.full_name %>
     		  <% if klass.type == 'class' %>
@@ -45,10 +44,10 @@
     			   visibilities.each do |visibility, methods|
     				   next if methods.empty?
     				   methods.each do |method| %>
-    		<h4 class="ruled">
+    		<h4 class="ruled" id="<%= method.aref %>">
     		  <%= visibility.to_s.capitalize %> <%= type.capitalize %> method:
     		  <strong><%= method.pretty_name %><%= method.params%></strong>
-    		  <a href="#" class="permalink">[permalink]</a>
+    		  <a href="<%= method.path %>" class="permalink">[permalink]</a>
     		</h4>
     		<%= method.description %>
         <p class="source-link">[ <a href="#">show source</a> ]</p>
