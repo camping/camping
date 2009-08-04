@@ -80,6 +80,24 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
       end
     end
   end
+
+  RDoc::Generator::Markup.instance_eval do
+    org = instance_method(:description)
+    define_method(:description) do
+      old = org.bind(self).call
+      if RDoc::Generator::SingleDarkfish.current?
+	      old.gsub(/ href="\d\d_([^"]+)"/) do |m|
+	        id, sub = $1.split("#")
+	        id = File.basename(id, ".html")
+	        id << "-#{sub}" if sub
+	        
+	        " href=\"book.html##{id}\""
+        end
+      else
+        old
+      end
+    end
+  end
   
   def self.current?
     RDoc::RDoc.current.generator.class.ancestors.include?(self)
@@ -189,11 +207,11 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
       
       (class << file; self; end).class_eval { attr_accessor :title, :content, :toc, :id }
       file.toc = []
+      file.id = file.base_name[/\d\d_([^.]+)/, 1]
       file.content = file.description
       
       file.content.gsub!(%r{<h2>(.*?)</h2>}) do
         file.title = $1
-        file.id = make_id($1)
         '<h2 class="ruled" id="%s">%s</h2>' % [file.id, file.title]
       end
       
