@@ -148,6 +148,7 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 	  chapters.each do |file|
 	  	templatefile = @template_dir + template(:page)
   		outfile = @basedir + @options.op_dir + file.path
+  		rel_prefix = @outputdir.relative_path_from(outfile.dirname)
   	  render_template(templatefile, binding, outfile)
     end
   end
@@ -157,6 +158,7 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 
 		templatefile = @template_dir + template(name)
 		outfile = @basedir + @options.op_dir + to
+		rel_prefix = @outputdir.relative_path_from(outfile.dirname)
 		FileUtils.mkdir_p(File.dirname(outfile))
 
     render_template(templatefile, binding, outfile)
