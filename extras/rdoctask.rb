@@ -8,6 +8,10 @@ module Camping
     end
 
     def define
+      pre = @before_running_rdoc
+      ran = false
+      @before_running_rdoc = proc { ran = true; pre.call if pre }
+      
       super
       return unless after = @after_running_rdoc
     
@@ -18,7 +22,7 @@ module Camping
         begin
           target.invoke
         ensure
-          after.call
+          after.call if ran
         end
       end
     end
