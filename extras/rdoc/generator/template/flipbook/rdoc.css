@@ -19,7 +19,6 @@ h1 { font-size: 36px; margin: 1em; }
 h2 { font-size: 24px }
 h3, p#version { font-size: 19px }
 h4 { font-size: 17px; font-weight: normal; }
-h4.ruled { border-bottom: solid 1px #CC9; }
 h2.ruled { padding-top: 35px; border-top: solid 1px #AA5; }
 
 /* Link styles */
@@ -71,14 +70,33 @@ h2.ruled { padding-top: 35px; border-top: solid 1px #AA5; }
     text-align: center;
 }
 
-.permalink {
-    background-image: url(images/permalink.gif);
-    text-indent: -1000px;
-    height: 11px;
-    width: 11px;
-    display: inline-block;
+.ref h2 a {
+  background-color: #eee;
+  color: black;
+  display: block;    
+  text-align: left;
+  text-decoration: none;   
+  padding: 0.5em 1em;
 }
 
+.ref h2 a:hover {
+  text-decoration: underline;
+}
+
+.ref h4 a {
+  border-bottom: solid 1px #CC9;
+  color: #000;
+  display: block;
+  text-decoration: none;
+}
+
+.ref h4 a:hover {
+  border-color: #694;
+}
+
+.ref .mod {
+  padding: 0 2em;
+}
 
 pre { font-weight: bold; color: #730; }
 tt { color: #703; font-size: 12pt; }

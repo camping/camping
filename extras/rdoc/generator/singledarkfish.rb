@@ -63,7 +63,7 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
     org = instance_method(:http_url)
     define_method(:http_url) do |prefix|
 	    if RDoc::Generator::SingleDarkfish.current?
-	      prefix + full_name
+	      prefix + full_name.gsub("::", '-')
       else
         org.bind(self).call(prefix)
       end
@@ -74,7 +74,7 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
     org = instance_method(:path)
     define_method(:path) do
       if RDoc::Generator::SingleDarkfish.current?
-	      "##{@aref}"
+	      "/api.html##{@aref}"
       else
         org.bind(self).call
       end
@@ -115,7 +115,7 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 	######
 	
 	def class_dir
-	  '#class-'
+	  '/api.html#class-'
   end 
   
   def template(name)
@@ -163,6 +163,18 @@ class RDoc::Generator::SingleDarkfish < RDoc::Generator::Darkfish
 
     render_template(templatefile, binding, outfile)
 	end
+	
+	def methods_for(klass)
+    klass.methods_by_type.each do |type, visibilities|
+	    next if visibilities.empty?
+	    visibilities.each do |visibility, methods|
+		    next if methods.empty?
+		    methods.each do |method|
+		      yield method, type, visibility
+	      end
+      end
+    end
+  end
 	
 	## For book.rhtml
 	

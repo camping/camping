@@ -11,53 +11,60 @@
     <ul id="links">
       <li><a href="<%= rel_prefix %>/index.html">front</a> | </li>
       <li><a href="<%= rel_prefix %>/book.html">book</a> | </li>
-      <li><a href="http://wiki.github.com/why/camping">wiki</a> | </li>
-      <li><a href="http://github.com/why/camping">code</a></li>
+      <li><a href="http://wiki.github.com/camping/camping">wiki</a> | </li>
+      <li><a href="http://github.com/camping/camping">code</a></li>
     </ul>
     <p id="version">Camping <%= VERS %></p>
   </div>
   
   <div id="fullpage">
     <div class="page_shade">
-    	<div class="page">
+    	<div class="page ref">
     	  <p class="header"><%= Time.now %></p>
     	  <h1>Camping, the Reference</h1>
     	
-    	<% @modsort.each do |klass| %>
-    		<h2 class="ruled" id="class-<%= klass.full_name %>">
+    	<% @modsort.each_with_index do |klass, index| %> 
+    		<h2 id="<%= klass.path[/#(.*)$/, 1] %>">
+    		  <a href="<%= klass.path[/#(.*)$/] %>">
     		  <%= klass.type.capitalize %>
     		  <%= klass.full_name %>
     		  <% if klass.type == 'class' %>
+    		    &lt;
             <% unless String === klass.superclass %>
               <%= klass.superclass.full_name %>
             <% else %>
               <%= klass.superclass %>
             <% end %>
           <% end %>
+          </a>
     		</h2>
     		
-  			<%= klass.description %>
-  			
-    		<h3>Methods</h3>
-    		<% klass.methods_by_type.each do |type, visibilities|
-    			   next if visibilities.empty?
-    			   visibilities.each do |visibility, methods|
-    				   next if methods.empty?
-    				   methods.each do |method| %>
-    		<h4 class="ruled" id="<%= method.aref %>">
-    		  <%= visibility.to_s.capitalize %> <%= type.capitalize %> method:
-    		  <strong><%= method.pretty_name %><%= method.params%></strong>
-    		  <a href="<%= method.path %>" class="permalink">[permalink]</a>
-    		</h4>
-    		<%= method.description %>
-        <p class="source-link">[ <a href="#">show source</a> ]</p>
+    		<div class="mod">
+  			  <%= klass.description.gsub(/<(\/?)h(\d)>/) do
+  			    # replace <h2> with <h3> and so.
+  			    "<#{$1}h#{$2.to_i + 1}>"
+  			  end %>
+  			  
+    		  <h3>Methods</h3>
+    		<% methods_for(klass) do |method, type, visibility| %>
+    		  <h4 class="ruled" id="<%= method.aref %>">
+    		    <a href="#<%= method.aref %>">
+    		    <%= visibility.to_s.capitalize %> <%= type.capitalize %> method:
+    		    <strong><%= method.pretty_name %><%= method.params %></strong>
+    		    <img src="<%= rel_prefix %>/images/permalink.gif">
+    		    </a>
+    		  </h4>
+    		  <div class="method">
+    		    <%= method.description %>
+            <p class="source-link">[ <a href="#">show source</a> ]</p>
 <pre class="sourcecode">
 <%= method.markup_code %>
 </pre>
-    		    <% end
-    		     end
-    		   end
-    		 end %>
+          </div>
+    		<% end %>
+        </div>
+      <% end %>
+      </div>
     </div>
   </div>
 </body>
