@@ -10,9 +10,19 @@ module Camping
   #
   #   require 'camping/session'    # 1
   #   
-  #   module MyApp
+  #   module Nuts
   #     include Camping::Session   # 2
   #     secret "Oh yeah!"          # 3
+  #   end
+  #
+  # == Other backends
+  #
+  # Camping only ships with session-cookies. However, the <tt>@state</tt>
+  # variable is simply a shortcut for <tt>@env['rack.session']</tt>. Therefore
+  # you can also use any middleware which sets this variable:
+  #
+  #   module Nuts
+  #     use Rack::Session::Memcache
   #   end
   module Session
     def self.included(app)

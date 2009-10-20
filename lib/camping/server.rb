@@ -2,7 +2,26 @@ require 'irb'
 require 'rack'
 require 'camping/reloader'
 
-# TODO: I guess we should documentate this too...
+# == The Camping Server (for development)
+#
+# Camping includes a pretty nifty server which is built for development.
+# It follows these rules:
+# 
+# * Load all Camping apps in a directory or a file.
+# * Load new apps that appear in that directory or that file.
+# * Mount those apps according to their name. (e.g. Blog is mounted at /blog.)
+# * Run each app's <tt>create</tt> method upon startup.
+# * Reload the app if its modification time changes.
+# * Reload the app if it requires any files under the same directory and one
+#   of their modification times changes.
+# * Support the X-Sendfile header.
+#
+# Run it like this:
+#
+#   camping examples/        # Mounts all apps in that directory
+#   camping blog.rb          # Mounts Blog at /
+#
+# And visit http://localhost:3301/ in your browser.
 class Camping::Server
   attr_reader :reloader
   attr_accessor :conf
@@ -122,7 +141,7 @@ class Camping::Server
       puts "** Starting WEBrick on #{@conf.host}:#{@conf.port}"
       [Rack::Handler::WEBrick, {:Port => @conf.port, :BindAddress => @conf.host}]
     end
-    
+    reload!
     handler.run(self, conf) 
   end
   

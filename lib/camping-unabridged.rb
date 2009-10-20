@@ -6,7 +6,7 @@
 # no more than 80 characters per line and must not exceed four kilobytes.
 #
 # On the other hand, lib/camping-unabridged.rb contains the same code, laid out
-# nicely with piles of documentation everywhere.  This documentation is entirely
+# nicely with piles of documentation everywhere. This documentation is entirely
 # generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
 # found in the extras directory of any camping distribution.
 %w[uri stringio rack].map { |l| require l }
@@ -17,189 +17,35 @@ class Object #:nodoc:
   end
 end
 
-# TODO: Rack (for production). Overriding r404, r500 and r501.
+# If you're new to Camping, you should probably start by reading the first
+# chapters of {The Camping Book}[file:book/01_introduction.html#toc].
+# 
+# Okay. So, the important thing to remember is that <tt>Camping.goes :Nuts</tt>
+# copies the Camping module into Nuts. This means that you should never use
+# any of these methods/classes on the Camping module, but rather on your own
+# app. Here's a short explanation on how Camping is organized:
 #
-# Ready for developing with Camping?  Just follow along and we'll explain
-# everything in a few minutes.  If there's a specific thing you're wondering
-# about, here are some guidelines of how Camping and the documentation is organized:
-#
-# * All the modules are documentated with a little overview, followed by
-#   all the methods defined there.
-# * Camping::Controllers explains all you need to know about taking care
-#   of the request and returning a response.
-# * Camping::Models explains how you interact with the database, or other data sources.
-# * Camping::Views explains how you can easily generate HTML from plain Ruby.
-# * Camping::Helpers is a module with useful helpers, both for the controllers and the views.
+# * Camping::Controllers is where your controllers live.
+# * Camping::Models is where your models live.
+# * Camping::Views is where your views live.
 # * Camping::Base is a module which is included in all your controllers.
+# * Camping::Helpers is a module with useful helpers, both for the controllers
+#   and the views. You should fill this up with your own helpers.
 #
+# Camping also ships with:
 #
-# == Starting My First App
+# * Camping::Session adds states to your app. 
+# * Camping::Server starts up your app in development.
+# * Camping::Reloader automatically reloads your apps when a file has changed.
 # 
-# When you're going to start a new app in Camping, you simply open
-# your favorite text editor and start writing:
-#
-#   require 'camping'
-#   Camping.goes :Blog
-#   
-#   module Blog
-#     # lots of code
-#   end
-# 
-# What's important to know, is that <tt>Camping.goes :Blog</tt> copies the
-# Camping-module into the Blog-module.  So whenever you see Camping in this
-# documentation, you can replace it with Blog and everything should work
-# as expected.
-#
-# By not modifying the Camping-module itself, you can have all your apps
-# running in the same process and have less moving parts.  In fact, we recommend
-# splitting larger apps into several, smaller ones to make it more manageable.
-#
-# == The Camping Server (for development)
-#
-# Camping includes a pretty nifty server which is built for development.
-# It follows these rules:
-# 
-# * Load all Camping apps in a directory or a file.
-# * Load new apps that appear in that directory or that file.
-# * Mount those apps according to their name. (e.g. Blog is mounted at /blog.)
-# * Run each app's <tt>create</tt> method upon startup.
-# * Reload the app if its modification time changes.
-# * Reload the app if it requires any files under the same directory and one of their modification times changes.
-# * Support the X-Sendfile header.
-#
-# Run it like this:
-#
-#   camping examples/        # Mounts all apps in that directory
-#   camping blog.rb          # Mounts Blog at /
-#
-# And visit http://localhost:3301/ in your browser.  Ready for some development?
-#
-#
-# == MVC
-#
-# Camping follows the MVC-pattern, which means you'll separate your app into
-# three parts: Models, views and controllers.  Let's start with the last:
-#
-# === Controllers
-#
-#   module Blog::Controllers
-#     class Index
-#       def get
-#         @posts = Post.all
-#         render :index
-#       end
-#     end
-#   end   
-# 
-# The controllers are the heart of your app: They respond to a request from
-# the user, process it and return an appropriate response.  Have a look at
-# Camping::Controllers in order to fully understand how controllers work
-# and how you should use them in Camping.
-#
-# === Models
-#
-#   module Blog::Models
-#     class Post < Base; belongs_to :user; end
-#     class Comment < Base; belongs_to :user; end
-#     class User < Base; end
-#   end
-#
-# Most apps needs to handle _data_ in some way: A blog needs a place to save
-# and retrieve posts and comments; a wiki needs to store the pages somewhere.
-# A _database_ is (most of the time) a great place to save such data.  Camping
-# uses (just like Rails) ActiveRecord to abstract the boring details down to
-# beautiful Ruby.  Read Camping::Models to learn how to use them in your app.
-#
-# === Views
-#
-#   module Blog::Views
-#     def layout
-#       html do
-#         head { title "My Blog" }
-#         body do
-#           h1 "My Blog"
-#           self << yield
-#         end
-#       end
-#     end
-#   
-#     def index
-#       @posts.each do |post|
-#         h2 post.title
-#         self << post.content
-#       end
-#     end
-#   end
-#
-# Since we're on the web, we need to return the language which the web speaks:
-# HTML. Writing HTML manually can be tedious and boring.  Camping uses Markaby
-# which lets you write HTML in Ruby - simple and elegant.  As always, read
-# Camping::Views to get a overview of how to use views.
-#
-# === Helpers
-#
-# I know, I know: Helpers don't fit into the MVC-pattern.  That doesn't mean
-# they're useless, though.  Whenever you need a snippet in several controllers
-# or views, you should refactor it out to a helper.  Camping includes a
-# sensible collection of helpers in Camping::Helpers.
-#
-#
-# == Tips & Tricks
-# 
-# === The <tt>create</tt> method
-#
-# It's a rule in Camping which says that the <tt>create</tt> method should be
-# called when the server starts up.  The Camping Server does this, and so
-# should you in your environment.
-#
-# This is a good place to check for database tables and create those tables
-# to save users of your application from needing to manually set them up.
-#
-#   def Blog.create
-#     Blog::Models::Base.establish_connection(
-#       :adapter => 'sqlite3',
-#       :database => 'blog.db'
-#     )
-#     Blog::Models.create_schama 
-#   end 
-#
-# === Service Override
-#
-# Occassionally, you may want to intercept controller calls or do some cleanup
-# afterwards.  Many other frameworks have before-, after- and around-filters
-# to do that.  Camping has no facility for doing this. It's not worth the bytes.
-#
-# Instead, you can override <tt>service</tt>, which handles all controller calls.
-# You can do include into specific controllers or right into the main application module.
-#
-#   module MySession
-#     def service(*a)
-#       # Do stuff before
-#       @session = MyApp::Session.new
-#       # Run regular controller
-#       super(*a)
-#     ensure
-#       # Do stuff after
-#       @session.close
-#     end
-#   end
-#   
-#   module MyApp
-#     include MySession
-#
-#     module Controllers
-#       class Index
-#         include OtherOverload
-#       end
-#     end
-#   end
+# More importantly, Camping also installs The Camping Server,
+# please see Camping::Server.
 module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
   Apps = []
-  # TODO: @input[:page] != @input['page']
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   # 
@@ -208,20 +54,18 @@ module Camping
   #   module Blog::Controllers
   #     class Index < R '/'
   #       def get
-  #         if page = @input.page.to_i > 0
+  #         if (page = @input.page.to_i) > 0
   #           page -= 1
   #         end
-  #         @posts = Post.find :all, :offset => page * 20, :limit => 20
+  #         @posts = Post.all, :offset => page * 20, :limit => 20
   #         render :index
   #       end
   #     end
   #   end
   #
   # In the above example if you visit <tt>/?page=2</tt>, you'll get the second
-  # page of twenty posts.  You can also use <tt>@input[:page]</tt> or <tt>@input['page']</tt>
-  # to get the value for the <tt>page</tt> query variable.
-  #
-  # Use the <tt>@cookies</tt> variable in the same fashion to access cookie variables.
+  # page of twenty posts.  You can also use <tt>@input['page']</tt> to get the
+  # value for the <tt>page</tt> query variable.
   class H < Hash
     # Gets or sets keys in the hash.
     #
@@ -235,29 +79,55 @@ module Camping
     undef id, type
   end
   
-  # TODO: Fair enough. Maybe complete the ActionPack example?
-  # Helpers contains methods available in your controllers and views.  You may add
-  # methods of your own to this module, including many helper methods from Rails.
-  # This is analogous to Rails' <tt>ApplicationHelper</tt> module.
+  # Helpers contains methods available in your controllers and views. You may
+  # add methods of your own to this module, including many helper methods from
+  # Rails. This is analogous to Rails' <tt>ApplicationHelper</tt> module.
   #
   # == Using ActionPack Helpers
   #
-  # If you'd like to include helpers from Rails' modules, you'll need to look up the
-  # helper module in the Rails documentation at http://api.rubyonrails.org/.
+  # If you'd like to include helpers from Rails' modules, you'll need to look
+  # up the helper module in the Rails documentation at http://api.rubyonrails.org/.
   #
-  # For example, if you look up the <tt>ActionView::Helpers::FormHelper</tt> class,
-  # you'll find that it's loaded from the <tt>action_view/helpers/form_helper.rb</tt>
-  # file.  You'll need to have the ActionPack gem installed for this to work.
+  # For example, if you look up the <tt>ActionView::Helpers::FormTagHelper</tt>
+  # class, you'll find that it's loaded from the <tt>action_view/helpers/form_tag_helper.rb</tt>
+  # file. You'll need to have the ActionPack gem installed for this to work.
   #
-  #   require 'action_view/helpers/form_helper.rb'
+  # Often the helpers depends on other helpers, so you would have to look up
+  # the dependencies too. <tt>FormTagHelper</tt> for instance required the
+  # <tt>content_tag</tt> provided by <tt>TagHelper</tt>. 
   #
-  #   # This example is unfinished.. soon..
+  #   require 'action_view/helpers/form_tag_helper'
   #
+  #   module Nuts::Helpers
+  #     include ActionView::Helpers::TagHelper
+  #     include ActionView::Helpers::FormTagHelper
+  #   end
+  #
+  # == Return a response immediately
+  # If you need to return a response inside a helper, you can use <tt>throw :halt</tt>. 
+  #
+  #   module Nuts::Helpers
+  #     def requires_login!
+  #       unless @state.user_id
+  #         redirect Login
+  #         throw :halt
+  #       end
+  #     end
+  #   end
+  #   
+  #   module Nuts::Controllers
+  #     class Admin
+  #       def get
+  #         requires_login!
+  #         "Never gets here unless you're logged in"
+  #       end
+  #     end
+  #   end
   module Helpers
     # From inside your controllers and views, you will often need to figure out
-    # the route used to get to a certain controller +c+.  Pass the controller class
-    # and any arguments into the R method, a string containing the route will be
-    # returned to you.
+    # the route used to get to a certain controller +c+. Pass the controller
+    # class and any arguments into the R method, a string containing the route
+    # will be returned to you.
     #
     # Assuming you have a specific route in an edit controller:
     #
@@ -269,22 +139,21 @@ module Camping
     #
     # Which outputs: <tt>/edit/1</tt>.
     #
-    # You may also pass in a model object and the ID of the object will be used.
-    #
     # If a controller has many routes, the route will be selected if it is the
     # first in the routing list to have the right number of arguments.
     #
     # == Using R in the View
     #
-    # Keep in mind that this route doesn't include the root path.
-    # You will need to use <tt>/</tt> (the slash method above) in your controllers.
-    # Or, go ahead and use the Helpers#URL method to build a complete URL for a route.
+    # Keep in mind that this route doesn't include the root path. You will
+    # need to use <tt>/</tt> (the slash method above) in your controllers.
+    # Or, go ahead and use the Helpers#URL method to build a complete URL for
+    # a route.
     #
-    # However, in your views, the :href, :src and :action attributes automatically
-    # pass through the slash method, so you are encouraged to use <tt>R</tt> or
-    # <tt>URL</tt> in your views.
+    # However, in your views, the :href, :src and :action attributes
+    # automatically pass through the slash method, so you are encouraged to
+    # use <tt>R</tt> or <tt>URL</tt> in your views.
     #
-    #  module Blog::Views
+    #  module Nuts::Views
     #    def menu
     #      div.menu! do
     #        a 'Home', :href => URL()
@@ -296,8 +165,9 @@ module Camping
     #  end
     #
     # Let's say the above example takes place inside an application mounted at
-    # <tt>http://localhost:3301/frodo</tt> and that a controller named <tt>Logout</tt>
-    # is assigned to route <tt>/logout</tt>.  The HTML will come out as:
+    # <tt>http://localhost:3301/frodo</tt> and that a controller named
+    # <tt>Logout</tt> is assigned to route <tt>/logout</tt>.
+    # The HTML will come out as:
     #
     #   <div id="menu">
     #     <a href="http://localhost:3301/frodo/">Home</a>
@@ -356,46 +226,18 @@ module Camping
   end
 
   # Camping::Base is built into each controller by way of the generic routing
-  # class Camping::R.  In some ways, this class is trying to do too much, but
-  # it saves code for all the glue to stay in one place.
+  # class Camping::R. In some ways, this class is trying to do too much, but
+  # it saves code for all the glue to stay in one place. Forgivable,
+  # considering that it's only really a handful of methods and accessors.
   #
-  # Forgivable, considering that it's only really a handful of methods and accessors.
-  #
-  # == Treating controller methods like Response objects
-  # TODO: I don't think this belongs here. Either Controllers or Camping.
-  #
-  # Camping originally came with a barebones Response object, but it's often much more readable
-  # to just use your controller as the response.
-  #
-  # Go ahead and alter the status, cookies, headers and body instance variables as you
-  # see fit in order to customize the response.
-  #
-  #   module Camping::Controllers
-  #     class SoftLink
-  #       def get
-  #         redirect "/"
-  #       end
-  #     end
-  #   end
-  #
-  # Is equivalent to:
-  #
-  #   module Camping::Controllers
-  #     class SoftLink
-  #       def get
-  #         @status = 302
-  #         @headers['Location'] = "/"
-  #       end
-  #     end
-  #   end
-  #
+  # Everything in this module is accessable inside your controllers.
   module Base
     attr_accessor :input, :cookies, :headers, :body, :status, :root
 
     # Display a view, calling it by its method name +v+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
     #
-    #   module Camping::Controllers
+    #   module Nuts::Controllers
     #     class Show
     #       def get
     #         @posts = Post.find :all
@@ -404,8 +246,6 @@ module Camping
     #     end
     #   end
     #
-    # You can also return directly HTML by just passing a block
-    #
     def render(v,*a,&b)
       mab(/^_/!~v.to_s){send(v,*a,&b)}
     end
@@ -413,34 +253,29 @@ module Camping
     # You can directly return HTML form your controller for quick debugging
     # by calling this method and pass some Markaby to it.
     # 
-    #   module Camping::Controllers
+    #   module Nuts::Controllers
     #     class Info
     #       def get; mab{ code @headers.inspect } end
     #     end
     #   end
     #
     # You can also pass true to use the :layout HTML wrapping method
-    #
     def mab(l=nil,&b)
       m=Mab.new({},self)
       s=m.capture(&b)
       s=m.capture{layout{s}} if l && m.respond_to?(:layout)
       s
     end
-
-    # A quick means of setting this controller's status, body and headers.
-    # Used internally by Camping, but... by all means...
+    
+    # A quick means of setting this controller's status, body and headers
+    # based on a Rack response:
     #
-    #   r(302, '', 'Location' => self / "/view/12")
+    #   r(302, 'Location' => self / "/view/12", '')
+    #   r(*another_app.call(@env))
     #
-    # Is equivalent to:
+    # You can also switch the body and the header if you want:
     #
-    #   redirect "/view/12"
-    #
-    # You can also switch the body and the header in order to support Rack:
-    #
-    #  r(302, {'Location' => self / "/view/12"}, '')
-    #  r(*another_app.call(@env))
+    #   r(404, "Could not find page")
     #
     # See also: #r404, #r500 and #r501
     def r(s, b, h = {})
@@ -451,51 +286,63 @@ module Camping
     end
 
     # Formulate a redirect response: a 302 status with <tt>Location</tt> header
-    # and a blank body.  Uses Helpers#URL to build the location from a controller
-    # route or path.
+    # and a blank body. Uses Helpers#URL to build the location from a
+    # controller route or path.
     #
     # So, given a root of <tt>http://localhost:3301/articles</tt>:
     #
-    #   redirect "view/12"    # redirects to "//localhost:3301/articles/view/12"
-    #   redirect View, 12     # redirects to "//localhost:3301/articles/view/12"
+    #   redirect "view/12"  # redirects to "//localhost:3301/articles/view/12"
+    #   redirect View, 12   # redirects to "//localhost:3301/articles/view/12"
     #
     # <b>NOTE:</b> This method doesn't magically exit your methods and redirect.
     # You'll need to <tt>return redirect(...)</tt> if this isn't the last statement
-    # in your code.
+    # in your code, or <tt>throw :halt</tt> if it's in a helper.
     #
     # See: Controllers
     def redirect(*a)
       r(302,'','Location'=>URL(*a).to_s)
     end
 
-    # Called when a controller was not found. It is mainly used internally, but it can
-    # also be useful for you, if you want to filter some parameters.
+    # Called when a controller was not found. You can override this if you
+    # want to customize the error page:
     #
-    # See: Controllers
+    #   module Nuts
+    #     def r404(path)
+    #       @path = path
+    #       render :not_found
+    #     end
+    #   end
     def r404(p)
       P % "#{p} not found"
     end
 
-    # If there is a parse error in Camping or in your application's source code,
-    # it will not be caught by Camping.  The controller class +k+ and request method +m+ (GET, POST, etc.) where the error
-    # took place are passed in, along with the Exception +e+ which can be mined for useful info.
+    # Called when an exception is raised. However,  if there is a parse error
+    # in Camping or in your application's source code, it will not be caught.
     #
-    # You can overide it, but if you have an error in here, it will be uncaught !
+    # +k+ is the controller class, +m+ is the request method (GET, POST, etc.)
+    # and +e+ is the Exception which can be mined for useful info.
     #
-    # See: Controllers
+    # Be default this simply re-raises the error so a Rack middleware can
+    # handle it, but you are free to override it here:
+    #
+    #   module Nuts
+    #     def r500(klass, method, exception)
+    #       send_email_alert(klass, method, exception)
+    #       render :server_error
+    #     end
+    #   end  
     def r500(k,m,e)
       raise e
     end
 
-    # Called if an undefined method is called on a controller, along with the request method +m+ (GET, POST, etc.)
-    #
-    # See: Controllers
+    # Called if an undefined method is called on a controller, along with the
+    # request method +m+ (GET, POST, etc.)
     def r501(m)
       P % "#{m.upcase} not implemented"
     end
-
-    # Turn a controller into an array.  This is designed to be used to pipe
-    # controllers into the <tt>r</tt> method.  A great way to forward your
+    
+    # Turn a controller into a Rack response. This is designed to be used to
+    # pipe controllers into the <tt>r</tt> method. A great way to forward your
     # requests!
     #
     #   class Read < '/(\d+)'
@@ -537,8 +384,6 @@ module Camping
 
     # All requests pass through this method before going to the controller.
     # Some magic in Camping can be performed by overriding this method.
-    #
-    # See: Camping
     def service(*a)
       r = catch(:halt){send(@method, *a)}
       @body ||= r 
@@ -546,204 +391,88 @@ module Camping
     end
   end
   
-  # In order to fully understand controllers and how they are used, you
-  # should know a bit about HTTP - the protocol behind The World Wide Web.
+  
+  # Controllers receive the requests and sends a response back to the client.
+  # A controller is simply a class which must implement the HTTP methods it
+  # wants to accept:
   #
-  # == Request
-  #
-  # HTTP is built around _requests_.  When a user types "http://yoursite.com/"
-  # in his web browser, the browser starts making requests to the server.
-  # It's basically asking the server to do what the user want.  When the server
-  # has decided what to do, it sends a _response_ back to the browser which
-  # is then showed to the user.
-  #
-  # We can brutually split a request into three parts: a resource, a method
-  # and the rest.
-  #
-  # === Resource
-  #
-  # A _resource_ in HTTP is simply a name of a _thing_ - it's a noun. Just like
-  # "home", "blog post" and "comment" are nouns in our world, are +/+,
-  # +/post/123+ and +/post/123/comment/456+ resources in HTTP.
-  #
-  # Nouns are well and good, but just like you can't build a sentence with
-  # only nouns, you can't build a request with only a resource.  We need verbs!
-  #
-  # === Method
-  #
-  # _Methods_ are the verbs in HTTP.  It's not enough to have the name of
-  # what you want, you have to tell _what_ you want to do too.  Since
-  # we're speaking with machines, we have to stick to these:
-  #
-  # * GET
-  # * POST
-  # * (PUT)
-  # * (DELTE)
-  #
-  # GET is the default method.  When you type an address or click a link in
-  # your browser, it's smart enough to realize that you want to get that
-  # resource.  GET also is the simplest of the methods: it should not _do_
-  # anything, just return the content.
-  #
-  # The three others are focused on actions. POST for create, PUT for
-  # update and DELETE for, uhm, delete.  You may have noticed the parenthesis
-  # around PUT and DELETE, and the reason for that is quite sad:
-  #
-  # When the web was still young, some realized that they didn't _need_
-  # PUT and DELETE; they could just use POST and put the verb in the
-  # resource: POST /posts/delete/1.  This doesn't make sense at all, but
-  # it happened and <strong>right now browsers only support GET and POST.</strong>
-  #
-  # === The Rest
-  #
-  # HTTP is also very flexible, so the browser can send all kind of other
-  # metadata (called _headers_).  This includes the name of the browser, the  
-  # preferred language, the domain of the server and much, much more.
-  # 
-  # In POST, PUT and DELETE you can also send some arbitrary data (called
-  # the _body_).  This is used for instance when you upload a file.
-  #
-  # Probably the most important part is that the browser can send parameters.
-  # In all the methods you can tack them on to the end after a question mark
-  # (<tt>/search?query=camping</tt>), while POST, PUT and DELETE also allows
-  # to send them, hidden from the user, in the body.
-  #
-  # == Response
-  #
-  # When the browser has sent the request to the server, the server has
-  # to return a response.  We can also split the response into three parts:
-  # a status code, headers and a body.
-  #
-  # === Status Code
-  #
-  # The status code tells a bit about the response.  For instance:
-  #
-  # * 200 means everything went fine and no problems occured.
-  # * 401 means you have to login.
-  # * 404 means the resource couldn't be found.
-  # * 500 means the server encountered an error.
-  #
-  # This is just a small selection.  Wikipedia has a {nice list with _all_ the
-  # codes}[http://en.wikipedia.org/wiki/List_of_HTTP_status_codes].
-  #
-  # === Headers
-  #
-  # Just like the headers in the request, the headers in the response are
-  # used to send useful metadata back to the browser.  Examples of this
-  # are what kind of content this is, the length of the body and if the
-  # browser should give a "File Download" dialogue box.
-  #
-  # === Body
-  #
-  # The body is simply what the user is going to see.
-  #
-  # == Using controllers in Camping
-  #
-  # I guess you're bored with all of this (seemingly useless) theory, but we
-  # believe it's better to understand HTTP now than later.  Let's however
-  # start with some coding.
-  #
-  # In Camping, a controller is simply a resource:
-  #
-  #   module Blog::Controllers
-  #     class Posts < R '/posts'
+  #   module Nuts::Controllers
+  #     class Index
   #       def get
-  #         "Hello from GET"
-  #       end
-  # 
-  #       def post
-  #         "Hello from POST"
-  #       end
-  #     end
-  #   end
-  #
-  # Camping will take care if of all the boring stuff, and whenever someone
-  # tries to GET or POST <tt>/posts</tt> it will display this nice message.
-  #
-  # If someone tries to DELETE <tt>/posts</tt>, Camping will return a 501
-  # response (which means the method wasn't implemented).  If someone tries to
-  # access <tt>/postsss</tt>, it will return a 404 response (no such resource).
-  #
-  # === Specialized resources
-  #
-  # Most of the time your resources needs to match more than a single, static
-  # path (like <tt>/posts</tt> above).  Luckily, you can use regular expressions
-  # in your routes.  Wrap the rules with some parethesis and it will also be
-  # sent as arguments to your method:
-  #
-  #   module Blog::Controllers
-  #     class Post < R '/post/(\d+)'
-  #       def get(id)
-  #         case id.to_i
-  #         when 1
-  #           "You're looking at the first post (/post/1)!"
-  #         when 2
-  #           "You're looking at the second post (/post/2)!"
-  #         else
-  #           "Meh."
-  #         end
+  #         "Hello World"
   #       end
   #     end
   #   
-  #     class Page < R '/user/(\w+)/page/(\w+)', '/u/(\w+)/(\w+)'
-  #       def get(user, page_name)
-  #         "You're visiting #{user}'s #{page_name}"
+  #     class Posts
+  #       def post
+  #         Post.create(@input) 
+  #         redirect Index
+  #       end
+  #     end  
+  #   end
+  # 
+  # == Defining a controller
+  # 
+  # There are two ways to define controllers: Just defining a class and let
+  # Camping figure out the route, or add the route explicitly using R.
+  # 
+  # If you don't use R, Camping will first split the controller name up by
+  # words (HelloWorld => Hello and World). Then it would do the following:
+  # 
+  # * Replace Index with /
+  # * Replace X with ([^/]+)
+  # * Replace N with (\\\d+)
+  # * Everything else turns into lowercase
+  # * Join the words with slashes
+  #
+  #--
+  # NB!  N will actually be replaced with (\d+), but it needs to be escaped
+  # here in order to work correctly with RDoc.
+  #++
+  #
+  # Here's a few examples:
+  # 
+  #   Index   # => /
+  #   PostN   # => /post/(\d+)
+  #   PageX   # => /page/([^/]+)
+  #   Pages   # => /pages
+  # 
+  # == The request
+  # 
+  # You have these variables which describes the request:
+  # 
+  # * @env contains the environment as defined in http://rack.rubyforge.org/doc/SPEC.html
+  # * @request is Rack::Request.new(@env)
+  # * @root is the path where the app is mounted
+  # * @cookies is a hash with the cookies sent by the client
+  # * @state is a hash with the sessions (see Camping::Session)
+  # * @method is the HTTP method in lowercase
+  #
+  # == The response
+  #
+  # You can change these variables to your needs:
+  # 
+  # * @status is the HTTP status (defaults to 200)
+  # * @headers is a hash with the headers
+  # * @body is the body (a string or something which responds to #each)
+  # * Any changes in @cookies and @state will also be sent to the client
+  #
+  # If you haven't set @body, it will use the return value of the method:
+  #
+  #   module Nuts::Controllers
+  #     class Index
+  #       def get
+  #         "This is the body"
+  #       end
+  #     end
+  #
+  #     class Posts
+  #       def get
+  #         @body = "Hello World!"
+  #         "This is ignored"
   #       end
   #     end
   #   end
-  #
-  # As you can see, you can also give your controllers several routes to match.
-  #
-  # === Magic resources
-  # 
-  # Very often, you will name your controllers identical to it's route.  If
-  # you leave out the route and just define the controller as a class
-  # (<tt>class Posts</tt>), Camping will automatically build the route using some magic:
-  #
-  # First it will split the controller name up by words.  For instance
-  # +VeryNiftyRoute+ will be split up into +Very+, +Nifty+ and +Route+.
-  #
-  # Then it substitutes each part using these rules:
-  # 
-  # * Index turns into /
-  # * X turns into ([^/]+)
-  # * N turns into (\\\d+)
-  # * Everything else turns into lowercase
-  #
-  # Finally it puts a slash between the parts.
-  #
-  # It can take some time to grasp, but it's actually very nice since you
-  # avoid repeating the route in the name (or vica versa).  Have a look at the
-  # examples below if you're still a little confused. 
-  #
-  #   module Blog::Controllers
-  #     # Matches: /
-  #     class Index
-  #     end
-  #     
-  #     # Matches: /post/(\d+)
-  #     class PostN
-  #     end
-  #     
-  #     # Matches: /very/nifty/route
-  #     class VeryNiftyRoute
-  #     end
-  #   end
-  #
-  # TODO: @input & @cookies at least.
-  # Controllers is a module for placing classes which handle URLs.  This is done
-  # by defining a route to each class using the Controllers::R method.
-  #
-  #   module Camping::Controllers
-  #     class Edit < R '/edit/(\d+)'
-  #       def get; end
-  #       def post; end
-  #     end
-  #   end
-  #
-  # If no route is set, Camping will guess the route from the class name.
-  # The rule is very simple: the route becomes a slash followed by the lowercased
-  # class name.  See Controllers::D for the complete rules of dispatch.
   module Controllers
     @r = []
     class << self
@@ -751,7 +480,11 @@ module Camping
       def r #:nodoc:
         @r
       end
+      
       # Add routes to a controller class by piling them into the R method.
+      # 
+      # The route is a regexp which will match the request path. Anything
+      # enclosed in parenthesis will be sent to the method as arguments.
       #
       #   module Camping::Controllers
       #     class Edit < R '/edit/(\d+)', '/new'
@@ -762,14 +495,6 @@ module Camping
       #       end
       #     end
       #   end
-      #
-      # You will need to use routes in either of these cases:
-      #
-      # * You want to assign multiple routes to a controller.
-      # * You want your controller to receive arguments.
-      #
-      # Most of the time the rules inferred by dispatch method Controllers::D will get you
-      # by just fine.
       def R *u
         r=@r
         Class.new {
@@ -785,8 +510,8 @@ module Camping
       #
       # Controllers are searched in this order:
       #
-      # # Classes without routes, since they refer to a very specific URL.
-      # # Classes with routes are searched in order of their creation.
+      # * Classes without routes, since they refer to a very specific URL.
+      # * Classes with routes are searched in order of their creation.
       #
       # So, define your catch-all controllers last.
       def D(p, m)
@@ -801,20 +526,24 @@ module Camping
       end
 
       N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '([^/]+)', "Index" => ''
-      # The route maker, this is called by Camping internally, you shouldn't need to call it.
+      # The route maker, this is called by Camping internally, you shouldn't
+      # need to call it. 
       #
-      # Still, it's worth know what this method does.  Since Ruby doesn't keep track of class
-      # creation order, we're keeping an internal list of the controllers which inherit from R().
-      # This method goes through and adds all the remaining routes to the beginning of the list
-      # and ensures all the controllers have the right mixins.
+      # Still, it's worth know what this method does. Since Ruby doesn't keep
+      # track of class creation order, we're keeping an internal list of the
+      # controllers which inherit from R(). This method goes through and adds
+      # all the remaining routes to the beginning of the list and ensures all
+      # the controllers have the right mixins.
       #
-      # Anyway, if you are calling the URI dispatcher from outside of a Camping server, you'll
-      # definitely need to call this at least once to set things up.
+      # Anyway, if you are calling the URI dispatcher from outside of a
+      # Camping server, you'll definitely need to call this to set things up.
+      # Don't call it too early though. Any controllers added after this
+      # method is called won't work properly
       def M
         def M #:nodoc:
         end
         constants.map { |c|
-          k=const_get(c)
+          k = const_get(c)
           k.send :include,C,Base,Helpers,Models
           @r=[k]+r if r-[k]==r
           k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
@@ -822,30 +551,33 @@ module Camping
       end
     end
 
-    # Internal controller with no route. Used by #D and C.call to show internal messages.
+    # Internal controller with no route. Used to show internal messages.
     I = R()
   end
   X = Controllers
 
   class << self
-    # When you are running many applications, you may want to create independent
-    # modules for each Camping application.  Namespaces for each.  Camping::goes
-    # defines a toplevel constant with the whole MVC rack inside.
+    # When you are running many applications, you may want to create
+    # independent modules for each Camping application. Camping::goes
+    # defines a toplevel constant with the whole MVC rack inside:
     #
     #   require 'camping'
-    #   Camping.goes :Blog
+    #   Camping.goes :Nuts
     #
-    #   module Blog::Controllers; ... end
-    #   module Blog::Models;      ... end
-    #   module Blog::Views;       ... end
+    #   module Nuts::Controllers; ... end
+    #   module Nuts::Models;      ... end
+    #   module Nuts::Views;       ... end 
     #
+    # All the applications will be available in Camping::Apps.
     def goes(m)
       Apps << eval(S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING)
     end
     
-    # Ruby web servers use this method to enter the Camping realm. The e
+    # Ruby web servers use this method to enter the Camping realm. The +e+
     # argument is the environment variables hash as per the Rack specification.
-    # And array with [statuc, headers, body] is expected at the output.
+    # And array with [status, headers, body] is expected at the output.
+    #
+    # See: http://rack.rubyforge.org/doc/SPEC.html
     def call(e)
       X.M
       p = e['PATH_INFO'] = U.unescape(e['PATH_INFO'])
@@ -855,17 +587,17 @@ module Camping
       r500(:I, k, m, $!, :env => e).to_a
     end
 
-    # The Camping scriptable dispatcher.  Any unhandled method call to the app module will
-    # be sent to a controller class, specified as an argument.
+    # The Camping scriptable dispatcher. Any unhandled method call to the app
+    # module will be sent to a controller class, specified as an argument.
     #
     #   Blog.get(:Index)
     #   #=> #<Blog::Controllers::Index ... >
     #
-    # The controller object contains all the @cookies, @body, @headers, etc. formulated by
-    # the response.
+    # The controller object contains all the @cookies, @body, @headers, etc.
+    # formulated by the response.
     #
-    # You can also feed environment variables and query variables as a hash, the final
-    # argument.
+    # You can also feed environment variables and query variables as a hash,
+    # the final argument.
     #
     #   Blog.post(:Login, :input => {'username' => 'admin', 'password' => 'camping'})
     #   #=> #<Blog::Controllers::Login @user=... >
@@ -894,7 +626,7 @@ module Camping
     end
   end
   
-  # Views is an empty module for storing methods which create HTML.  The HTML
+  # Views is an empty module for storing methods which create HTML. The HTML
   # is described using the Markaby language.
   #
   # == Defining and calling templates
@@ -913,7 +645,7 @@ module Camping
   #   end
   #
   # In your controllers you just call <tt>render :template_name</tt> which will
-  # invoke the template.  The views and controllers will share instance
+  # invoke the template. The views and controllers will share instance
   # variables (as you can see above).
   #
   # == Using the layout method
@@ -931,9 +663,8 @@ module Camping
   #   end
   module Views; include X, Helpers end
   
-  # TODO: Migrations
   # Models is an empty Ruby module for housing model classes derived
-  # from ActiveRecord::Base.  As a shortcut, you may derive from Base
+  # from ActiveRecord::Base. As a shortcut, you may derive from Base
   # which is an alias for ActiveRecord::Base.
   #
   #   module Camping::Models
@@ -943,7 +674,7 @@ module Camping
   #
   # == Where Models are Used
   #
-  # Models are used in your controller classes.  However, if your model class
+  # Models are used in your controller classes. However, if your model class
   # name conflicts with a controller class name, you will need to refer to it
   # using the Models module.
   #
