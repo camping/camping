@@ -59,7 +59,6 @@ omni =
     s.add_dependency('activerecord')
     s.add_dependency('sqlite3-ruby', '>=1.1.0.1')
     s.add_dependency('mongrel')
-    s.add_dependency('acts_as_versioned')
     s.add_dependency('RedCloth')
   end
   
