@@ -1,5 +1,21 @@
+= 2.0
+=== ???, 2009
+* Speed-up of Camping::Mab (thanks zimbatm!)
+* @state is now an alias of @env['rack.session']
+* Camping.use injects a Rack middleware.
+* Update Flipbook to RDoc 2.4
+* Removed old examples. 
+* Updated examples/blog.rb
+* Camping::Apps returns!
+* Session-cookies now timeout naturally (thanks jenna!)
+* You can now `throw :halt` to halt the response in a helper.
+* Camping::H#u is gone (was an alias to merge!)
+* Camping::Session now uses session-cookies. The AR-backend is gone for now.
+* camping/db.rb has been renamed to camping/ar.rb.
+* Camping now uses Rack internally. Every app responds to #call.
+
 = 1.6
-=== ???, 2007
+=== Never released
 
 * Camping::Apps removed, it wasn't reliable.
 * bin/camping server kinds splitted in various files.
