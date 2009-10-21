@@ -66,37 +66,34 @@ omni =
 
 gem 'rdoc', '~> 2.4.0' rescue nil
 require 'rdoc'
+require 'rake/rdoctask'
 
-if defined?(RDoc::VERSION) && RDoc::VERSION[0,3] == "2.4"
-  require 'rdoc/generator/singledarkfish'
-  require 'rdoctask'
-  
-  Camping::RDocTask.new(:docs) do |rdoc|
-    rdoc.before_running_rdoc do
-      mv "lib/camping.rb", "lib/camping-mural.rb"
-      mv "lib/camping-unabridged.rb", "lib/camping.rb"
-    end
-    
-    rdoc.after_running_rdoc do
-      mv "lib/camping.rb", "lib/camping-unabridged.rb"
-      mv "lib/camping-mural.rb", "lib/camping.rb"
-    end
-    
-    rdoc.rdoc_dir = 'doc'
+Rake::RDocTask.new(:docs) do |rdoc|
+  if defined?(RDoc::VERSION) && RDoc::VERSION[0,3] == "2.4"
+    # We have a recent version of RDoc, so let's use flipbook.
+    require 'rdoc/generator/singledarkfish'
     rdoc.options += ['-f', 'singledarkfish', *RDOC_OPTS]
     rdoc.template = "flipbook"
-    rdoc.title = "Camping, a Microframework"
-    rdoc.rdoc_files.add ['README', 'lib/camping.rb', 'lib/camping/**/*.rb', 'book/*']
+  else
+    # Use whatever template is available, and give a little warning.
+    task :docs do
+      puts "** Camping needs RDoc 2.4 in order to use the Flipbook template."
+    end
   end
   
-  task :rubygems_docs do
-    require 'rubygems/doc_manager'
-    
-    def spec.installation_path; '.' end
-    def spec.full_gem_path;     '.' end
-    manager = Gem::DocManager.new(spec)
-    manager.generate_rdoc
-  end
+  rdoc.inline_source = false # --inline-source is deprecated
+  rdoc.rdoc_dir = 'doc'
+  rdoc.title = "Camping, a Microframework"
+  rdoc.rdoc_files.add ['README', 'lib/camping-unabridged.rb', 'lib/camping/**/*.rb', 'book/*']
+end
+  
+task :rubygems_docs do
+  require 'rubygems/doc_manager'
+  
+  def spec.installation_path; '.' end
+  def spec.full_gem_path;     '.' end
+  manager = Gem::DocManager.new(spec)
+  manager.generate_rdoc
 end
 
 desc "Packages Camping."
