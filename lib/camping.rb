@@ -19,13 +19,13 @@ def r s,b,h={};b,h=h,b if Hash===b;@status=s;
 to_s;end;def r404 p;P%"#{p} not found"end;def r500 k,m,e;raise e;end
 def r501 m;P%"#{m.upcase} not implemented"end;def to_a
 @env['rack.session']=@state;r=Rack::Response.new(@body,@status,@headers)
-@cookies.each{|k,v|v={:value=>v,:path=>self/"/"} if String===v
-r.set_cookie(k,v)}
+@cookies.each{|k,v|next if @old_cookies[k]==v;v={:value=>v,:path=>self/"/"} if
+String===v;r.set_cookie(k,v)}
 r.to_a;end;def initialize(env,m)
 r=@request=Rack::Request.new(@env=env)
 @root,@input,@cookies,@state,@headers,@status,@method=
 r.script_name.sub(/\/$/,''),n(r.params),
-H[r.cookies],H[r.session],{},m=~/r(\d+)/?$1.to_i: 200,m
+H[@old_cookies = r.cookies],H[r.session],{},m=~/r(\d+)/?$1.to_i: 200,m
 end;def n h;Hash===h ?h.inject(H[]){|m,(k,v)|m[k]=n(v);m}: h end;def service *a
 r=catch(:halt){send(@method,*a)};@body||=r
 self;end;end;module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r

@@ -356,7 +356,8 @@ module Camping
       @env['rack.session'] = @state
       r = Rack::Response.new(@body, @status, @headers)
       @cookies.each do |k, v|
-        v = {:value => v, :path => self / "/"} if String === v
+        next if @old_cookies[k] == v
+        v = { :value => v, :path => self / "/" } if String === v
         r.set_cookie(k, v)
       end
       r.to_a
@@ -367,7 +368,7 @@ module Camping
       @root, @input, @cookies, @state,
       @headers, @status, @method =
       r.script_name.sub(/\/$/,''), n(r.params),
-      H[r.cookies], H[r.session],
+      H[@old_cookies = r.cookies], H[r.session],
       {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
     end
     
