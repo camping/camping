@@ -58,7 +58,7 @@ Once that's sorted out, open up a Terminal or Command Line and enter:
 
     gem install camping
 
-Even better, install the Camping Omnibus, a full package of recommened libs:
+Even better, install the Camping Omnibus, a full package of recommended libs:
 
     gem install camping-omnibus --source http://gems.judofyr.net
 
