@@ -621,8 +621,8 @@ module Camping
     #     use Rack::MethodOverride
     #     use Rack::Session::Memcache, :key => "session"
     #   end
-    def use(*a)
-      m = a.shift.new(method(:call), *a)
+    def use(*a, &b)
+      m = a.shift.new(method(:call), *a, &b)
       meta_def(:call) { |e| m.call(e) }
     end
   end
