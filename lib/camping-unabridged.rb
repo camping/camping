@@ -232,7 +232,8 @@ module Camping
   #
   # Everything in this module is accessable inside your controllers.
   module Base
-    attr_accessor :input, :cookies, :headers, :body, :status, :root
+    attr_accessor :env, :request, :root, :input, :cookies, :state,
+                  :status, :headers, :body
 
     # Display a view, calling it by its method name +v+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.

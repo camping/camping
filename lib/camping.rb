@@ -10,8 +10,8 @@ x.sub p,U.escape((a[a.class.primary_key]rescue a))})}
 h.any?? u+"?"+U.build_query(h[0]):u end;def / p
 p[0]==?/?@root+p:p end;def URL c='/',*a;c=R(c, *a) if c.respond_to?:urls
 c=self/c;c=@request.url[/.{8,}?(?=\/)/]+c if c[0]==?/;URI c end
-end;module Base;attr_accessor:input,:cookies,:headers,:body,:status,:root
-def render v,*a,&b;mab(/^_/!~v.to_s){send(v,*a,&b)} end
+end;module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,
+:status, :headers, :body;def render v,*a,&b;mab(/^_/!~v.to_s){send(v,*a,&b)} end
 def mab l=nil,&b;m=Mab.new({},self);s=m.capture(&b)
 s=m.capture{layout{s}} if l && m.respond_to?(:layout);s end
 def r s,b,h={};b,h=h,b if Hash===b;@status=s;
