@@ -691,8 +691,7 @@ module Camping
   #
   # Models cannot be referred to in Views at this time.
   module Models
-      autoload :Base,'camping/ar'
-      def Y;self;end
+    autoload :Base,'camping/ar'
   end
  
   autoload :Mab, 'camping/mab'

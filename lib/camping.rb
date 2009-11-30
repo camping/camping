@@ -48,4 +48,4 @@ e=H[Rack::MockRequest.env_for('',h[:env]||{})]
 k=X.const_get(c).new(e,m.to_s);k.send("input=",h[:input])if h[:input]
 k.service(*a);end;def use*a,&b;m=a.shift.new(method(:call),*a,&b);meta_def(:call){|e|
 m.call(e)}end end;module Views;include X,Helpers end;module Models
-autoload:Base,'camping/ar';def Y;self;end end;autoload:Mab,'camping/mab';C end
+autoload:Base,'camping/ar';end;autoload:Mab,'camping/mab';C end

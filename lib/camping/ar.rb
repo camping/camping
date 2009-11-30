@@ -9,8 +9,6 @@ end
 $AR_EXTRAS = %{
   Base = ActiveRecord::Base unless const_defined? :Base
 
-  def Y; ActiveRecord::Base.verify_active_connections!; self; end
-
   class SchemaInfo < Base
   end
 
@@ -71,8 +69,7 @@ module Camping
     module_eval $AR_EXTRAS
   end
 end
-Camping::S.sub! /autoload\s*:Base\s*,\s*['"]camping\/ar['"]/, ""
-Camping::S.sub! /def\s*Y[;\s]*self[;\s]*end/, $AR_EXTRAS
+Camping::S.sub! /autoload\s*:Base\s*,\s*['"]camping\/ar['"]/, $AR_EXTRAS
 Camping::Apps.each do |c|
   c::Models.module_eval $AR_EXTRAS
 end
