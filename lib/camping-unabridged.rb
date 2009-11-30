@@ -9,7 +9,7 @@
 # nicely with piles of documentation everywhere. This documentation is entirely
 # generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
 # found in the extras directory of any camping distribution.
-%w[uri stringio rack].map { |l| require l }
+%w[uri rack].map { |l| require l }
 
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
