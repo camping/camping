@@ -436,6 +436,8 @@ let's recap for a moment:
 * The models allows you to store all kinds of data.
 * Place your models before your migrations.
 * Helpers are helpful.
-  
- 
+
+Unfortunately, the book stops here for now. Come back in a few months, or join
+the mailing list to stay updated, and hopefully there's another chapter
+waiting for you.
 
