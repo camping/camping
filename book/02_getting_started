@@ -123,7 +123,7 @@ simplest ones first.
       end
     end
     
-    class DigitsAndEverything < R '/nuts/(\d+)/([^/+])'
+    class DigitsAndEverything < R '/nuts/(\d+)/([^/]+)'
       def get(number, everything)
         "You got here by: /nuts/#{number}/#{everything}"
       end
