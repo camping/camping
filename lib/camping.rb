@@ -44,8 +44,8 @@ X.M;p=e['PATH_INFO']=U.unescape(e['PATH_INFO'])
 k,m,*a=X.D p,e['REQUEST_METHOD'].downcase
 k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {}
-e=H[Rack::MockRequest.env_for('',h[:env]||{})]
-k=X.const_get(c).new(e,m.to_s);k.send("input=",h[:input])if h[:input]
+e=H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
+k=X.const_get(c).new(e,m.to_s);h.each{|i,v|k.send"#{i}=",v}
 k.service(*a);end;def use*a,&b;m=a.shift.new(method(:call),*a,&b);meta_def(:call){|e|
 m.call(e)}end end;module Views;include X,Helpers end;module Models
 autoload:Base,'camping/ar';end;autoload:Mab,'camping/mab';C end

@@ -610,9 +610,9 @@ module Camping
     def method_missing(m, c, *a)
       X.M
       h = Hash === a[-1] ? a.pop : {}
-      e = H[Rack::MockRequest.env_for('',h[:env]||{})]
+      e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
       k = X.const_get(c).new(e,m.to_s)
-      k.send("input=", h[:input]) if h[:input]
+      h.each { |i, v| k.send("#{i}=", v) }
       k.service(*a)
     end
     
