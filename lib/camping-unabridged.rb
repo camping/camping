@@ -612,7 +612,7 @@ module Camping
       h = Hash === a[-1] ? a.pop : {}
       e = H[Rack::MockRequest.env_for('',h[:env]||{})]
       k = X.const_get(c).new(e,m.to_s)
-      H.new(a.pop).each { |e,f| k.send("#{e}=",f) } if Hash === a[-1]
+      h.each { |e,f| k.send("#{e}=",f) }
       k.service(*a)
     end
     
