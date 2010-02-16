@@ -88,7 +88,7 @@ if conf.server.nil? || conf.server == "mongrel"
     require 'mongrel'
     conf.server = "mongrel"
   rescue LoadError 
-    puts "!! could not load mongrel. Falling back to webrick."
+    puts "!! Could not load mongrel. Falling back to webrick."
     conf.server = "webrick"
   end
 end
