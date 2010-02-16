@@ -73,9 +73,9 @@ class Camping::Server
     HTML
     footer = '</body></html>'
     main = if apps.empty?
-      "<p>Good day.  I'm sorry, but I could not find any Camping apps."\
-      "You might want to take a look at the console to see if any errors"\
-      "have been raised</p>"
+      "<p>Good day.  I'm sorry, but I could not find any Camping apps. "\
+      "You might want to take a look at the console to see if any errors "\
+      "have been raised.</p>"
     else
       "<p>Good day.  These are the Camping apps you've mounted.</p><ul>" + 
       apps.map do |mount, app|
