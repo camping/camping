@@ -137,7 +137,7 @@ and is ready at your disposal.
 
 === Simpler routes
 
-This just got in:
+This just in:
 
   module Nuts::Controllers
     class Index
