@@ -28,12 +28,12 @@ opts = OptionParser.new do |opts|
   opts.separator ""
   opts.separator "Specific options:"
 
-  opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") { |conf.host| }
-  opts.on("-p", "--port NUM", "Port for web server (defaults to #{conf.port})") { |conf.port| }
+  opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") { |val| conf.host = val }
+  opts.on("-p", "--port NUM", "Port for web server (defaults to #{conf.port})") { |val| conf.port = val }
   opts.on("-d", "--database FILE", "SQLite3 database path (defaults to #{db_path ? db_path : '<none>'})") { |db_path| conf.database = {:adapter => 'sqlite3', :database => db_path} }
   opts.on("-C", "--console", "Run in console mode with IRB") { conf.server = "console" }
   server_list = ["mongrel", "webrick", "console"]
-  opts.on("-s", "--server NAME", server_list, "Server to force (#{server_list.join(', ')})") { |conf.server| }
+  opts.on("-s", "--server NAME", server_list, "Server to force (#{server_list.join(', ')})") { |val| conf.server = val }
 
   opts.separator ""
   opts.separator "Common options:"
