@@ -37,8 +37,11 @@ module Camping
     # This is a simple wrapper which causes the script to reload (if needed)
     # on any method call.  Then the method call will be forwarded to the
     # app.
-    class App # :nodoc:
-      instance_methods.each { |m| undef_method m unless m =~ /^__/ }
+    class App < (defined?(BasicObject) ? BasicObject : Object) # :nodoc:
+      if superclass == ::Object
+        instance_methods.each { |m| undef_method m unless m =~ /^__/ }
+      end
+      
       attr_accessor :app, :script
       
       def initialize(script)

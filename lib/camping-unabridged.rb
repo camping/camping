@@ -76,7 +76,7 @@ module Camping
     def method_missing(m,*a)
         m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super
     end
-    undef id, type
+    undef id, type if ?? == 63
   end
   
   # Helpers contains methods available in your controllers and views. You may
