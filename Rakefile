@@ -64,8 +64,13 @@ omni =
   
 ## RDoc
 
-gem 'rdoc', '~> 2.4.0' rescue nil
-require 'rdoc'
+begin
+  gem 'rdoc', '~> 2.4.0'
+rescue LoadError
+  # Don't complain yet.
+end
+
+require 'rdoc/rdoc'
 require 'rake/rdoctask'
 
 Rake::RDocTask.new(:docs) do |rdoc|
