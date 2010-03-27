@@ -13,7 +13,7 @@ $AR_EXTRAS = %{
   end
 
   def self.V(n)
-    @final = [n, @final.to_i].max
+    @final = [n, @final.to_f].max
     m = (@migrations ||= [])
     Class.new(ActiveRecord::Migration) do
       meta_def(:version) { n }
