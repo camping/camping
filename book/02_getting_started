@@ -23,7 +23,7 @@ Your browser window should show:
   / Not found
 
 No problem with that. The Camping Server is running, but it doesn't know what
-show. Let's tell him.
+to show. Let's tell him.
 
 == Hello clock
 
@@ -357,7 +357,7 @@ There's a lot of improvements you could do here. Let me suggest:
  
 == The last touch
 
-We have one mayor flaw in our little application. You can't edit or add new
+We have one major flaw in our little application. You can't edit or add new
 pages. Let's see if we can fix that:
 
   module Nuts::Controllers
