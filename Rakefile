@@ -10,7 +10,7 @@ task :default => :check
 
 ## Constants
 NAME = "camping"
-BRANCH = "1.9"
+BRANCH = "2.0"
 GIT = ENV['GIT'] || "git"
 REV = `#{GIT} rev-list HEAD`.strip.split.length
 VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
