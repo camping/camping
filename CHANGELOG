@@ -1,5 +1,5 @@
 = 2.0
-=== ???, 2009
+=== 9th Apr, 2010
 * Speed-up of Camping::Mab (thanks zimbatm!)
 * @state is now an alias of @env['rack.session']
 * Camping.use injects a Rack middleware.
