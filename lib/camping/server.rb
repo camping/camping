@@ -34,7 +34,7 @@ class Camping::Server
   end
   
   def connect(db)
-    unless Camping.autoload?(:Models)
+    unless Camping::Models.autoload?(:Base)
       Camping::Models::Base.establish_connection(db)
     end
   end
