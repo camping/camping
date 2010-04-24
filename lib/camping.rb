@@ -1,6 +1,6 @@
 require "uri";require "rack";class Object;def meta_def m,&b;(class<<self;self
 end).send:define_method,m,&b end end;module Camping;C=self;S=IO.read(__FILE__
-)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;Apps=[]
+)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;O={};Apps=[]
 class H<Hash;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.
 to_s]:super end;undef id,type if ??==63;end;module Helpers;def R c,*g;p,h=
 /\(.+?\)/,g.grep(Hash);g-=h;raise"bad route"unless u=c.urls.find{|x|break x if
@@ -35,6 +35,6 @@ k,m,*a=X.D p,e['REQUEST_METHOD'].downcase;k.new(e,m).service(*a).to_a;rescue
 r500(:I,k,m,$!,:env=>e).to_a;end;def method_missing m,c,*a;X.M;h=Hash===a[-1]?
 a.pop: {};e=H[Rack::MockRequest.env_for('',h.delete(:env)||{})];k=X.const_get(c
 ).new(e,m.to_s);h.each{|i,v|k.send"#{i}=",v};k.service(*a);end;def use*a,&b;m=a.
-shift.new(method(:call),*a,&b);meta_def(:call){|e|m.call(e)}end end;module Views
-include X,Helpers end;module Models;autoload:Base,
-'camping/ar';end;autoload:Mab,'camping/mab';C end
+shift.new(method(:call),*a,&b);meta_def(:call){|e|m.call(e)}end;def options
+O end;def set k,v;O[k]=v end end;module Views;include X,Helpers end
+module Models;autoload:Base,'camping/ar';end;autoload:Mab,'camping/mab';C end

@@ -46,6 +46,7 @@ module Camping
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
+  O = {}
   Apps = []
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
@@ -626,6 +627,14 @@ module Camping
     def use(*a, &b)
       m = a.shift.new(method(:call), *a, &b)
       meta_def(:call) { |e| m.call(e) }
+    end
+    
+    def options
+      O
+    end
+
+    def set(k, v)
+      O[k] = v
     end
   end
   
