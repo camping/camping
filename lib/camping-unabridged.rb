@@ -236,7 +236,7 @@ module Camping
   module Base
     attr_accessor :env, :request, :root, :input, :cookies, :state,
                   :status, :headers, :body
-
+    
     # Display a view, calling it by its method name +v+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
     #
@@ -629,10 +629,16 @@ module Camping
       meta_def(:call) { |e| m.call(e) }
     end
     
+    # A hash where you can set different settings.
     def options
       O
     end
-
+    
+    # Shortcut for setting options:
+    # 
+    #   module Blog
+    #     set :secret, "Hello!"
+    #   end
     def set(k, v)
       O[k] = v
     end
