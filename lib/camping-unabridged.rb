@@ -12,6 +12,8 @@
 require "uri"
 require "rack"
 
+$LOADED_FEATURES << "camping.rb"
+
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
     (class<<self;self end).send(:define_method,m,&b)
