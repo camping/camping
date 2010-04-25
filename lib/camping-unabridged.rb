@@ -237,6 +237,22 @@ module Camping
     attr_accessor :env, :request, :root, :input, :cookies, :state,
                   :status, :headers, :body
     
+    T = {}
+    L = :layout
+    
+    # Finds a template, returning either:
+    # 
+    #   false             # => Could not find template
+    #   true              # => Found template in Views
+    #   instance of Tilt  # => Found template in a file
+    def lookup(n)
+      T.fetch(n.to_sym) do |k|
+        T[k] = Views.method_defined?(k) ||
+          (f = Dir[[O[:views] || "views", "#{n}.*"]*'/'][0]) &&
+          Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
+      end
+    end
+    
     # Display a view, calling it by its method name +v+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
     #
@@ -249,8 +265,14 @@ module Camping
     #     end
     #   end
     #
-    def render(v,*a,&b)
-      mab(/^_/!~v.to_s){send(v,*a,&b)}
+    def render(v, o={}, &b)
+      if t = lookup(v)
+        s = (t == true) ? mab{ send(v, &b) } : t.render(self, o[:locals] || {}, &b)
+        s = render(L, o.merge(L => !?!)) { s } if o[L] != !?? && lookup(L)
+        s
+      else
+        raise "Can't find template #{v}"
+      end
     end
 
     # You can directly return HTML form your controller for quick debugging
@@ -263,11 +285,8 @@ module Camping
     #   end
     #
     # You can also pass true to use the :layout HTML wrapping method
-    def mab(l=nil,&b)
-      m=Mab.new({},self)
-      s=m.capture(&b)
-      s=m.capture{layout{s}} if l && m.respond_to?(:layout)
-      s
+    def mab(&b)
+      (@mab ||= Mab.new({},self)).capture(&b)
     end
     
     # A quick means of setting this controller's status, body and headers
@@ -711,6 +730,7 @@ module Camping
   end
  
   autoload :Mab, 'camping/mab'
+  autoload :Template, 'camping/template'
   C
 end
 
