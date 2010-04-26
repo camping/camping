@@ -139,6 +139,9 @@ task :diff do
   u << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping.rb")))
   m << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping-unabridged.rb")))
   
+  u.flush
+  m.flush
+  
   sh "diff -u #{u.path} #{m.path} | less"
   
   u.delete
