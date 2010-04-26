@@ -543,7 +543,7 @@ module Camping
         p = '/' if !p || !p[0]
         r.map { |k|
           k.urls.map { |x|
-            return (k.instance_method(m) rescue nil) ?
+            return (k.method_defined?(m)) ?
               [k, m, *$~[1..-1]] : [I, 'r501', m] if p =~ /^#{x}\/?$/
           }
         }
