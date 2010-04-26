@@ -32,28 +32,7 @@ module Camping
   #
   # You can also give Reloader more than one script.
   class Reloader
-    attr_reader :scripts
-    
-    # This is a simple wrapper which causes the script to reload (if needed)
-    # on any method call.  Then the method call will be forwarded to the
-    # app.
-    class App < (defined?(BasicObject) ? BasicObject : Object) # :nodoc:
-      if superclass == ::Object
-        instance_methods.each { |m| undef_method m unless m =~ /^__/ }
-      end
-      
-      attr_accessor :app, :script
-      
-      def initialize(script)
-        @script = script
-      end
-      
-      # Reloads if needed, before calling the method on the app.
-      def method_missing(meth, *args, &blk)
-        @script.reload!
-        @app.send(meth, *args, &blk)
-      end
-    end
+    attr_reader :scripts, :apps
     
     # This class is doing all the hard work; however, it only works on
     # single files.  Reloader just wraps up support for multiple scripts
@@ -61,13 +40,14 @@ module Camping
     class Script # :nodoc:
       attr_reader :apps, :file, :dir, :extras
       
-      def initialize(file)
+      def initialize(file, callback = nil)
         @file = File.expand_path(file)
         @dir = File.dirname(@file)
         @extras = File.join(@dir, File.basename(@file, ".rb"))
         @mtime = Time.at(0)
         @requires = []
         @apps = {}
+        @callback = callback
       end
       
       # Loads the apps availble in this script.  Use <tt>apps</tt> to get
@@ -94,20 +74,25 @@ module Camping
         
         new_apps = (Camping::Apps - all_apps)
         old_apps = @apps.dup
+        
         @apps = new_apps.inject({}) do |hash, app|
           key = app.name.to_sym
-          hash[key] = (old = old_apps[key]) || App.new(self)
-          hash[key].app = app
-          app.create if app.respond_to?(:create) && !old
+          hash[key] = app
+          
+          if !old_apps.include?(key)
+            @callback.call(app) if @callback
+            app.create if app.respond_to?(:create)
+          end
           hash
         end
+        
         self
       end
       
       # Removes all the apps defined in this script.
       def remove_apps
         @apps.each do |name, app|
-          Camping::Apps.delete(app.app)
+          Camping::Apps.delete(app)
           Object.send :remove_const, name
         end
       end
@@ -149,42 +134,51 @@ module Camping
     # will be loaded relative to the current working directory.
     def initialize(*scripts)
       @scripts = []
+      @apps = {}
       update(*scripts)
+    end
+    
+    def on_reload(&blk)
+      @callback = blk
     end
     
     # Updates the reloader to only use the scripts provided:
     #
     #   reloader.update("examples/blog.rb", "examples/wiki.rb")
     def update(*scripts)
-      old = @scripts.dup
+      old_scripts = @scripts.dup
       clear
+      
       @scripts = scripts.map do |script|
-        s = Script.new(script)
-        if pos = old.index(s)
-          # We already got a script, so we use the old (which might got a mtime)
-          old[pos]
-        else
-          s.load_apps
-        end
+        file = File.expand_path(script)
+        old_scripts.detect { |s| s.file == file } or
+        Script.new(script, @callback)
       end
+      
+      reload!
     end
     
     # Removes all the scripts from the reloader.
     def clear
-      @scrips = []
+      @scripts = []
+      @apps = {}
+    end
+    
+    # Returns the script which provided the given app.
+    def script(app)
+      @scripts.each do |script|
+        return script if script.apps.values.include?(app)
+      end
+      
+      false
     end
     
     # Simply calls reload! on all the Script objects.
     def reload!
-      @scripts.each { |script| script.reload! }
-    end
-    
-    # Returns a Hash of all the apps available in the scripts, where the key
-    # would be the name of the app (the one you gave to Camping.goes) and the
-    # value would be the app (wrapped inside App).
-    def apps
-      @scripts.inject({}) do |hash, script|
-        hash.merge(script.apps)
+      @apps = {}
+      @scripts.each do |script|
+        script.reload!
+        @apps.update(script.apps)
       end
     end
   end

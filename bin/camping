@@ -1,97 +1,14 @@
 #!/usr/bin/env ruby
 
-trap("INT") { exit }
-require 'optparse'
-require 'ostruct'
-require 'stringio'
-require 'yaml'
-
 $:.unshift File.dirname(__FILE__) + "/../lib"
+
 require 'camping'
 require 'camping/server'
 
-conf = OpenStruct.new(:host => '0.0.0.0', :port => 3301)
-
-# Setup paths
-if home = ENV['HOME'] # POSIX
-  db_path = File.join(home, '.camping.db')
-  rc_path = File.join(home, '.campingrc')
-elsif home = ENV['APPDATA'] # MSWIN
-  db_path = File.join(home, 'Camping.db')
-  rc_path = File.join(home, 'Campingrc')
-end
-
-# Parse options
-opts = OptionParser.new do |opts|
-  opts.banner = "Usage: camping app1.rb, app2.rb..."
-  opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
-  opts.separator ""
-  opts.separator "Specific options:"
-
-  opts.on("-h", "--host HOSTNAME", "Host for web server to bind to (default is all IPs)") { |val| conf.host = val }
-  opts.on("-p", "--port NUM", "Port for web server (defaults to #{conf.port})") { |val| conf.port = val }
-  opts.on("-d", "--database FILE", "SQLite3 database path (defaults to #{db_path ? db_path : '<none>'})") { |db_path| conf.database = {:adapter => 'sqlite3', :database => db_path} }
-  opts.on("-C", "--console", "Run in console mode with IRB") { conf.server = "console" }
-  server_list = ["mongrel", "webrick", "console"]
-  opts.on("-s", "--server NAME", server_list, "Server to force (#{server_list.join(', ')})") { |val| conf.server = val }
-
-  opts.separator ""
-  opts.separator "Common options:"
-
-  # No argument, shows at tail.  This will print an options summary.
-  # Try it and see!
-  opts.on_tail("-?", "--help", "Show this message") do
-    puts opts
-    exit
-  end
-
-  # Another typical switch to print the version.
-  opts.on_tail("-v", "--version", "Show version") do
-    puts Gem.loaded_specs['camping'].version
-    exit
-  end
-end
-
 begin
-  opts.parse! ARGV
+  Camping::Server.start
 rescue OptionParser::ParseError => ex
   STDERR.puts "!! #{ex.message}"
   puts "** use `#{File.basename($0)} --help` for more details..."
   exit 1
 end
-
-if ARGV.length < 1
-  puts opts
-  exit 1
-end
-
-# Load configuration if any
-if rc_path and File.exists?(rc_path)
-  YAML.load_file(rc_path).each do |k,v|
-    conf.send("#{k}=", v) unless conf.send(k)
-  end 
-  puts "** conf file #{rc_path} loaded"
-end
-
-# Default db
-if conf.database.nil? and db_path
-  conf.database = { :adapter => 'sqlite3', :database => db_path }
-end
-
-
-# get a copy of the paths to pass to the server
-paths = ARGV.dup
-
-# Check that mongrel exists 
-if conf.server.nil? || conf.server == "mongrel"
-  begin
-    require 'mongrel'
-    conf.server = "mongrel"
-  rescue LoadError 
-    puts "!! Could not load mongrel. Falling back to webrick."
-    conf.server = "webrick"
-  end
-end
-
-server = Camping::Server.new(conf, paths)
-server.start
