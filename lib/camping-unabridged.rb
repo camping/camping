@@ -377,7 +377,7 @@ module Camping
     #     end
     #   end
     def to_a
-      @env['rack.session'] = @state
+      @env['rack.session'] = Hash[@state]
       r = Rack::Response.new(@body, @status, @headers)
       @cookies.each do |k, v|
         next if @old_cookies[k] == v
