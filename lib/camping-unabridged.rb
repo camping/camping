@@ -269,8 +269,8 @@ module Camping
     #
     def render(v, o={}, &b)
       if t = lookup(v)
-        s = (t == true) ? mab{ send(v, &b) } : t.render(self, o[:locals] || {}, &b)
-        s = render(L, o.merge(L => !?!)) { s } if o[L] != !?? && lookup(L)
+        s = (t == !0) ? mab{ send(v, &b) } : t.render(self, o[:locals] || {}, &b)
+        s = render(L, o.merge(L => !?!)) { s } if o[L] != !?& && lookup(L)
         s
       else
         raise "Can't find template #{v}"
