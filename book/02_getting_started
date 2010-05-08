@@ -23,7 +23,7 @@ Your browser window should show:
   / Not found
 
 No problem with that. The Camping Server is running, but it doesn't know what
-show. Let's tell him.
+to show. Let's tell him.
 
 == Hello clock
 
@@ -123,7 +123,7 @@ simplest ones first.
       end
     end
     
-    class DigitsAndEverything < R '/nuts/(\d+)/([^/+])'
+    class DigitsAndEverything < R '/nuts/(\d+)/([^/]+)'
       def get(number, everything)
         "You got here by: /nuts/#{number}/#{everything}"
       end
@@ -137,7 +137,7 @@ and is ready at your disposal.
 
 === Simpler routes
 
-This just got in:
+This just in:
 
   module Nuts::Controllers
     class Index
@@ -357,7 +357,7 @@ There's a lot of improvements you could do here. Let me suggest:
  
 == The last touch
 
-We have one mayor flaw in our little application. You can't edit or add new
+We have one major flaw in our little application. You can't edit or add new
 pages. Let's see if we can fix that:
 
   module Nuts::Controllers
@@ -436,6 +436,8 @@ let's recap for a moment:
 * The models allows you to store all kinds of data.
 * Place your models before your migrations.
 * Helpers are helpful.
-  
- 
+
+Unfortunately, the book stops here for now. Come back in a few months, or join
+the mailing list to stay updated, and hopefully there's another chapter
+waiting for you.
 

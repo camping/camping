@@ -1,4 +1,3 @@
-gem 'camping', '=1.9.316'
 require 'camping'
 
 Camping.goes :ForwardToOtherController

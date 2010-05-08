@@ -9,7 +9,10 @@
 # nicely with piles of documentation everywhere. This documentation is entirely
 # generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
 # found in the extras directory of any camping distribution.
-%w[uri rack].map { |l| require l }
+require "uri"
+require "rack"
+
+$LOADED_FEATURES << "camping.rb"
 
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
@@ -45,6 +48,7 @@ module Camping
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
+  O = {}
   Apps = []
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
@@ -76,7 +80,7 @@ module Camping
     def method_missing(m,*a)
         m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super
     end
-    undef id, type
+    undef id, type if ?? == 63
   end
   
   # Helpers contains methods available in your controllers and views. You may
@@ -234,7 +238,23 @@ module Camping
   module Base
     attr_accessor :env, :request, :root, :input, :cookies, :state,
                   :status, :headers, :body
-
+    
+    T = {}
+    L = :layout
+    
+    # Finds a template, returning either:
+    # 
+    #   false             # => Could not find template
+    #   true              # => Found template in Views
+    #   instance of Tilt  # => Found template in a file
+    def lookup(n)
+      T.fetch(n.to_sym) do |k|
+        T[k] = Views.method_defined?(k) ||
+          (f = Dir[[O[:views] || "views", "#{n}.*"]*'/'][0]) &&
+          Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
+      end
+    end
+    
     # Display a view, calling it by its method name +v+.  If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
     #
@@ -247,8 +267,14 @@ module Camping
     #     end
     #   end
     #
-    def render(v,*a,&b)
-      mab(/^_/!~v.to_s){send(v,*a,&b)}
+    def render(v, o={}, &b)
+      if t = lookup(v)
+        s = (t == !0) ? mab{ send(v, &b) } : t.render(self, o[:locals] || {}, &b)
+        s = render(L, o.merge(L => !?!)) { s } if o[L] != !?& && lookup(L)
+        s
+      else
+        raise "Can't find template #{v}"
+      end
     end
 
     # You can directly return HTML form your controller for quick debugging
@@ -261,11 +287,8 @@ module Camping
     #   end
     #
     # You can also pass true to use the :layout HTML wrapping method
-    def mab(l=nil,&b)
-      m=Mab.new({},self)
-      s=m.capture(&b)
-      s=m.capture{layout{s}} if l && m.respond_to?(:layout)
-      s
+    def mab(&b)
+      (@mab ||= Mab.new({},self)).capture(&b)
     end
     
     # A quick means of setting this controller's status, body and headers
@@ -354,7 +377,7 @@ module Camping
     #     end
     #   end
     def to_a
-      @env['rack.session'] = @state
+      @env['rack.session'] = Hash[@state]
       r = Rack::Response.new(@body, @status, @headers)
       @cookies.each do |k, v|
         next if @old_cookies[k] == v
@@ -520,7 +543,7 @@ module Camping
         p = '/' if !p || !p[0]
         r.map { |k|
           k.urls.map { |x|
-            return (k.instance_method(m) rescue nil) ?
+            return (k.method_defined?(m)) ?
               [k, m, *$~[1..-1]] : [I, 'r501', m] if p =~ /^#{x}\/?$/
           }
         }
@@ -610,9 +633,9 @@ module Camping
     def method_missing(m, c, *a)
       X.M
       h = Hash === a[-1] ? a.pop : {}
-      e = H[Rack::MockRequest.env_for('',h[:env]||{})]
+      e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
       k = X.const_get(c).new(e,m.to_s)
-      h.each { |e,f| k.send("#{e}=",f) }
+      h.each { |i, v| k.send("#{i}=", v) }
       k.service(*a)
     end
     
@@ -625,6 +648,20 @@ module Camping
     def use(*a, &b)
       m = a.shift.new(method(:call), *a, &b)
       meta_def(:call) { |e| m.call(e) }
+    end
+    
+    # A hash where you can set different settings.
+    def options
+      O
+    end
+    
+    # Shortcut for setting options:
+    # 
+    #   module Blog
+    #     set :secret, "Hello!"
+    #   end
+    def set(k, v)
+      O[k] = v
     end
   end
   
@@ -695,6 +732,7 @@ module Camping
   end
  
   autoload :Mab, 'camping/mab'
+  autoload :Template, 'camping/template'
   C
 end
 

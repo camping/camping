@@ -10,7 +10,7 @@ task :default => :check
 
 ## Constants
 NAME = "camping"
-BRANCH = "1.9"
+BRANCH = "2.0"
 GIT = ENV['GIT'] || "git"
 REV = `#{GIT} rev-list HEAD`.strip.split.length
 VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
@@ -64,8 +64,13 @@ omni =
   
 ## RDoc
 
-gem 'rdoc', '~> 2.4.0' rescue nil
-require 'rdoc'
+begin
+  gem 'rdoc', '~> 2.4.0'
+rescue LoadError
+  # Don't complain yet.
+end
+
+require 'rdoc/rdoc'
 require 'rake/rdoctask'
 
 Rake::RDocTask.new(:docs) do |rdoc|
@@ -133,6 +138,9 @@ task :diff do
   
   u << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping.rb")))
   m << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping-unabridged.rb")))
+  
+  u.flush
+  m.flush
   
   sh "diff -u #{u.path} #{m.path} | less"
   
