@@ -249,9 +249,11 @@ module Camping
     #   instance of Tilt  # => Found template in a file
     def lookup(n)
       T.fetch(n.to_sym) do |k|
-        T[k] = Views.method_defined?(k) ||
+		t=Views.method_defined?(k) ||
           (f = Dir[[O[:views] || "views", "#{n}.*"]*'/'][0]) &&
           Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
+		T[k] = t unless O[:dynamic_templates]
+		t
       end
     end
     
