@@ -8,7 +8,7 @@ end
 
 $TILT_CODE = %{
   Template = Tilt
-  include Tilt::CompileSite
+  include Tilt::CompileSite unless self.options[:dynamic_templates]
 }
 
 Camping::S.sub! /autoload\s*:Tilt\s*,\s*['"]camping\/tilt['"]/, $TILT_CODE
