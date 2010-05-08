@@ -37,7 +37,7 @@ module Camping
         RC = nil
       end
       
-      HOME = File.expand_path('~') + '/'
+      HOME = File.expand_path(home) + '/'
       
       def parse!(args)
         args = args.dup
