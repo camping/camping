@@ -99,6 +99,7 @@ module Camping
       super
       @reloader = Camping::Reloader.new
       @reloader.on_reload do |app|
+		app.options[:dynamic_templates] = true if ENV['DYNAMIC_TEMPLATES']
         if !Camping::Models.autoload?(:Base) && options[:database]
           Camping::Models::Base.establish_connection(
             :adapter => 'sqlite3',
@@ -149,7 +150,7 @@ module Camping
           Dir[File.join(path, '*.rb')]
         end
       end.flatten.compact
-      
+	  
       @reloader.update(*scripts)
     end
     
@@ -164,7 +165,7 @@ module Camping
     def call(env)
       reload!
       apps = @reloader.apps
-      
+
       case apps.length
       when 0
         index_page(apps)

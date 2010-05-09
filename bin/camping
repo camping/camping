@@ -2,6 +2,8 @@
 
 $:.unshift File.dirname(__FILE__) + "/../lib"
 
+ENV['DYNAMIC_TEMPLATES']=true.to_s
+
 require 'camping'
 require 'camping/server'
 
