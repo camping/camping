@@ -253,7 +253,7 @@ module Camping
           str.bytesize
         end
       else
-        def size(file)
+        def size(str)
           str.size
         end
       end
