@@ -240,7 +240,7 @@ module Camping
         
         if key = headers.keys.grep(/X-Sendfile/i).first
           filename = headers[key]
-          content = File.read(filename)
+          content = open(filename,'rb') { | io | io.read}
           headers['Content-Length'] = size(content).to_s
           body = [content]
         end
