@@ -11,7 +11,7 @@ a.class.primary_key]rescue a))})};h.any?? u+"?"+U.build_query(h[0]):u end;def
 module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,
 :headers,:body;T={};L=:layout;def lookup n;T.fetch(n.to_sym){|k|t=Views.
 method_defined?(k)||(f=Dir[[O[:views]||"views","#{n}.*"]*'/'][0])&&Template.
-new(f,O[f[/\.(\w+)$/,1].to_sym]||{});T[k]=t unless O[:dynamic_templates];t} end;def render(v,o={},&b)if t=lookup(v)
+new(f,O[f[/\.(\w+)$/,1].to_sym]||{});O[:dynamic_templates]?t:T[k]=t} end;def render(v,o={},&b)if t=lookup(v)
 s=(t==!!0)?mab{send v,&b}: t.render(self,o[:locals]||{},&b);s=render(L,o.merge(
 L=>!?!)){s}if o[L]!=!?&&&lookup(L);s;else;raise"Can't find template #{v}"end
 end;def mab &b;(@mab||=Mab.new({},self)).capture(&b) end;def r s,b,h={};b,h=h,
