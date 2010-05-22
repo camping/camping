@@ -5,7 +5,7 @@ begin
 rescue LoadError
 end
 
-require 'camping'
+require 'camping-unabridged'
 require 'test/unit'
 require 'rack/test'
 
