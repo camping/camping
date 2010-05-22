@@ -21,10 +21,25 @@ class TestCase < Test::Unit::TestCase
     attr_accessor :app
   end
   
+  def body() last_response.body end
   def app()  self.class.app     end
     
+  def assert_reverse
+    begin
+      yield
+    rescue
+    else
+      assert false, "Block didn't fail"
+    end
+  end
+    
   def assert_body(str)
-    assert_equal(str, last_response.body)
+    case str
+    when Regexp
+      assert_match(str, last_response.body)
+    else
+      assert_equal(str.to_s, last_response.body)
+    end
   end
   
   def assert_status(code)
