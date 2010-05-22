@@ -198,7 +198,7 @@ module Camping
     #   self / "styles.css" #=> "styles.css"
     #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
-    def /(p); p[0]==?/?@root+p:p end
+    def /(p); p[0] == ?/ ? @root + p : p end
     
     # Builds a URL route to a controller or a path, returning a URI object.
     # This way you'll get the hostname and the port number, a complete URL.
@@ -249,11 +249,11 @@ module Camping
     #   instance of Tilt  # => Found template in a file
     def lookup(n)
       T.fetch(n.to_sym) do |k|
-		t=Views.method_defined?(k) ||
+        t = Views.method_defined?(k) ||
           (f = Dir[[O[:views] || "views", "#{n}.*"]*'/'][0]) &&
           Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
-		T[k] = t unless O[:dynamic_templates]
-		t
+        
+        O[:dynamic_templates] ? t : T[k] = t
       end
     end
     
@@ -271,8 +271,8 @@ module Camping
     #
     def render(v, o={}, &b)
       if t = lookup(v)
-        s = (t == !!0) ? mab{ send(v, &b) } : t.render(self, o[:locals] || {}, &b)
-        s = render(L, o.merge(L => !?!)) { s } if o[L] != !?& && lookup(L)
+        s = (t == true) ? mab{ send(v, &b) } : t.render(self, o[:locals] || {}, &b)
+        s = render(L, o.merge(L => false)) { s } if o[L] != false && lookup(L)
         s
       else
         raise "Can't find template #{v}"
@@ -573,7 +573,7 @@ module Camping
           k = const_get(c)
           k.send :include,C,Base,Helpers,Models
           @r=[k]+r if r-[k]==r
-          k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
+          k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
       end
     end

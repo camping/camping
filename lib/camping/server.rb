@@ -99,7 +99,10 @@ module Camping
       super
       @reloader = Camping::Reloader.new
       @reloader.on_reload do |app|
-		app.options[:dynamic_templates] = true if ENV['DYNAMIC_TEMPLATES']
+        if !app.options.has_key?(:dynamic_templates)
+		      app.options[:dynamic_templates] = true
+	      end
+	      
         if !Camping::Models.autoload?(:Base) && options[:database]
           Camping::Models::Base.establish_connection(
             :adapter => 'sqlite3',
