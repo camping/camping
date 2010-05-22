@@ -11,6 +11,8 @@ $MAB_CODE = %{
   # and also to replace :href, :action and :src attributes in tags by prefixing the root
   # path.
   class Mab < Markaby::Builder
+    attr_reader :builder
+    
     include Views
     def tag!(*g,&b)
       h=g[-1]
