@@ -198,7 +198,7 @@ module Camping
     #   self / "styles.css" #=> "styles.css"
     #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
-    def /(p); p[0]==?/?@root+p:p end
+    def /(p); p[0] == ?/ ? @root + p : p end
     
     # Builds a URL route to a controller or a path, returning a URI object.
     # This way you'll get the hostname and the port number, a complete URL.
@@ -573,7 +573,7 @@ module Camping
           k = const_get(c)
           k.send :include,C,Base,Helpers,Models
           @r=[k]+r if r-[k]==r
-          k.meta_def(:urls){["/#{c.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
+          k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
       end
     end
