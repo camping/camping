@@ -14,6 +14,7 @@ class TestCase < Test::Unit::TestCase
     
   def self.inherited(mod)
     mod.app = Object.const_get(mod.to_s[/\w+/])
+    super
   end
   
   class << self
