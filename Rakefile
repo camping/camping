@@ -123,7 +123,7 @@ end
 
 ## Tests
 Rake::TestTask.new(:test) do |t|
-  t.test_files = FileList['test/test_*.rb']
+  t.test_files = FileList['test/app_*.rb']
 #  t.warning = true
 #  t.verbose = true
 end
@@ -149,7 +149,7 @@ task :diff do
 end
 
 ## Check
-task :check => ["check:valid", "check:size", "check:lines"]
+task :check => ["test", "check:valid", "check:size", "check:lines"]
 namespace :check do
 
   desc "Check source code validity"
