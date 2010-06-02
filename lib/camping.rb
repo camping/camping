@@ -4,8 +4,8 @@ end).send:define_method,m,&b end end;module Camping;C=self;S=IO.read(__FILE__
 class H<Hash;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.
 to_s]:super end;undef id,type if ??==63;end;module Helpers;def R c,*g;p,h=
 /\(.+?\)/,g.grep(Hash);g-=h;raise"bad route"unless u=c.urls.find{|x|break x if
-x.scan(p).size==g.size&&/^#{x}\/?$/=~(x=g.inject(x){|x,a|x.sub p,U.escape((a[
-a.class.primary_key]rescue a))})};h.any?? u+"?"+U.build_query(h[0]):u end;def
+x.scan(p).size==g.size&&/^#{x}\/?$/=~(x=g.inject(x){|x,a|x.sub p,U.escape((a.
+to_param rescue a))})};h.any?? u+"?"+U.build_query(h[0]):u end;def
 / p;p[0]==?/?@root + p : p end;def URL c='/',*a;c=R(c, *a) if c.respond_to?(
 :urls);c=self/c;c=@request.url[/.{8,}?(?=\/)/]+c if c[0]==?/;URI c end end
 module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,

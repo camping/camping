@@ -186,7 +186,7 @@ module Camping
       raise "bad route" unless u = c.urls.find{|x|
         break x if x.scan(p).size == g.size && 
           /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
-            x.sub p,U.escape((a[a.class.primary_key]rescue a))})
+            x.sub p,U.escape((a.to_param rescue a))})
       }
       h.any?? u+"?"+U.build_query(h[0]) : u
     end
