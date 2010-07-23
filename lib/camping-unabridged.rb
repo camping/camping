@@ -572,7 +572,7 @@ module Camping
         end
         constants.map { |c|
           k = const_get(c)
-          k.send :include,C,Base,Helpers,Models
+          k.send :include,C,X,Base,Helpers,Models
           @r=[k]+r if r-[k]==r
           k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
