@@ -11,7 +11,7 @@ $TILT_CODE = %{
   include Tilt::CompileSite unless self.options[:dynamic_templates]
 }
 
-Camping::S.sub! /autoload\s*:Tilt\s*,\s*['"]camping\/tilt['"]/, $TILT_CODE
+Camping::S.sub! /autoload\s*:Template\s*,\s*['"]camping\/template['"]/, $TILT_CODE
 Camping::Apps.each do |c|
   c.module_eval $TILT_CODE
 end
