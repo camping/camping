@@ -27,7 +27,7 @@ script_name.sub(/\/$/,''),n(r.params),H[@old_cookies = r.cookies],H[r.session],
 {},m=~/r(\d+)/?$1.to_i: 200,m end;def n h;Hash===h ?h.inject(H[]){|m,(k,v)|m[k]=
 n(v);m}: h end;def service *a;r=catch(:halt){send(@method,*a)};@body||=r;self
 end;end;module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r;Class.
-new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def D p,m;p='/'if !p||
+new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def D p,m,e;p='/'if !p||
 !p[0];r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1]]:[I,
 'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end;N=H.new{|_,x|x.downcase}.merge!(
 "N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>'');def M;def M;end;constants.map{|c|k=
@@ -36,7 +36,7 @@ k.meta_def(:urls){ [ "/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !
 respond_to?:urls}end end;I=R();end;X=Controllers;class<<self;def goes m;Apps<<
 eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING) end;def call e;X.M
 p=e['PATH_INFO']=U.unescape(e['PATH_INFO']);k,m,*a=X.D p,e['REQUEST_METHOD'].
-downcase;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a;end
+downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a;end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s);h.each{|i,v|k.
 send"#{i}=",v};k.service(*a);end;def use*a,&b;m=a.shift.new(method(:call),*a,&b)
