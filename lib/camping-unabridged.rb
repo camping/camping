@@ -542,7 +542,7 @@ module Camping
       # * Classes with routes are searched in order of their creation.
       #
       # So, define your catch-all controllers last.
-      def D(p, m)
+      def D(p, m, e)
         p = '/' if !p || !p[0]
         r.map { |k|
           k.urls.map { |x|
@@ -609,7 +609,7 @@ module Camping
     def call(e)
       X.M
       p = e['PATH_INFO'] = U.unescape(e['PATH_INFO'])
-      k,m,*a=X.D p,e['REQUEST_METHOD'].downcase
+      k,m,*a=X.D p,e['REQUEST_METHOD'].downcase,e
       k.new(e,m).service(*a).to_a
     rescue
       r500(:I, k, m, $!, :env => e).to_a
