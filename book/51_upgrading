@@ -1,5 +1,22 @@
 = Appendix I: Upgrade Notes
 
+This document includes everything needed in order to *upgrade* your
+applications. If you're looking for all the new features in a version, please
+have a look at the CHANGELOG in the Camping source.
+
+
+== From 2.0 to 2.1
+=== Options
+
+In Camping 2.1 there is now a built-in way to store options and settings. If
+you use cookie session, it means that you'll now have to change to:
+
+  module Nuts
+    set :secret, "Very secret text, which no-one else should know!"
+    include Camping::Session
+  end
+
+
 == From 1.5 to 2.0
 === Rack
 
