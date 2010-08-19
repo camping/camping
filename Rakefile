@@ -60,6 +60,7 @@ omni =
     s.add_dependency('sqlite3-ruby', '>=1.1.0.1')
     s.add_dependency('mongrel')
     s.add_dependency('RedCloth')
+    s.add_dependency('markaby')
   end
   
 ## RDoc
