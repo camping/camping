@@ -27,7 +27,7 @@ class TestCase < Test::Unit::TestCase
   def assert_reverse
     begin
       yield
-    rescue
+    rescue Exception
     else
       assert false, "Block didn't fail"
     end
