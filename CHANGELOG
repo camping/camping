@@ -1,3 +1,14 @@
+= 2.1
+=== 19th Aug, 2010 (whyday)
+* Helpers#R now calls to_param on any object it passes in
+* Fix route generation issue with routes including "." (#22)
+* Improved tests
+* Improved 1.9 support
+* Camping::Server is now built upon Rack::Server
+* Add support for ERB, Haml etc through Tilt
+* Introducing Camping.options and Camping#set
+* Camping::Server only loads ActiveRecord when needed
+
 = 2.0
 === 9th Apr, 2010
 * Speed-up of Camping::Mab (thanks zimbatm!)

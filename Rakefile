@@ -10,7 +10,7 @@ task :default => :check
 
 ## Constants
 NAME = "camping"
-BRANCH = "2.0"
+BRANCH = "2.1"
 GIT = ENV['GIT'] || "git"
 REV = `#{GIT} rev-list HEAD`.strip.split.length
 VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
@@ -60,6 +60,7 @@ omni =
     s.add_dependency('sqlite3-ruby', '>=1.1.0.1')
     s.add_dependency('mongrel')
     s.add_dependency('RedCloth')
+    s.add_dependency('markaby')
   end
   
 ## RDoc
@@ -123,6 +124,7 @@ end
 
 ## Tests
 Rake::TestTask.new(:test) do |t|
+  t.libs << "test"
   t.test_files = FileList['test/app_*.rb']
 #  t.warning = true
 #  t.verbose = true

@@ -186,7 +186,7 @@ module Camping
       raise "bad route" unless u = c.urls.find{|x|
         break x if x.scan(p).size == g.size && 
           /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
-            x.sub p,U.escape((a[a.class.primary_key]rescue a))})
+            x.sub p,U.escape((a.to_param rescue a))}.gsub(/\\(.)/){$1})
       }
       h.any?? u+"?"+U.build_query(h[0]) : u
     end
@@ -269,10 +269,11 @@ module Camping
     #     end
     #   end
     #
-    def render(v, o={}, &b)
+    def render(v, *a, &b)
       if t = lookup(v)
-        s = (t == true) ? mab{ send(v, &b) } : t.render(self, o[:locals] || {}, &b)
-        s = render(L, o.merge(L => false)) { s } if o[L] != false && lookup(L)
+        o = Hash === a[-1] ? a.pop : {}
+        s = (t == true) ? mab{ send(v, *a, &b) } : t.render(self, o[:locals] || {}, &b)
+        s = render(L, o.merge(L => false)) { s } if v.to_s[0] != ?_ && o[L] != false && lookup(L)
         s
       else
         raise "Can't find template #{v}"
@@ -541,7 +542,7 @@ module Camping
       # * Classes with routes are searched in order of their creation.
       #
       # So, define your catch-all controllers last.
-      def D(p, m)
+      def D(p, m, e)
         p = '/' if !p || !p[0]
         r.map { |k|
           k.urls.map { |x|
@@ -571,7 +572,7 @@ module Camping
         end
         constants.map { |c|
           k = const_get(c)
-          k.send :include,C,Base,Helpers,Models
+          k.send :include,C,X,Base,Helpers,Models
           @r=[k]+r if r-[k]==r
           k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
@@ -608,7 +609,7 @@ module Camping
     def call(e)
       X.M
       p = e['PATH_INFO'] = U.unescape(e['PATH_INFO'])
-      k,m,*a=X.D p,e['REQUEST_METHOD'].downcase
+      k,m,*a=X.D p,e['REQUEST_METHOD'].downcase,e
       k.new(e,m).service(*a).to_a
     rescue
       r500(:I, k, m, $!, :env => e).to_a
