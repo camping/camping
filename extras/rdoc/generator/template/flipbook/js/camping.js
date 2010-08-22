@@ -1,5 +1,16 @@
 // I know, I know.
 $(function() {
+    // #M0001 -> $(the section + the method body)
+    function m(name) {
+      var base = $(name);
+      return base.parent().add(base.next());
+    }
+    
+    // #class-something -> $(the section below)
+    function s(name) {
+      return $(name).next();
+    }
+
   $('.source-link a').click(function() {
     var link = $(this);
     var code = link.parent().next();
@@ -64,16 +75,6 @@ $(function() {
       }
     });
     
-    // #M0001 -> $(the section + the method body)
-    function m(name) {
-      var base = $(name);
-      return base.parent().add(base.next());
-    }
-    
-    // #class-something -> $(the section below)
-    function s(name) {
-      return $(name).next();
-    }
   }
   
 });
