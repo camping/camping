@@ -53,6 +53,10 @@ module Camping
       # Loads the apps availble in this script.  Use <tt>apps</tt> to get
       # the loaded apps.
       def load_apps
+        @requires.each do |path|
+          $LOADED_FEATURES.delete(path)
+        end
+
         all_requires = $LOADED_FEATURES.dup
         all_apps = Camping::Apps.dup
         
