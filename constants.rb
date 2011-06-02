@@ -47,7 +47,7 @@ def omni
 
     s.add_dependency('camping', "=#{VERS}")
     s.add_dependency('activerecord')
-    s.add_dependency('sqlite3-ruby', '>=1.1.0.1')
+    s.add_dependency('sqlite3', '>=1.1.0.1')
     s.add_dependency('mongrel')
     s.add_dependency('RedCloth')
     s.add_dependency('markaby')
