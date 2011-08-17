@@ -294,6 +294,16 @@ module Camping
       (@mab ||= Mab.new({},self)).capture(&b)
     end
     
+    # Set the value of cookie with given name. opt is a hash which may contain any of these keys (as symbols):
+    #   * domain (string)
+    #   * path (string, default is base path of the app)
+    #   * expires (Time or Numeric; when Numeric, this means Time.now+expires)
+    #   * secure (true/false)
+    #   * httponly (true/false)
+    def set_cookie name, value, opt = {}
+      @cookies.set name, value, opt
+    end
+    
     # A quick means of setting this controller's status, body and headers
     # based on a Rack response:
     #
@@ -382,21 +392,20 @@ module Camping
     def to_a
       @env['rack.session'] = Hash[@state]
       r = Rack::Response.new(@body, @status, @headers)
-      @cookies.each do |k, v|
-        next if @old_cookies[k] == v
-        v = { :value => v, :path => self / "/" } if String === v
-        r.set_cookie(k, v)
-      end
+      @cookies.newly_set.each{|k, v| r.set_cookie(k, v)}
       r.to_a
     end
     
     def initialize(env, m) #:nodoc: 
       r = @request = Rack::Request.new(@env = env)
-      @root, @input, @cookies, @state,
-      @headers, @status, @method =
-      r.script_name.sub(/\/$/,''), n(r.params),
-      H[@old_cookies = r.cookies], H[r.session],
-      {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
+      
+      @root    = r.script_name.sub(/\/$/,'')
+      @input   = n(r.params)
+      @cookies = Cookies.new r.cookies, self / "/"
+      @state   = H[r.session]
+      @headers = {}
+      @status  = m =~ /r(\d+)/ ? $1.to_i : 200
+      @method  = m
     end
     
     def n(h) # :nodoc:
@@ -416,6 +425,59 @@ module Camping
       r = catch(:halt){send(@method, *a)}
       @body ||= r 
       self
+    end
+  end
+  
+  # A class for reading and setting cookies. @cookies is an instance of this.
+  class Cookies
+    attr_accessor :cookies, :newly_set
+    
+    def initialize cookies, apppath #:nodoc:
+      @apppath, @cookies, @newly_set = apppath, cookies, {}
+      
+      @cookies.each_pair do |key, value|
+        if value[0,9]=='Marshal!!'
+          @cookies[key] = Marshal.load Base64.decode64 value[9..-1]
+        end
+      end
+    end
+    
+    # Get the value of cookie with given name.
+    def [] name
+      @cookies[name.to_s]
+    end
+    
+    def []= name, value #:nodoc:
+      warn "#{caller[0]}: old cookie setting syntax used"
+      set name, value
+    end
+    
+    # Set the value of cookie with given name. See Base#set_cookie method for full documentation.
+    def set name, value, opt = {}
+      opt[:expires] = Time.now+opt[:expires] if opt[:expires] and opt[:expires].is_a? Numeric
+      
+      name = name.to_s
+      
+      value = if value.is_a?(String) and value[0,9]!='Marshal!!'
+        value.dup
+      elsif value.is_a?(Numeric)
+        value.to_s
+      else
+        'Marshal!!'+(Base64.encode64 Marshal.dump value)
+      end
+      
+      @newly_set[name] = ({:path => @apppath}).merge(opt).merge({:value => value})
+      
+      if value[0,9]=='Marshal!!'
+        # dumping and loading back is intended, acts like deep-copy
+        @cookies[name] = Marshal.load Base64.decode64 value[9..-1]
+      else
+        @cookies[name] = value
+      end
+    end
+    
+    def get name #:nodoc:
+      self[name]
     end
   end
   
@@ -736,6 +798,7 @@ module Camping
  
   autoload :Mab, 'camping/mab'
   autoload :Template, 'camping/template'
+  autoload :Base64, 'base64'
   C
 end
 
