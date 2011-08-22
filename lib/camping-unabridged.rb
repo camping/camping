@@ -82,6 +82,24 @@ module Camping
     end
     undef id, type if ?? == 63
   end
+
+  class Cookies < H
+    attr_accessor :p
+    #
+    # Cookies that are set at this response
+    def n; @n ||= {} end
+
+    alias __s []=
+
+    def set(k, v, o = {})
+      __s(j=k.to_s, v)
+      n[j] = {:value => v, :path => p}.update(o)
+    end
+
+    def []=(k, v)
+      set k, v, v.is_a?(Hash) ? v : {}
+    end
+  end
   
   # Helpers contains methods available in your controllers and views. You may
   # add methods of your own to this module, including many helper methods from
@@ -382,9 +400,7 @@ module Camping
     def to_a
       @env['rack.session'] = Hash[@state]
       r = Rack::Response.new(@body, @status, @headers)
-      @cookies.each do |k, v|
-        next if @old_cookies[k] == v
-        v = { :value => v, :path => self / "/" } if String === v
+      @cookies.n.each do |k, v|
         r.set_cookie(k, v)
       end
       r.to_a
@@ -395,8 +411,9 @@ module Camping
       @root, @input, @cookies, @state,
       @headers, @status, @method =
       r.script_name.sub(/\/$/,''), n(r.params),
-      H[@old_cookies = r.cookies], H[r.session.to_hash],
+      Cookies[r.cookies], H[r.session.to_hash],
       {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
+      @cookies.p = self/"/"
     end
     
     def n(h) # :nodoc:
