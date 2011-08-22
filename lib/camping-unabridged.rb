@@ -395,7 +395,7 @@ module Camping
       @root, @input, @cookies, @state,
       @headers, @status, @method =
       r.script_name.sub(/\/$/,''), n(r.params),
-      H[@old_cookies = r.cookies], H[r.session],
+      H[@old_cookies = r.cookies], H[r.session.to_hash],
       {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
     end
     
