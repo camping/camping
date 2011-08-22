@@ -84,16 +84,16 @@ module Camping
   end
 
   class Cookies < H
-    attr_accessor :p
+    attr_accessor :_p
     #
     # Cookies that are set at this response
-    def n; @n ||= {} end
+    def _n; @n ||= {} end
 
-    alias __s []=
+    alias _s []=
 
     def set(k, v, o = {})
-      __s(j=k.to_s, v)
-      n[j] = {:value => v, :path => p}.update(o)
+      _s(j=k.to_s, v)
+      _n[j] = {:value => v, :path => _p}.update(o)
     end
 
     def []=(k, v)
@@ -400,7 +400,7 @@ module Camping
     def to_a
       @env['rack.session'] = Hash[@state]
       r = Rack::Response.new(@body, @status, @headers)
-      @cookies.n.each do |k, v|
+      @cookies._n.each do |k, v|
         r.set_cookie(k, v)
       end
       r.to_a
@@ -413,7 +413,7 @@ module Camping
       r.script_name.sub(/\/$/,''), n(r.params),
       Cookies[r.cookies], H[r.session.to_hash],
       {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
-      @cookies.p = self/"/"
+      @cookies._p = self/"/"
     end
     
     def n(h) # :nodoc:
