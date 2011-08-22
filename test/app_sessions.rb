@@ -36,11 +36,7 @@ class Sessions::Test < TestCase
   def test_session
     get '/one'
     follow_redirect!
-    
-    get '/two'
     follow_redirect!
-    
-    get '/three'
     assert_body "[42, 56, 99]"
   end
 end
