@@ -252,7 +252,7 @@ module Camping
   # it saves code for all the glue to stay in one place. Forgivable,
   # considering that it's only really a handful of methods and accessors.
   #
-  # Everything in this module is accessable inside your controllers.
+  # Everything in this module is accessible inside your controllers.
   module Base
     attr_accessor :env, :request, :root, :input, :cookies, :state,
                   :status, :headers, :body
@@ -298,8 +298,8 @@ module Camping
       end
     end
 
-    # You can directly return HTML form your controller for quick debugging
-    # by calling this method and pass some Markaby to it.
+    # You can directly return HTML from your controller for quick debugging
+    # by calling this method and passing some Markaby to it.
     # 
     #   module Nuts::Controllers
     #     class Info
