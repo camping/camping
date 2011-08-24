@@ -24,7 +24,7 @@ def spec
     s.executables = ['camping']
 
     s.add_dependency('rack', '>=1.0')
-    s.add_development_dependency('rake')
+    s.add_development_dependency('rake', '=0.8.7')
     s.add_development_dependency('rack-test')
     s.required_ruby_version = '>= 1.8.2'
 
