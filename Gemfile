@@ -1,12 +1,7 @@
 source :rubygems
-
-gem 'rack'
+gemspec :name => :camping
 
 group :extras do
   gem 'markaby'
-end
-
-group :test do
-  gem 'rack-test'
 end
 
