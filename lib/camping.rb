@@ -13,7 +13,8 @@ end;def / p;p[0]==?/?@root+p :p end;def URL c='/',*a;c=R(c,*a) if c.respond_to?(
 :urls);c=self/c;c=@request.url[/.{8,}?(?=\/)/]+c if c[0]==?/;URI c end end
 module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,
 :headers,:body;T={};L=:layout;def lookup n;T.fetch(n.to_sym){|k|t=Views.
-method_defined?(k)||(f=Dir[[O[:views]||"views","#{n}.*"]*'/'][0])&&Template.
+method_defined?(k)||(t=O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{
+O[:_t][t].strip})||(f=Dir[[O[:views]||"views","#{n}.*"]*'/'][0])&&Template.
 new(f,O[f[/\.(\w+)$/,1].to_sym]||{});O[:dynamic_templates]?t:T[k]=t} end
 def render v,*a,&b;if t=lookup(v);o=Hash===a[-1]?a.pop: {};s=(t==true)?mab{
 send v,*a,&b}: t.render(self,o[:locals]||{},&b);s=render(L,o.merge(L=>false)){s
@@ -39,7 +40,9 @@ map{|c|[const_get(c),c]}+@r).map{|k,c|k.send:include,C,X,Base,Helpers,Models
 N.method(:[]))*'/'}"]}if !k.respond_to?:urls}end end;I=R()end;def(X=
 Controllers).method_missing m,*r,&b;
 Class.new(R(*r)){define_method m,&b}end;class<<self;def
-goes m;Apps<<eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING) end;def call e;X.M
+goes m;Apps<<a=eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);caller[0]=~/:/
+IO.read($`)=~/^__END__/&&(b=$'.split /^@@\s+(.+?)\s*\r?\n/m).shift rescue nil
+a.set :_t,H[*b];end;def call e;X.M
 p=e['PATH_INFO']=U.unescape(e['PATH_INFO']);k,m,*a=X.D p,e['REQUEST_METHOD'].
 downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.

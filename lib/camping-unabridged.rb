@@ -268,6 +268,7 @@ module Camping
     def lookup(n)
       T.fetch(n.to_sym) do |k|
         t = Views.method_defined?(k) ||
+          (t = O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{O[:_t][t].strip}) ||
           (f = Dir[[O[:views] || "views", "#{n}.*"]*'/'][0]) &&
           Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
         
@@ -617,7 +618,11 @@ module Camping
     #
     # All the applications will be available in Camping::Apps.
     def goes(m)
-      Apps << eval(S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING)
+      Apps << a = eval(S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING)
+      caller[0]=~/:/
+      IO.read($`)=~/^__END__/ &&
+      (b=$'.split(/^@@\s+(.+?)\s*\r?\n/m)).shift rescue nil
+      a.set :_t,H[*b]
     end
     
     # Ruby web servers use this method to enter the Camping realm. The +e+
