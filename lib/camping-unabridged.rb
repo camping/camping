@@ -622,7 +622,7 @@ module Camping
       caller[0]=~/:/
       IO.read($`)=~/^__END__/ &&
       (b=$'.split(/^@@\s+(.+?)\s*\r?\n/m)).shift rescue nil
-      a.set :_t,H[*b]
+      a.set :_t,H[*b||[]]
     end
     
     # Ruby web servers use this method to enter the Camping realm. The +e+

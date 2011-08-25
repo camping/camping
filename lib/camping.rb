@@ -42,7 +42,7 @@ Controllers).method_missing m,*r,&b;
 Class.new(R(*r)){define_method m,&b}end;class<<self;def
 goes m;Apps<<a=eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);caller[0]=~/:/
 IO.read($`)=~/^__END__/&&(b=$'.split /^@@\s+(.+?)\s*\r?\n/m).shift rescue nil
-a.set :_t,H[*b];end;def call e;X.M
+a.set :_t,H[*b||[]];end;def call e;X.M
 p=e['PATH_INFO']=U.unescape(e['PATH_INFO']);k,m,*a=X.D p,e['REQUEST_METHOD'].
 downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
