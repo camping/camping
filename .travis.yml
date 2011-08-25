@@ -5,4 +5,8 @@ rvm:
   - 1.9.3
   - rbx-2.0
   - jruby
+env:
+  - "RACK=master"
+  - "RACK='~>1.3.0'"
+  - "RACK='~>1.2.0'"
 script: rake test
