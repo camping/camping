@@ -8,3 +8,8 @@ env:
   - "RACK='~>1.3.0'"
   - "RACK='~>1.2.0'"
 script: rake test
+notifications:
+  email: false
+  irc:
+    - "irc.freenode.org#camping"
+
