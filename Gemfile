@@ -11,5 +11,6 @@ end
 
 group :extras do
   gem 'markaby'
+  gem 'tilt'
 end
 
