@@ -587,8 +587,7 @@ module Camping
       def M
         def M #:nodoc:
         end
-        constants.map { |c|
-          k = const_get(c)
+        (constants.map { |c| [const_get(c),c] } + @r).map { |k,c|
           k.send :include,C,X,Base,Helpers,Models
           @r=[k]+r if r-[k]==r
           k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
@@ -599,7 +598,10 @@ module Camping
     # Internal controller with no route. Used to show internal messages.
     I = R()
   end
-  X = Controllers
+
+  def (X = Controllers).method_missing(m,*r,&b)
+    Class.new(R(*r)) { define_method(m,&b) }
+  end
 
   class << self
     # When you are running many applications, you may want to create

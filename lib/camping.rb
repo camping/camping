@@ -33,10 +33,12 @@ end end;module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r;Class.
 new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def D p,m,e;p='/'if
 !p||!p[0];r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1]]:
 [I, 'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end;N=H.new{|_,x|x.downcase}.
-merge!("N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>'');def M;def M;end;constants.
-map{|c|k=const_get(c);k.send:include,C,X,Base,Helpers,Models;@r=[k]+r if
-r-[k]==r;k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*
-'/'}"]}if !k.respond_to?:urls}end end;I=R()end;X=Controllers;class<<self;def
+merge!("N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>'');def M;def M;end;(constants.
+map{|c|[const_get(c),c]}+@r).map{|k,c|k.send:include,C,X,Base,Helpers,Models
+@r=[k]+r if r-[k]==r;k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&
+N.method(:[]))*'/'}"]}if !k.respond_to?:urls}end end;I=R()end;def(X=
+Controllers).method_missing m,*r,&b;
+Class.new(R(*r)){define_method m,&b}end;class<<self;def
 goes m;Apps<<eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING) end;def call e;X.M
 p=e['PATH_INFO']=U.unescape(e['PATH_INFO']);k,m,*a=X.D p,e['REQUEST_METHOD'].
 downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
