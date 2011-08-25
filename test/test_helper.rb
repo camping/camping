@@ -5,7 +5,12 @@ begin
 rescue LoadError
 end
 
-require 'camping-unabridged'
+if ENV['UNABRIDGED']
+  require 'camping-unabridged'
+else
+  require 'camping'
+end
+
 require 'test/unit'
 require 'rack/test'
 

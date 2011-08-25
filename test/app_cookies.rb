@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'camping-unabridged'
+require 'camping'
 
 Camping.goes :Cookies
 
