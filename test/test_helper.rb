@@ -5,10 +5,10 @@ begin
 rescue LoadError
 end
 
-if ENV['UNABRIDGED']
-  require 'camping-unabridged'
-else
+if ENV['ABRIDGED']
   require 'camping'
+else
+  require 'camping-unabridged'
 end
 
 require 'test/unit'
