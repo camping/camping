@@ -50,7 +50,4 @@ class TestCase < Test::Unit::TestCase
   def assert_status(code)
     assert_equal(code, last_response.status)
   end
-  
-  def test_noop
-  end
 end

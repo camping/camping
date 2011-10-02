@@ -90,15 +90,14 @@ module Camping
           exit
         end
         
-        options[:scripts] = args
+        options[:script] = args.shift
         options
       end
     end
     
     def initialize(*)
       super
-      @reloader = Camping::Reloader.new
-      @reloader.on_reload do |app|
+      @reloader = Camping::Reloader.new(options[:script]) do |app|
         if !app.options.has_key?(:dynamic_templates)
 		      app.options[:dynamic_templates] = true
 	      end
@@ -125,7 +124,7 @@ module Camping
     
     def middleware
       h = super
-      h["development"].unshift [XSendfile]
+      h["development"] << [XSendfile]
       h
     end
 
@@ -145,28 +144,12 @@ module Camping
       end
     end
     
-    def find_scripts
-      scripts = options[:scripts].map do |path|
-        if File.file?(path)
-          path
-        elsif File.directory?(path)
-          Dir[File.join(path, '*.rb')]
-        end
-      end.flatten.compact
-	  
-      @reloader.update(*scripts)
-    end
-    
-    def reload!
-      find_scripts
-    end
-    
     def app
       self
     end
     
     def call(env)
-      reload!
+      @reloader.reload
       apps = @reloader.apps
 
       case apps.length
@@ -183,7 +166,7 @@ module Camping
             env["PATH_INFO"] = $'
             return app.call(env)
           when %r{^/code/#{mount}}
-            return [200, {'Content-Type' => 'text/plain', 'X-Sendfile' => @reloader.script(app).file}, []]
+            return [200, {'Content-Type' => 'text/plain', 'X-Sendfile' => @reloader.file}, []]
           end
         end
         
