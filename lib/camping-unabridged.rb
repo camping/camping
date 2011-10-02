@@ -386,6 +386,12 @@ module Camping
     def r501(m)
       P % "#{m.upcase} not implemented"
     end
+
+    # Serves the string +c+ with the MIME type of the filename +p+.
+    def serve(p, c)
+      t = Rack::Mime.mime_type(p[/\..*$/], nil) and @headers['Content-Type'] = t
+      c
+    end
     
     # Turn a controller into a Rack response. This is designed to be used to
     # pipe controllers into the <tt>r</tt> method. A great way to forward your
@@ -562,6 +568,7 @@ module Camping
       # So, define your catch-all controllers last.
       def D(p, m, e)
         p = '/' if !p || !p[0]
+        a=O[:_t].find{|n,_|n==p} and return [I, :serve, *a]
         r.map { |k|
           k.urls.map { |x|
             return (k.method_defined?(m)) ?
@@ -620,8 +627,8 @@ module Camping
     def goes(m)
       Apps << a = eval(S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING)
       caller[0]=~/:/
-      IO.read($`)=~/^__END__/ &&
-      (b=$'.split(/^@@\s+(.+?)\s*\r?\n/m)).shift rescue nil
+      IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
+      (b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
       a.set :_t,H[*b||[]]
     end
     

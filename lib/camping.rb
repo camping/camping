@@ -22,7 +22,8 @@ send v,*a,&b}: t.render(self,o[:locals]||{},&b);s=render(L,o.merge(L=>false)){s
 end;end;def mab &b;(@mab||=Mab.new({},self)).capture(&b) end;def r s,b,h={};b,h=
 h,b if Hash===b;@status=s;@headers.merge!(h);@body=b end;def redirect *a;r 302,
 '','Location'=>URL(*a).to_s end;def r404 p;P%"#{p} not found"end;def r500 k,m,e
-raise e end;def r501 m;P%"#{m.upcase} not implemented"end;def to_a;@env[
+raise e end;def r501 m;P%"#{m.upcase} not implemented"end;def serve(p,c)
+(t=Rack::Mime.mime_type p[/\..*$/],nil)&&@headers["Content-Type"]=t;c;end;def to_a;@env[
 'rack.session']=Hash[@state];r=Rack::Response.new(@body,@status,@headers)
 @cookies._n.each{|k,v|r.set_cookie k,v};r.to_a end;def initialize env,m
 r=@request=Rack:: Request.new(@env=env);@root,@input,@cookies,@state,@headers,
@@ -32,7 +33,8 @@ def n h;Hash===h ?h.inject(H[]){|m,(k,v)|m[k]=
 n(v);m}: h end;def service *a;r=catch(:halt){send(@method,*a)};@body||=r;self
 end end;module Controllers;@r=[];class<<self;def r;@r end;def R *u;r=@r;Class.
 new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def D p,m,e;p='/'if
-!p||!p[0];r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1]]:
+!p||!p[0];(a=O[:_t].find{|n,_|n==p}) and return [I,:serve,*a]
+r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1]]:
 [I, 'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end;N=H.new{|_,x|x.downcase}.
 merge!("N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>'');def M;def M;end;(constants.
 map{|c|[const_get(c),c]}+@r).map{|k,c|k.send:include,C,X,Base,Helpers,Models
@@ -41,7 +43,7 @@ N.method(:[]))*'/'}"]}if !k.respond_to?:urls}end end;I=R()end;def(X=
 Controllers).method_missing m,*r,&b;
 Class.new(R(*r)){define_method m,&b}end;class<<self;def
 goes m;Apps<<a=eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);caller[0]=~/:/
-IO.read($`)=~/^__END__/&&(b=$'.split /^@@\s+(.+?)\s*\r?\n/m).shift rescue nil
+IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split /^@@\s*(.+?)\s*\r?\n/m).shift rescue nil
 a.set :_t,H[*b||[]];end;def call e;X.M
 p=e['PATH_INFO']=U.unescape(e['PATH_INFO']);k,m,*a=X.D p,e['REQUEST_METHOD'].
 downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
