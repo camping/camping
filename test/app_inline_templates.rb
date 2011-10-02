@@ -22,10 +22,10 @@ end
 class Inline::Test < TestCase
   def test_inline
     get '/'
-    assert_body "Hello World"
+    assert_body "Hello World\n\n"
 
     get '/user/Bluebie'
-    assert_body "My name is Bluebie"
+    assert_body "My name is Bluebie\n\n"
   end
 end
 

@@ -268,7 +268,7 @@ module Camping
     def lookup(n)
       T.fetch(n.to_sym) do |k|
         t = Views.method_defined?(k) ||
-          (t = O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{O[:_t][t].strip}) ||
+          (t = O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{O[:_t][t]}) ||
           (f = Dir[[O[:views] || "views", "#{n}.*"]*'/'][0]) &&
           Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
         

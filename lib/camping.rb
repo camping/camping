@@ -14,7 +14,7 @@ end;def / p;p[0]==?/?@root+p :p end;def URL c='/',*a;c=R(c,*a) if c.respond_to?(
 module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,
 :headers,:body;T={};L=:layout;def lookup n;T.fetch(n.to_sym){|k|t=Views.
 method_defined?(k)||(t=O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{
-O[:_t][t].strip})||(f=Dir[[O[:views]||"views","#{n}.*"]*'/'][0])&&Template.
+O[:_t][t]})||(f=Dir[[O[:views]||"views","#{n}.*"]*'/'][0])&&Template.
 new(f,O[f[/\.(\w+)$/,1].to_sym]||{});O[:dynamic_templates]?t:T[k]=t} end
 def render v,*a,&b;if t=lookup(v);o=Hash===a[-1]?a.pop: {};s=(t==true)?mab{
 send v,*a,&b}: t.render(self,o[:locals]||{},&b);s=render(L,o.merge(L=>false)){s
