@@ -1,7 +1,6 @@
 $:.unshift 'extras'
 require 'rake'
 require 'rake/clean'
-require 'rake/gempackagetask'
 require 'rake/testtask'
 require 'tempfile'
 require 'open3'
@@ -15,32 +14,25 @@ task :default => :check
 ## RDoc
 
 begin
-  gem 'rdoc', '~> 2.4.0'
+  gem 'rdoc', '~>3.9.0'
 rescue LoadError
-  # Don't complain yet.
-end
-
-require 'rdoc/rdoc'
-require 'rake/rdoctask'
-
-Rake::RDocTask.new(:docs) do |rdoc|
-  if defined?(RDoc::VERSION) && RDoc::VERSION[0,3] == "2.4"
+  task :docs do
+    puts "** Camping needs RDoc 3.9 in order to use the Flipbook template."
+  end
+else
+  require 'rdoc/task'
+  RDoc::Task.new(:docs) do |rdoc|
     # We have a recent version of RDoc, so let's use flipbook.
     require 'rdoc/generator/singledarkfish'
     rdoc.options += ['-f', 'singledarkfish', *RDOC_OPTS]
     rdoc.template = "flipbook"
-  else
-    # Use whatever template is available, and give a little warning.
-    task :docs do
-      puts "** Camping needs RDoc 2.4 in order to use the Flipbook template."
-    end
+    
+    rdoc.rdoc_dir = 'doc'
+    rdoc.title = "Camping, a Microframework"
+    rdoc.rdoc_files.add ['README', 'lib/camping-unabridged.rb', 'lib/camping/**/*.rb', 'book/*']
   end
-  
-  rdoc.inline_source = false # --inline-source is deprecated
-  rdoc.rdoc_dir = 'doc'
-  rdoc.title = "Camping, a Microframework"
-  rdoc.rdoc_files.add ['README', 'lib/camping-unabridged.rb', 'lib/camping/**/*.rb', 'book/*']
 end
+
   
 task :rubygems_docs do
   require 'rubygems/doc_manager'
@@ -54,29 +46,10 @@ end
 desc "Packages Camping."
 task :package => :clean
 
-Rake::GemPackageTask.new(spec) do |p|
-  p.need_tar = true
-  p.gem_spec = spec
-end
-
-Rake::GemPackageTask.new(omni) do |p|
-  p.gem_spec = omni
-end
-
-task :install => :package do
-  sh %{sudo gem install pkg/#{NAME}-#{VERS}}
-end
-
-task :uninstall => [:clean] do
-  sh %{sudo gem uninstall #{NAME}}
-end
-
 ## Tests
 Rake::TestTask.new(:test) do |t|
   t.libs << "test"
   t.test_files = FileList['test/app_*.rb']
-#  t.warning = true
-#  t.verbose = true
 end
 
 ## Diff
@@ -102,11 +75,16 @@ end
 error = false
 
 ## Check
-task :check => ["test", "check:valid", "check:size", "check:lines", "check:exit"]
+task :check => ["test", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
 namespace :check do
 
   desc "Check source code validity"
   task :valid do
+    sh "ruby -c lib/camping.rb"
+  end
+
+  desc "Check equality between mural and unabridged"
+  task :equal do
     require 'ruby_parser'
     u = RubyParser.new.parse(File.read("lib/camping-unabridged.rb"))
     m = RubyParser.new.parse(File.read("lib/camping.rb"))
