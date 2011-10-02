@@ -36,12 +36,11 @@ new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def D p,m,e;p='/'if
 !p||!p[0];(a=O[:_t].find{|n,_|n==p}) and return [I,:serve,*a]
 r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1]]:
 [I, 'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end;N=H.new{|_,x|x.downcase}.
-merge!("N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>'');def M;def M;end;(constants.
-map{|c|[const_get(c),c]}+@r).map{|k,c|k.send:include,C,X,Base,Helpers,Models
+merge!("N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>'');def M;def M;end;constants.
+map{|c|k=const_get(c);k.send:include,C,X,Base,Helpers,Models
 @r=[k]+r if r-[k]==r;k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&
-N.method(:[]))*'/'}"]}if !k.respond_to?:urls}end end;I=R()end;def(X=
-Controllers).method_missing m,*r,&b;
-Class.new(R(*r)){define_method m,&b}end;class<<self;def
+N.method(:[]))*'/'}"]}if !k.respond_to?:urls}end end;I=R()end;X=
+Controllers;class<<self;def
 goes m;Apps<<a=eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split /^@@\s*(.+?)\s*\r?\n/m).shift rescue nil
 a.set :_t,H[*b||[]];end;def call e;X.M
