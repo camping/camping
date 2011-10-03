@@ -8,7 +8,7 @@ VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
 
 RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
 
-def spec
+def camping_spec
   @spec ||= Gem::Specification.new do |s|
     s.name = NAME
     s.version = VERS
@@ -39,13 +39,13 @@ def spec
   end
 end
 
-def omni
+def camping_omni
   @omni ||= Gem::Specification.new do |s|
     s.name = "camping-omnibus"
     s.version = VERS
     s.platform = Gem::Platform::RUBY
     s.summary = "the camping meta-package for updating ActiveRecord, Mongrel and SQLite3 bindings"
-    %w[author email homepage rubyforge_project].each { |x| s.__send__("#{x}=", spec.__send__(x)) }
+    %w[author email homepage rubyforge_project].each { |x| s.__send__("#{x}=", camping_spec.__send__(x)) }
 
     s.add_dependency('camping', "=#{VERS}")
     s.add_dependency('activerecord')

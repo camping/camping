@@ -1,2 +1,2 @@
 require File.expand_path('../constants', __FILE__)
-omni
+camping_omni
