@@ -295,7 +295,7 @@ module Camping
         s = render(L, o.merge(L => false)) { s } if o[L] or o[L].nil? && lookup(L) && (!r && v.to_s[0] != ?_)
         s
       else
-        raise "Can't find template #{v}"
+        raise "no template: #{v}"
       end
     end
 
