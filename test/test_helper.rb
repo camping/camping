@@ -41,9 +41,9 @@ class TestCase < Test::Unit::TestCase
   def assert_body(str)
     case str
     when Regexp
-      assert_match(str, last_response.body)
+      assert_match(str, last_response.body.strip)
     else
-      assert_equal(str.to_s, last_response.body)
+      assert_equal(str.to_s, last_response.body.strip)
     end
   end
   
