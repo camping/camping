@@ -16,9 +16,9 @@ module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,
 method_defined?(k)||(t=O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{
 O[:_t][t]})||(f=Dir[[O[:views]||"views","#{n}.*"]*'/'][0])&&Template.
 new(f,O[f[/\.(\w+)$/,1].to_sym]||{});O[:dynamic_templates]?t:T[k]=t} end
-def render v,*a,&b;if t=lookup(v);o=Hash===a[-1]?a.pop: {};s=(t==true)?mab{
+def render v,*a,&b;if t=lookup(v);r,@_r=@_r,o=Hash===a[-1]?a.pop: {};s=(t==true)?mab{
 send v,*a,&b}: t.render(self,o[:locals]||{},&b);s=render(L,o.merge(L=>false)){s
-}if v.to_s[0]!=?_&&o[L]!=false&&lookup(L);s;else;raise"Can't find template #{v}"
+}if o[L]or o[L].nil?&&lookup(L)&&!r&&v.to_s[0]!=?_;s;else;raise"Can't find template #{v}"
 end;end;def mab &b;(@mab||=Mab.new({},self)).capture(&b) end;def r s,b,h={};b,h=
 h,b if Hash===b;@status=s;@headers.merge!(h);@body=b end;def redirect *a;r 302,
 '','Location'=>URL(*a).to_s end;def r404 p;P%"#{p} not found"end;def r500 k,m,e
