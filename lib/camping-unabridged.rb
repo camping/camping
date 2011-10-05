@@ -528,11 +528,6 @@ module Camping
   module Controllers
     @r = []
     class << self
-      # An array containing the various controllers available for dispatch.
-      def r #:nodoc:
-        @r
-      end
-      
       # Add routes to a controller class by piling them into the R method.
       # 
       # The route is a regexp which will match the request path. Anything
@@ -569,7 +564,7 @@ module Camping
       def D(p, m, e)
         p = '/' if !p || !p[0]
         a=O[:_t].find{|n,_|n==p} and return [I, :serve, *a]
-        r.map { |k|
+        @r.map { |k|
           k.urls.map { |x|
             return (k.method_defined?(m)) ?
               [k, m, *$~[1..-1]] : [I, 'r501', m] if p =~ /^#{x}\/?$/
@@ -598,7 +593,7 @@ module Camping
         constants.map { |c|
           k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models
-          @r=[k]+r if r-[k]==r
+          @r=[k]+@r if @r-[k]==@r
           k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
       end
