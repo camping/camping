@@ -756,8 +756,9 @@ module Camping
   # Models cannot be referred to in Views at this time.
   module Models
     autoload :Base,'camping/ar'
+    Helpers.send(:include, X, self)
   end
- 
+
   autoload :Mab, 'camping/mab'
   autoload :Template, 'camping/template'
   C

@@ -36,10 +36,12 @@ module Helpers::Controllers
 end
 
 class Helpers::Test < TestCase
-  def test_inline
+  def test_models
     get '/'
     assert_body "Bob"
+  end
 
+  def test_controllers
     get '/users'
     assert_body "/"
   end

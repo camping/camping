@@ -50,5 +50,6 @@ def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s);h.each{|i,v|k.
 send"#{i}=",v};k.service(*a) end;def use*a,&b;m=a.shift.new(method(:call),*a,&b)
 meta_def(:call){|e|m.call(e)}end;def options;O end;def set k,v;O[k]=v end end
-module Views;include X,Helpers end;module Models;autoload:Base,'camping/ar' end
-autoload:Mab,'camping/mab';autoload:Template,'camping/template';C end
+module Views;include X,Helpers end;module Models;autoload:Base,'camping/ar'
+Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
+autoload:Template,'camping/template';C end
