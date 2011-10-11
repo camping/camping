@@ -242,7 +242,7 @@ module Camping
     def URL c='/',*a
       c = R(c, *a) if c.respond_to? :urls
       c = self/c
-      c = @request.url[/.{8,}?(?=\/)/]+c if c[0]==?/
+      c = @request.base_url+c if c[0]==?/
       URI(c)
     end
   end
