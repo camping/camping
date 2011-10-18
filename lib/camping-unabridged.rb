@@ -543,10 +543,8 @@ module Camping
       #     end
       #   end
       def R *u
-        r=@r
         Class.new {
           meta_def(:urls){u}
-          meta_def(:inherited){|x|r<<x}
         }
       end
 

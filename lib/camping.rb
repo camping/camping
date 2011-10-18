@@ -31,8 +31,8 @@ r=@request=Rack:: Request.new(@env=env);@root,@input,@cookies,@state,@headers,
 H[r.session.to_hash],{},m=~/r(\d+)/?$1.to_i: 200,m;@cookies._p=self/"/" end
 def n h;Hash===h ?h.inject(H[]){|m,(k,v)|m[k]=
 n(v);m}: h end;def service *a;r=catch(:halt){send(@method,*a)};@body||=r;self
-end end;module Controllers;@r=[];class<<self;def R *u;r=@r;Class.
-new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def D p,m,e;p='/'if
+end end;module Controllers;@r=[];class<<self;def R *u;Class.
+new{meta_def(:urls){u}}end;def D p,m,e;p='/'if
 !p||!p[0];(a=O[:_t].find{|n,_|n==p}) and return [I,:serve,*a]
 @r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1]]:
 [I, 'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end;N=H.new{|_,x|x.downcase}.
