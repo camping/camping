@@ -543,8 +543,10 @@ module Camping
       #     end
       #   end
       def R *u
+        r=@r
         Class.new {
           meta_def(:urls){u}
+          meta_def(:inherited){|x|r<<x}
         }
       end
 
@@ -589,8 +591,9 @@ module Camping
         def M #:nodoc:
         end
         constants.map { |c|
-          @r << k = const_get(c)
+          k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models
+          @r=[k]+@r if @r-[k]==@r
           k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
       end
