@@ -47,7 +47,7 @@ def camping_omni
     s.summary = "the camping meta-package for updating ActiveRecord, Mongrel and SQLite3 bindings"
     %w[author email homepage rubyforge_project].each { |x| s.__send__("#{x}=", camping_spec.__send__(x)) }
 
-    s.add_dependency('camping', "=#{VERS}")
+    s.add_dependency('camping', ">=#{BRANCH}")
     s.add_dependency('activerecord')
     s.add_dependency('sqlite3', '>=1.1.0.1')
     s.add_dependency('markaby')
