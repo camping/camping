@@ -77,7 +77,7 @@ rescue LoadError
         elsif content
           raise Error, "`#{@name}` is not allowed to have content" if @sc
           @done = true
-          @content = CGI.escape_html(content.to_s)
+          @content = CGI.escapeHTML(content.to_s)
         elsif attrs
           @done = true
         end
@@ -102,7 +102,7 @@ rescue LoadError
       def attrs_to_s
         @instance.mab_attributes(attributes).inject("") do |res, (name, value)|
           if value
-            value = (value == true) ? name : CGI.escape_html(value.to_s)
+            value = (value == true) ? name : CGI.escapeHTML(value.to_s)
             res << " #{name}=\"#{value}\""
           end
           res
@@ -123,7 +123,7 @@ rescue LoadError
     end
 
     def text(str = nil, &blk)
-      str = str ? CGI.escape_html(str.to_s) : blk.call.to_s
+      str = str ? CGI.escapeHTML(str.to_s) : blk.call.to_s
       if @mab_context
         @mab_context << str
       else
