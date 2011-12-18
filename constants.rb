@@ -50,7 +50,6 @@ def camping_omni
     s.add_dependency('camping', ">=#{BRANCH}")
     s.add_dependency('activerecord')
     s.add_dependency('sqlite3', '>=1.1.0.1')
-    s.add_dependency('markaby')
   end
 end
 

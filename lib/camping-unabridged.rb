@@ -310,7 +310,7 @@ module Camping
     #
     # You can also pass true to use the :layout HTML wrapping method
     def mab(&b)
-      (@mab ||= Mab.new({},self)).capture(&b)
+      extend Mab; mab(&b)
     end
     
     # A quick means of setting this controller's status, body and headers
