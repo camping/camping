@@ -5,18 +5,18 @@ begin
 rescue LoadError
   module Mab
     class Error < StandardError; end
-    SELFCLOSING = %w[base meta link hr br param img area input col frame]
+    SELFCLOSING = %w[base link meta hr br wbr img embed param source track area col input keygen command]
 
     %w[a abbr acronym address applet area article aside audio b base
-  basefont bdo big blockquote body br button canvas caption center cite
+  basefont bdi bdo big blockquote body br button canvas caption center cite
   code col colgroup command datalist dd del details dfn dir div dl dt em
-  embed fieldset figcaption figure font footer form frame frameset h1
+  embed fieldset figcaption figure font footer form frame frameset h1 h2 h3 h4 h5
   h6 head header hgroup hr html i iframe img input ins keygen kbd label
-  legend li link map mark menu meta meter nav noframes noscript object ol
+  legend li link map mark math menu meta meter nav noframes noscript object ol
   optgroup option output p param pre progress q rp rt ruby s samp script
-  section select small source span strike strong style sub summary sup
-  table tbody td textarea tfoot th thead time title tr tt u ul var video
-  wbr xmp ].each do |tag|
+  section select small source span strike strong style sub summary sup svg
+  table tbody td textarea tfoot th thead time title tr track tt u ul var video
+  wbr xmp].each do |tag|
       sc = SELFCLOSING.include?(tag).inspect
       class_eval "def #{tag}(*args, &blk); mab_tag :#{tag}, #{sc}, *args, &blk end"
     end
