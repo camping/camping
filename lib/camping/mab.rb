@@ -110,6 +110,14 @@ rescue LoadError
       end
     end
 
+    def mab
+      old = @mab_context
+      ctx = @mab_context = []
+      res = yield if block_given?
+      ctx.empty? ? res : ctx.join
+    ensure
+      @mab_context = old
+    end
 
     def mab_tag(name, sc, content = nil, attrs = nil, &blk)
       ctx = @mab_context || raise(Error, "Tags can only be written within a `mab { }`-block")
@@ -140,12 +148,7 @@ $MAB_CODE = %{
 
     def mab
       extend Views
-      old = @mab_context
-      ctx = @mab_context = []
-      res = yield if block_given?
-      ctx.empty? ? res : ctx.join
-    ensure
-      @mab_context = old
+      super
     end
 
     alias capture mab 
