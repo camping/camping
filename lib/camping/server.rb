@@ -148,73 +148,19 @@ module Camping
       self
     end
     
-    def call(env)
+    def current_app
       @reloader.reload
       apps = @reloader.apps
-
-      case apps.length
-      when 0
-        index_page(apps)
-      when 1
-        apps.values.first.call(env)
-      else
-        apps.each do |name, app|
-          mount = name.to_s.downcase
-          case env["PATH_INFO"]
-          when %r{^/#{mount}}
-            env["SCRIPT_NAME"] = env["SCRIPT_NAME"] + $&
-            env["PATH_INFO"] = $'
-            return app.call(env)
-          when %r{^/code/#{mount}}
-            return [200, {'Content-Type' => 'text/plain', 'X-Sendfile' => @reloader.file}, []]
-          end
-        end
-        
-        index_page(apps)
+      return apps.values.first if apps.size == 1
+      if key = apps.keys.grep(/^#{@reloader.name}$/i)[0]
+        apps[key]
       end
     end
-    
-    def index_page(apps)
-      [200, {'Content-Type' => 'text/html'}, [TEMPLATE.result(binding)]]
+
+    def call(env)
+      app = current_app || raise("Could not find an app called `#{@reloader.name}`")
+      app.call(env)
     end
-    
-    SOURCE = <<-HTML
-<html>
-  <head>
-    <title>You are Camping</title>
-    <style type="text/css">
-      body { 
-        font-family: verdana, arial, sans-serif; 
-        padding: 10px 40px; 
-        margin: 0; 
-      }
-      h1, h2, h3, h4, h5, h6 {
-        font-family: utopia, georgia, serif;
-      }
-      h3 { display: inline; }
-    </style>
-  </head>
-  <body>
-    <% if apps.empty? %>
-      <p>Good day.  I'm sorry, but I could not find any Camping apps.
-      You might want to take a look at the console to see if any errors
-      have been raised.</p>
-    <% else %>
-      <p>Good day.  These are the Camping apps you've mounted.</p>
-      <ul>
-      <% apps.each do |name, app| %>
-        <li>
-          <h3><a href="/<%= name.to_s.downcase %>"><%= app %></a></h3>
-          <small> / <a href="/code/<%= name.to_s.downcase %>">View source</a></small>
-        </li>
-      <% end %>
-      </ul>
-    <% end %>
-  </body>
-</html>
-    HTML
-    
-    TEMPLATE = ERB.new(SOURCE)
     
     class XSendfile
       def initialize(app)
