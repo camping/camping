@@ -47,6 +47,12 @@ module Simple::Controllers
       "Optional: #{value}"
     end
   end
+
+  class Weird
+    def get
+      redirect MultipleComplexX, 'hello%#/world'
+    end
+  end
 end
 
 class Simple::Test < TestCase
@@ -93,5 +99,11 @@ class Simple::Test < TestCase
     
     get '/optional/override'
     assert_body "Optional: override"
+  end
+
+  def test_weird
+    get '/weird'
+    follow_redirect!
+    assert_body 'Complex: hello%#/world'
   end
 end

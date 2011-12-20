@@ -632,9 +632,8 @@ module Camping
     # See: http://rack.rubyforge.org/doc/SPEC.html
     def call(e)
       X.M
-      p = e['PATH_INFO'] = U.unescape(e['PATH_INFO'])
-      k,m,*a=X.D p,e['REQUEST_METHOD'].downcase,e
-      k.new(e,m).service(*a).to_a
+      k,m,*a=X.D e['PATH_INFO'],e['REQUEST_METHOD'].downcase,e
+      k.new(e,m).service(*a.map{|x|U.unescape(x)}).to_a
     rescue
       r500(:I, k, m, $!, :env => e).to_a
     end
