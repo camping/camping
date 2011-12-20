@@ -130,8 +130,8 @@ rescue LoadError
       attrs
     end
 
-    def text(str = nil, &blk)
-      str = str ? CGI.escapeHTML(str.to_s) : blk.call.to_s
+    def text(str = nil)
+      str = str ? str.to_s : yield.to_s
       if @mab_context
         @mab_context << str
       else
