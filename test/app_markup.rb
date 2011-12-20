@@ -15,6 +15,14 @@ module Markup::Controllers
       render :index, :layout => false
     end
   end
+
+  class MountPath
+    def get
+      mab do
+        a "hello", :href => R(Index)
+      end
+    end
+  end
 end
 
 module Markup::Views
@@ -47,5 +55,10 @@ class Markup::Test < TestCase
     assert_reverse do
       assert_body %r{<title>Web Page</title>}
     end
+  end
+
+  def test_mount_path
+    get '/mount/path', {}, 'SCRIPT_NAME' => '/hello'
+    assert_body '<a href="/hello/">hello</a>'
   end
 end
