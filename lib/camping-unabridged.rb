@@ -758,6 +758,17 @@ module Camping
     Helpers.send(:include, X, self)
   end
 
+  module Bundle
+	@@commands = []
+	def self.method_missing(*a, &b)
+		@@commands << [a, b]
+	end
+	def self.install
+		#TODO Bundler::Something::New::Thing.new; @@commands.each { |(a, b)|
+			#obj.send(*a, &b) }
+	end
+  end
+
   autoload :Mab, 'camping/mab'
   autoload :Template, 'camping/template'
   C

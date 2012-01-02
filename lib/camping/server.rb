@@ -61,6 +61,8 @@ module Camping
           
           opts.on("-C", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
+
+		  opts.on("-B", "--bundle", "Install Bundle Gems") { options[:server] = "bundle" }
           
           server_list = ["mongrel", "webrick", "console"]
           opts.on("-s", "--server NAME",
@@ -130,14 +132,18 @@ module Camping
     end
 
     def start
-      if options[:server] == "console"
-        puts "** Starting console"
-        reload!
-        this = self
-        eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { this.reload!; nil }
-        ARGV.clear
-        IRB.start
-        exit
+	  case options[:server]
+        when "console"
+          puts "** Starting console"
+          reload!
+          this = self
+          eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { this.reload!; nil }
+          ARGV.clear
+          IRB.start
+          exit
+		when "bundle"
+		  puts "** Running bundle"
+		  Camping::Apps.each { |app| defined?(app::Bundle) && app::Bundle.install }
       else
         name = server.name[/\w+$/]
         puts "** Starting #{name} on #{options[:Host]}:#{options[:Port]}"
