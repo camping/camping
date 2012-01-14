@@ -1,11 +1,23 @@
 $:.unshift 'extras'
-require 'rake'
 
 begin
   require 'rake/dsl_definition'
+  require 'rake/alt_system'
 rescue LoadError
+else
+  begin
+    if defined?(Rake::DeprecatedObjectDSL)
+      Rake::DeprecatedObjectDSL.class_eval do
+        private_instance_methods(false).each do |meth|
+          remove_method meth
+        end
+      end
+    end
+  rescue Exception
+  end
 end
 
+require 'rake'
 require 'rake/clean'
 require 'rake/testtask'
 require 'tempfile'
