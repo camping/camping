@@ -11,6 +11,8 @@ $MAB_CODE = %{
     include ::Mab::Mixin::HTML5
     include Views
 
+    alias << text!
+
     def tag!(*g,&b)
       h=g.last
       [:href,:action,:src].map{|a|h[a]&&=self/h[a]} if h.is_a?(Hash)

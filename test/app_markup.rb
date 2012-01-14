@@ -31,6 +31,7 @@ module Markup::Views
   end
   
   def layout
+    self << '<!DOCTYPE html>'
     html do
       head do
         title "Web Page"
@@ -44,6 +45,7 @@ end
 class Markup::Test < TestCase
   def test_render
     get '/'
+    assert_body %r{\A<!DOCTYPE html>}
     assert_body %r{<h1>Welcome!</h1>}
     assert_body %r{<title>Web Page</title>}
   end
