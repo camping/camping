@@ -24,6 +24,7 @@ def camping_spec
     s.executables = ['camping']
 
     s.add_dependency('rack', '>=1.0')
+    s.add_dependency('mab')
     s.add_development_dependency('rake', '=0.8.7')
     s.add_development_dependency('rack-test')
     s.required_ruby_version = '>= 1.8.2'
@@ -50,7 +51,6 @@ def camping_omni
     s.add_dependency('camping', ">=#{BRANCH}")
     s.add_dependency('activerecord')
     s.add_dependency('sqlite3', '>=1.1.0.1')
-    s.add_dependency('markaby')
   end
 end
 
