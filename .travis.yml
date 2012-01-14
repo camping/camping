@@ -6,7 +6,7 @@ rvm:
 env:
   - "RACK='~>1.3.0'"
   - "RACK='~>1.2.0'"
-script: rake test
+script: bundle exec rake test
 notifications:
   email: false
   irc:
