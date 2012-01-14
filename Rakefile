@@ -1,5 +1,11 @@
 $:.unshift 'extras'
 require 'rake'
+
+begin
+  require 'rake/dsl_definition'
+rescue LoadError
+end
+
 require 'rake/clean'
 require 'rake/testtask'
 require 'tempfile'
