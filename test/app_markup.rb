@@ -15,6 +15,14 @@ module Markup::Controllers
       render :index, :layout => false
     end
   end
+
+  class AutoPrepend
+    def get
+      mab do
+        img :src => '/hello.png'
+      end
+    end
+  end
 end
 
 module Markup::Views
@@ -47,5 +55,10 @@ class Markup::Test < TestCase
     assert_reverse do
       assert_body %r{<title>Web Page</title>}
     end
+  end
+
+  def test_auto_prepend
+    get '/auto/prepend', {}, 'SCRIPT_NAME' => '/mount'
+    assert_body '<img src="/mount/hello.png">'
   end
 end

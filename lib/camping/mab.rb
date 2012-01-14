@@ -1,22 +1,19 @@
 class MissingLibrary < Exception #:nodoc: all
 end
 begin
-    require 'markaby'
+  require 'mab'
 rescue LoadError => e
-    raise MissingLibrary, "Markaby could not be loaded (is it installed?): #{e.message}"
+  raise MissingLibrary, "Mab could not be loaded (is it installed?): #{e.message}"
 end
 
 $MAB_CODE = %{
-  # The Mab class wraps Markaby, allowing it to run methods from Camping::Views
-  # and also to replace :href, :action and :src attributes in tags by prefixing the root
-  # path.
-  class Mab < Markaby::Builder
-    attr_reader :builder
-    
+  module Mab
+    include ::Mab::Mixin::HTML5
     include Views
+
     def tag!(*g,&b)
-      h=g[-1]
-      [:href,:action,:src].map{|a|(h[a]&&=self/h[a])rescue 0}
+      h=g.last
+      [:href,:action,:src].map{|a|h[a]&&=self/h[a]} if h.is_a?(Hash)
       super
     end
   end
