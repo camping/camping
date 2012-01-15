@@ -13,10 +13,9 @@ $MAB_CODE = %{
 
     alias << text!
 
-    def mab_attributes(tag, a)
-      h=a.dup
+    def mab_done(tag)
+      h=tag.attributes
       [:href,:action,:src].map{|a|h[a]&&=self/h[a]}
-      h
     end
   end
 }
