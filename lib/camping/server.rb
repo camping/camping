@@ -62,7 +62,7 @@ module Camping
           opts.on("-C", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
           
-          server_list = ["mongrel", "webrick", "console"]
+          server_list = ["thin", "webrick", "console"]
           opts.on("-s", "--server NAME",
           "Server to force (#{server_list.join(', ')})") { |v| options[:server] = v }
 
