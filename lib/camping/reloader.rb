@@ -45,7 +45,7 @@ module Camping
     def name
       @name ||= begin
         base = @file.dup
-        base = File.dirname(base) if base =~ /\bconfig\.ru/
+        base = File.dirname(base) if base =~ /\bconfig\.ru$/
         base.sub!(/\.[^.]+/, '')
         File.basename(base).to_sym
       end
@@ -65,8 +65,9 @@ module Camping
       
       @apps = new_apps.inject({}) do |hash, app|
         if file = app.options[:__FILE__]
-          @requires << file
-          dirs << file.sub(/\.[^.]+$/, '')
+          full = File.expand_path(file)
+          @requires << [file, full]
+          dirs << full.sub(/\.[^.]+$/, '')
         end
 
         key = app.name.to_sym
@@ -82,7 +83,7 @@ module Camping
 
       ($LOADED_FEATURES - all_requires).each do |req|
         full = full_path(req)
-        @requires << req if dirs.any? { |x| full.index(x) == 0 }
+        @requires << [req, full] if dirs.any? { |x| full.index(x) == 0 }
       end
 
       @mtime = mtime
@@ -100,7 +101,7 @@ module Camping
     
     # Removes all the apps defined in this script.
     def remove_apps
-      @requires.each do |path|
+      @requires.each do |(path, full)|
         $LOADED_FEATURES.delete(path)
       end
 
@@ -139,13 +140,14 @@ module Camping
     private
     
     def mtime
-      @requires.map do |fname|
-        File.mtime(fname)
+      @requires.map do |(path, full)|
+        File.mtime(full)
       end.reject {|t| t > Time.now }.max || Time.now
     end
     
     # Figures out the full path of a required file. 
     def full_path(req)
+      return req if File.exists?(req)
       dir = $LOAD_PATH.detect { |l| File.exists?(File.join(l, req)) }
       if dir 
         File.expand_path(req, File.expand_path(dir))
