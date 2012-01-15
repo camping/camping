@@ -143,9 +143,13 @@ module Camping
         super
       end
     end
+
+    def public_dir
+      File.expand_path('../public', @reloader.file)
+    end
     
     def app
-      self
+      Rack::Cascade.new([Rack::File.new(public_dir), self])
     end
     
     def current_app
