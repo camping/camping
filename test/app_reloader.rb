@@ -4,7 +4,7 @@ require 'camping/reloader'
 
 $counter = 0
 
-class TestCaseReloader < TestCase
+module TestCaseReloader
   def reloader
     @reloader ||= Camping::Reloader.new(file)
   end
@@ -23,7 +23,8 @@ class TestCaseReloader < TestCase
   end
 end
 
-class TestReloader < TestCaseReloader
+class TestReloader < TestCase
+  include TestCaseReloader
   BASE = File.expand_path('../apps/reloader', __FILE__)
 
   def file; BASE + '.rb' end
@@ -58,7 +59,7 @@ class TestReloader < TestCaseReloader
   end
 end
 
-class TestConfigRu < TestCaseReloader
+class TestConfigRu < TestReloader
   BASE = File.expand_path('../apps/reloader', __FILE__)
   def file; BASE + '/config.ru' end
 
