@@ -568,7 +568,7 @@ module Camping
         @r.map { |k|
           k.urls.map { |x|
             return (k.method_defined?(m)) ?
-              [k, m, *$~[1..-1]] : [I, 'r501', m] if p =~ /^#{x}\/?$/
+              [k, m, *$~[1..-1].map{|x|U.unescape(x)}] : [I, 'r501', m] if p =~ /^#{x}\/?$/
           }
         }
         [I, 'r404', p]
@@ -634,7 +634,7 @@ module Camping
     def call(e)
       X.M
       k,m,*a=X.D e['PATH_INFO'],e['REQUEST_METHOD'].downcase,e
-      k.new(e,m).service(*a.map{|x|U.unescape(x)}).to_a
+      k.new(e,m).service(*a).to_a
     rescue
       r500(:I, k, m, $!, :env => e).to_a
     end
