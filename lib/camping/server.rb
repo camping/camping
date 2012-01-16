@@ -149,7 +149,7 @@ module Camping
     end
     
     def app
-      Rack::Cascade.new([Rack::File.new(public_dir), self])
+      Rack::Cascade.new([Rack::File.new(public_dir), self], [404, 403])
     end
     
     def current_app
