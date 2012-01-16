@@ -131,9 +131,9 @@ module Camping
     def start
       if options[:server] == "console"
         puts "** Starting console"
-        reload!
-        this = self
-        eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { this.reload!; nil }
+        @reloader.reload!
+        r = @reloader
+        eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
         ARGV.clear
         IRB.start
         exit
