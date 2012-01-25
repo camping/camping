@@ -79,7 +79,8 @@ task :diff do
   m = Tempfile.new('mural')
   
   u << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping.rb")))
-  m << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping-unabridged.rb")))
+  mtext = Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping-unabridged.rb")))
+  m << mtext.gsub(/^\s*#.*\n/, '')
   
   u.flush
   m.flush
