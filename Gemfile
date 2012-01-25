@@ -10,7 +10,10 @@ if rack = ENV['RACK']
 end
 
 group :extras do
-  gem 'mab'
   gem 'tilt'
+end
+
+group :test do
+  gem 'minitest'
 end
 
