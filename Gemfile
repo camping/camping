@@ -10,7 +10,7 @@ if rack = ENV['RACK']
 end
 
 group :extras do
-  gem 'mab', :git => 'http://github.com/camping/mab.git'
+  gem 'mab'
   gem 'tilt'
 end
 
