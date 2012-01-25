@@ -6,12 +6,28 @@ rescue LoadError => e
   raise MissingLibrary, "Mab could not be loaded (is it installed?): #{e.message}"
 end
 
-$MAB_CODE = %{
+$MAB_CODE = %q{
   module Mab
     include ::Mab::Mixin::HTML5
     include Views
 
     alias << text!
+
+    def xhtml(*a, &b)
+      warn "xhtml_strict is no longer supported (or an active standard); using HTML5 instead"
+      html(*a, &b)
+    end
+
+    def xhtml_strict(*a, &b) xhtml(*a, &b) end
+    def xhtml_transitional(*a, &b) xhtml(*a, &b) end
+    def xhtml_frameset(*a, &b) xhtml(*a, &b) end
+
+    def html(*)
+      doctype!
+      super
+    end
+
+    def helpers() self end
 
     def mab_done(tag)
       h=tag.attributes

@@ -23,6 +23,24 @@ module Markup::Controllers
       end
     end
   end
+
+  class Compat < R '/compat/(.*?)'
+    def get(type)
+      mab do
+        send(type) do
+          body { h1 'Nice' }
+        end
+      end
+    end
+  end
+
+  class CompatHelpers
+    def get
+      mab do
+        helpers.R CompatHelpers
+      end
+    end
+  end
 end
 
 module Markup::Views
@@ -63,4 +81,25 @@ class Markup::Test < TestCase
     get '/auto/prepend', {}, 'SCRIPT_NAME' => '/mount'
     assert_body '<img src="/mount/hello.png">'
   end
+
+  def test_compat
+    warning = "xhtml_strict is no longer supported (or an active standard); using HTML5 instead\n"
+
+    assert_output '', warning * 3 do
+      get '/compat/xhtml_strict'
+      assert_body '<!DOCTYPE html><html><body><h1>Nice</h1></body></html>'
+
+      get '/compat/xhtml_transitional'
+      assert_body '<!DOCTYPE html><html><body><h1>Nice</h1></body></html>'
+
+      get '/compat/xhtml_frameset'
+      assert_body '<!DOCTYPE html><html><body><h1>Nice</h1></body></html>'
+    end
+  end
+
+  def test_compat_helpers
+    get '/compat/helpers'
+    assert_body '/compat/helpers'
+  end
 end
+
