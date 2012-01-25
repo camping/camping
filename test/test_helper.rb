@@ -11,10 +11,10 @@ else
   require 'camping-unabridged'
 end
 
-require 'test/unit'
+require 'minitest/autorun'
 require 'rack/test'
 
-class TestCase < Test::Unit::TestCase
+class TestCase < MiniTest::Unit::TestCase
   include Rack::Test::Methods
     
   def self.inherited(mod)
