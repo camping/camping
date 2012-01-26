@@ -22,11 +22,6 @@ $MAB_CODE = %q{
     def xhtml_transitional(*a, &b) xhtml(*a, &b) end
     def xhtml_frameset(*a, &b) xhtml(*a, &b) end
 
-    def html(*)
-      doctype!
-      super
-    end
-
     def helpers() self end
 
     def mab_done(tag)
