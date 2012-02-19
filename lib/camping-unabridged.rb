@@ -201,7 +201,7 @@ module Camping
     def R(c,*g)
       p,h=/\(.+?\)/,g.grep(Hash)
       g-=h
-      raise "bad route" unless u = c.urls.find{|x|
+      raise "bad route" if !u = c.urls.find{|x|
         break x if x.scan(p).size == g.size && 
           /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
             x.sub p,U.escape((a.to_param rescue a))}.gsub(/\\(.)/){$1})
