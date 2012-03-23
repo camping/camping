@@ -406,22 +406,22 @@ forms and those in the URL (<tt>/posts?page=50</tt>).
 Here's an <tt>edit</tt>-view, but you can probably do better. See if you can
 integrate all of this with what you already have.
   
-  module Nuts::Views
-    def edit
-      h1 @page.title
-      form :action => R(PageX, @page.title), :method => :post do
-        textarea @page.content, :name => :content,
-          :rows => 10, :cols => 50
+    module Nuts::Views
+      def edit
+        h1 @page.title
+        form :action => R(PageX, @page.title), :method => :post do
+          textarea @page.content, :name => :content,
+            :rows => 10, :cols => 50
 
-        br
-        
-        input :type => :submit, :value => "Submit!"
+          br
+          
+          input :type => :submit, :value => "Submit!"
+        end
       end
     end
-  end
   
 
-== Phew.
+##Phew.
 
 You've taken quite a few steps in the last minutes. You deserve a break. But
 let's recap for a moment:
