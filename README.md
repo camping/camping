@@ -74,7 +74,7 @@ need to install +markaby+, and if you're going to use the database you need
  
 ##Learning
 
-First of all, you should read [the first chapters](book/01_introduction.md)
+First of all, you should read [the first chapters](camping/blob/master/book/01_introduction.md)
 of The Camping Book. It should hopefully get you started pretty quick. While
 you're doing that, you should be aware of the _reference_ which contains
 documentation for all the different parts of Camping.
