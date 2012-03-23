@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/camping/camping.png)](http://travis-ci.org/camping/camping)
+
 #Camping, a Microframework
 
 Camping is a web framework which consistently stays at less than 4kB of code.
