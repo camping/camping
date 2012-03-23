@@ -66,8 +66,8 @@ Even better, install the Camping Omnibus, a full package of recommended libs:
 
 If not, you should be aware of that Camping itself only depends on
 [Rack](http://rack.rubyforge.org), and if you're going to use the views you also
-need to install +markaby+, and if you're going to use the database you need
-+activerecord+ as well.
+need to install **[markaby](http://markaby.github.com/)**, and if you're going to use the database you need
+**activerecord** as well.
 
     gem install markaby
     gem install activerecord
