@@ -1,4 +1,4 @@
-= Introduction
+#Introduction
 
 Camping is a small web framework, less than 4k, a little white blood cell in
 the vein of Rails. This little book will start with a tutorial which takes
@@ -11,9 +11,9 @@ currently a very much work in progress, and we'll be very grateful if you want
 to help out.)
 
 If you at any moment need some help or have any questions or comments, we
-highly recommend {the mailing list}[http://rubyforge.org/mailman/listinfo/camping-list]
+highly recommend [the mailing list](http://rubyforge.org/mailman/listinfo/camping-list)
 which got plenty of nice people willing to help. We also have an IRC-channel
-at {#camping @ irc.freenode.net}[http://java.freenode.net/?channel=camping]
+at [#camping @ irc.freenode.net](http://java.freenode.net/?channel=camping)
 if you're into that sort of things.
 
-Enough talk. Ready? Let's {"get started"}[link:book/02_getting_started.html].
+Enough talk. Ready? Let's ["get started"](02_getting_started.md).
