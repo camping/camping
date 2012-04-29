@@ -44,7 +44,7 @@ module Camping
         options = {}
         
         opt_parser = OptionParser.new("", 24, '  ') do |opts|
-          opts.banner = "Usage: camping app1.rb app2.rb..."
+          opts.banner = "Usage: camping my-camping-app.rb"
           opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
           opts.separator ""
           opts.separator "Specific options:"
