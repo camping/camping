@@ -14,7 +14,7 @@ def camping_spec
     s.version = VERS
     s.platform = Gem::Platform::RUBY
     s.has_rdoc = true
-    s.extra_rdoc_files = FileList["README", "CHANGELOG", "COPYING", "book/*"].to_a
+    s.extra_rdoc_files = FileList["README.md", "CHANGELOG", "COPYING", "book/*"].to_a
     s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping.rb']
     s.summary = "minature rails for stay-at-home moms"
     s.author = "why the lucky stiff"
@@ -29,7 +29,7 @@ def camping_spec
     s.add_development_dependency('rack-test')
     s.required_ruby_version = '>= 1.8.2'
 
-    s.files = %w(COPYING README Rakefile) +
+    s.files = %w(COPYING README.md Rakefile) +
       Dir.glob("{bin,doc,test,lib,extras,book}/**/*") +
       Dir.glob("ext/**/*.{h,c,rb}") +
       Dir.glob("examples/**/*.rb") +
