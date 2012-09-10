@@ -24,6 +24,8 @@ $MAB_CODE = %q{
 
     def helpers() self end
 
+    def html(*) doctype!; super end
+
     def mab_done(tag)
       h=tag.attributes
       [:href,:action,:src].map{|a|h[a]&&=self/h[a]}
