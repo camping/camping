@@ -41,7 +41,7 @@ map{|c|k=const_get(c);k.send:include,C,X,Base,Helpers,Models
 @r=[k]+@r if @r-[k]==@r;k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&
 N.method(:[]))*'/'}"]}if !k.respond_to?:urls}end end;I=R()end;X=
 Controllers;class<<self;def
-goes m;Apps<<a=eval(S.gsub(/Camping/,m.to_s),TOPLEVEL_BINDING);caller[0]=~/:/
+goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split /^@@\s*(.+?)\s*\r?\n/m).shift rescue nil
 a.set :_t,H[*b||[]];end;def call e;X.M
 k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
