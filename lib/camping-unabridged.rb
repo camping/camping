@@ -615,11 +615,26 @@ module Camping
     #
     #   module Nuts::Controllers; ... end
     #   module Nuts::Models;      ... end
-    #   module Nuts::Views;       ... end 
+    #   module Nuts::Views;       ... end
+    #
+    # Additionally, you can pass a Binding as the second parameter,
+    # which enables you to create a Camping-based application within
+    # another module, for example to namespace your web interface and
+    # code for a worker process together:
+    # 
+    #   module YourApplication
+    #     Camping.goes :Web, binding()
+    #     module Web
+    #       ...
+    #     end
+    #     module Worker
+    #       ...
+    #     end
+    #   end
     #
     # All the applications will be available in Camping::Apps.
-    def goes(m)
-      Apps << a = eval(S.gsub(/Camping/,m.to_s), TOPLEVEL_BINDING)
+    def goes(m, g=TOPLEVEL_BINDING)
+      Apps << a = eval(S.gsub(/Camping/,m.to_s), g)
       caller[0]=~/:/
       IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
       (b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
