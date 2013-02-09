@@ -50,6 +50,7 @@ module Camping
   U = Rack::Utils
   O = {}
   Apps = []
+  SESSION_KEY = :camping
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   # 
@@ -390,7 +391,7 @@ module Camping
 
     # Serves the string +c+ with the MIME type of the filename +p+.
     def serve(p, c)
-      t = Rack::Mime.mime_type(p[/\..*$/], nil) and @headers['Content-Type'] = t
+      t = Rack::Mime.mime_type(p[/\..*$/], "text/html") and @headers['Content-Type'] = t
       c
     end
     
@@ -406,7 +407,7 @@ module Camping
     #     end
     #   end
     def to_a
-      @env['rack.session'] = Hash[@state]
+      @env['rack.session'][SESSION_KEY] = Hash[@state]
       r = Rack::Response.new(@body, @status, @headers)
       @cookies._n.each do |k, v|
         r.set_cookie(k, v)
@@ -419,7 +420,7 @@ module Camping
       @root, @input, @cookies, @state,
       @headers, @status, @method =
       r.script_name.sub(/\/$/,''), n(r.params),
-      Cookies[r.cookies], H[r.session.to_hash],
+      Cookies[r.cookies], H[r.session[SESSION_KEY]||{}],
       {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
       @cookies._p = self/"/"
     end
