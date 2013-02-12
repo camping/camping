@@ -422,7 +422,7 @@ module Camping
       @headers, @status, @method =
       r.script_name.sub(/\/$/,''), n(r.params),
       Cookies[r.cookies], H[r.session[SK]||{}],
-      {}, m =~ /r(\d+)/ ? $1.to_i : 200, m
+      {'Content-Type'=>'text/html'}, m =~ /r(\d+)/ ? $1.to_i : 200, m
       @cookies._p = self/"/"
     end
     
