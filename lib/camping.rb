@@ -30,7 +30,8 @@ r=@request=Rack:: Request.new(@env=env);@root,@input,@cookies,@state,@headers,
 @status,@method=r.script_name.sub(/\/$/,''),n(r.params),Cookies[r.cookies],
 H[r.session[SK]||{}],{'Content-Type'=>'text/html'},m=~/r(\d+)/?$1.to_i: 200,m;@cookies._p=self/"/" end
 def n h;Hash===h ?h.inject(H[]){|m,(k,v)|m[k]=
-n(v);m}: h end;def service *a;r=catch(:halt){send(@method,*a)};@body||=r;self
+n(v);m}: h end;def service *a;r=catch(:halt){send(@method,*a)};@body||=r;
+@body=@body.to_s if @body.nil? || !@body.respond_to?(:each); self
 end end;module Controllers;@r=[];class<<self;def R *u;r=@r;Class.
 new{meta_def(:urls){u};meta_def(:inherited){|x|r<<x}}end;def D p,m,e;p='/'if
 !p||!p[0];(a=O[:_t].find{|n,_|n==p}) and return [I,:serve,*a]

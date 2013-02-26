@@ -441,7 +441,8 @@ module Camping
     # Some magic in Camping can be performed by overriding this method.
     def service(*a)
       r = catch(:halt){send(@method, *a)}
-      @body ||= r 
+      @body ||= r
+      @body = @body.to_s if @body.nil? || !@body.respond_to?(:each)  
       self
     end
   end
