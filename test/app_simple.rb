@@ -53,6 +53,24 @@ module Simple::Controllers
       redirect MultipleComplexX, 'hello%#/world'
     end
   end
+
+  class NilResponse < R '/nil' 
+    def get
+      #nil response
+    end
+  end
+
+  class NotStringResponse < R '/notstring' 
+    def get
+      123
+    end
+  end
+
+  class IteratableResponse < R '/iter'
+    def get 
+      [1,2,3]
+    end
+  end
 end
 
 class Simple::Test < TestCase
@@ -106,5 +124,23 @@ class Simple::Test < TestCase
     get '/weird'
     follow_redirect!
     assert_body 'Complex: hello%#/world'
+  end
+
+  def test_nil_response 
+    get '/nil'
+    assert_body ""
+    assert_equal "text/html", last_response.headers['Content-Type']
+  end
+
+  def test_not_string_response
+    get '/notstring'
+    assert_body "123"
+    assert_equal "text/html", last_response.headers['Content-Type']
+  end
+
+  def test_iteratable_response
+    get '/iter'
+    assert_body "123"
+    assert_equal "text/html", last_response.headers['Content-Type']
   end
 end
