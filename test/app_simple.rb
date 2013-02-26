@@ -66,7 +66,7 @@ module Simple::Controllers
     end
   end
 
-  class IteratableResponse < R '/iter'
+  class IterableResponse < R '/iter'
     def get 
       [1,2,3]
     end
@@ -138,7 +138,7 @@ class Simple::Test < TestCase
     assert_equal "text/html", last_response.headers['Content-Type']
   end
 
-  def test_iteratable_response
+  def test_iterable_response
     get '/iter'
     assert_body "123"
     assert_equal "text/html", last_response.headers['Content-Type']
