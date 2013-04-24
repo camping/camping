@@ -189,7 +189,7 @@ Let's start over again.
     end
   
 Obviously, this won't do anything, since we don't have any controllers, but
-let's rather have a look at we _do_ have.
+let's rather have a look at what we _do_ have.
 
 We have a model named Page. This means we now can store wiki pages and
 retrieve them later. In fact, we can have as many models as we want. Need one
