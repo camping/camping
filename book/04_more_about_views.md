@@ -89,5 +89,3 @@ For example: if we want show a table for show users and their real names:
 
 However, the @users var, is a Hash declared in the controller. And that user
 come from the [model](05_more_about_models.md).
-
-# vim:spelllang=en:spell
