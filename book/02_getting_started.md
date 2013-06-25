@@ -76,10 +76,10 @@ application. Replace the <tt>module Nuts::Controllers</tt> with:
       end
     end
   
-Save the file and refresh your browser window and it should show a message
+Save the file, refresh your browser window and it should show a message
 like:
 
-    The current time is: Sun Jul 15 13:05:41 +0200 2007
+    The current time is: Sun Jul 15 13:05:41 +0200 2013
 
 And the window title reads "Nuts And GORP".
 
@@ -233,7 +233,7 @@ Now we have our first version of our model. It says:
   If you want to migrate down from version one,
     remove the skeleton for the Page model.
     
-This is called a _migration_. Whenever you want to change or add new models you simply add a new migration below, where you increase the version number. All of these migrations builds upon each other like LEGO blocks.
+This is called a [migration](http://api.rubyonrails.org/classes/ActiveRecord/Migration.html). Whenever you want to change or add new models you simply add a new migration below, where you increase the version number. All of these migrations builds upon each other like LEGO blocks.
 
 Now we just need to tell Camping to use our migration. Write this at the bottom of nuts.rb
 
@@ -263,7 +263,9 @@ before your migrations.
 
 ## Using our model
 
-Let's explore how our model works by going into the _console_
+Let's explore how our model works by going into the _console_. The console
+is good way to familiarize with your models. Test your models adding some
+data by bare hand before addin it to the application.
 
     $ camping -C nuts.rb
     ** Starting console
@@ -344,17 +346,30 @@ Here we meet our first _helper_:
     R(PageX, page.title)
   
 This is the <em>reversed router</em> and it generates a URL based on a
-controller. Camping ships with a few, but very useful, helpers and you can
-easily add your owns. Have a look at Camping::Helpers for how you use these.
+controller. It take after the `R` the controller name and optionally the router
+parameter. Instead of typing:
+
+    :href=>'/welcome/to/my/site'
+
+You can let it be, and camping will make the dirty routes work for you.
+
+    :href=>R(Words)
+ 
+Camping ships with a few helpers, but very useful, and you can easily add your
+owns. Have a look at Camping::Helpers for how you use these.
   
 There's a lot of improvements you could do here. Let me suggest:
 
 * Show when the page was created and last updated.
 * What happens when the page doesn't exist?
 * What should the front page show?
+* Allow or disallow authenticated users.
 * Add a layout.
 * Jazz it up a bit.
- 
+
+Helpers can work generating Markaby's code. You could write a helper for show
+some kind of data and call it from your views (Add a layout).
+
 ##The last touch
 
 We have one major flaw in our little application. You can't edit or add new
