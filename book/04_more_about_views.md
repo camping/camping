@@ -67,7 +67,7 @@ Therefore, that do not mean: "html knowledge unneeded"
 way for write Hyper Text Markup Language (HTML) using Ruby. Instead of write
 that lot of tags, we will write a lot of methods.
 
-If we want to show a <h1> tag, we do not need to write so much exuberant tags
+If we want to show a Header-1 tag, we do not need to write so much exuberant tags
 of code.
 
       h1 'This is a header one'
