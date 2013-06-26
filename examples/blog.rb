@@ -159,7 +159,7 @@ module Blog
           h1 { a 'My Blog', :href => R(Index) }
           
           div.wrapper! do
-            text yield
+            self << yield
           end
           
           hr
