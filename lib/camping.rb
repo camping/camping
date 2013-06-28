@@ -15,7 +15,7 @@ module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,
 :headers,:body;T={};L=:layout;def lookup n;T.fetch(n.to_sym){|k|t=Views.
 method_defined?(k)||(t=O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{
 O[:_t][t]})||(f=Dir[[O[:views]||"views","#{n}.*"]*'/'][0])&&Template.
-new(f,O[f[/\.(\w+)$/,1].to_sym]||{});O[:dynamic_templates]?t:T[k]=t} end
+new(f,O[f[/\.(\w+)$/,1].to_sym]||{});O[:dynamic_templates]?t: T[k]=t} end
 def render v,*a,&b;if t=lookup(v);r,@_r=@_r,o=Hash===a[-1]?a.pop: {};s=(t==true)?mab{
 send v,*a,&b}: t.render(self,o[:locals]||{},&b);s=render(L,o.merge(L=>false)){s
 }if o[L]or o[L].nil?&&lookup(L)&&!r&&v.to_s[0]!=?_;s;else;raise"no template: #{v}"

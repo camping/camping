@@ -73,14 +73,17 @@ end
 ## Diff
 desc "Compare camping and camping-unabridged"
 task :diff do
-  require 'ruby2ruby'
-  require 'ruby_parser'
+  require 'parser/current'
+  require 'unparser'
+  require 'pp'
   u = Tempfile.new('unabridged')
   m = Tempfile.new('mural')
   
-  u << Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping.rb")))
-  mtext = Ruby2Ruby.new.process(RubyParser.new.parse(File.read("lib/camping-unabridged.rb")))
-  m << mtext.gsub(/^\s*#.*\n/, '')
+  usexp = Parser::CurrentRuby.parse(File.read("lib/camping-unabridged.rb"))
+  msexp = Parser::CurrentRuby.parse(File.read("lib/camping.rb"))
+
+  u << Unparser.unparse(usexp)
+  m << Unparser.unparse(msexp)
   
   u.flush
   m.flush

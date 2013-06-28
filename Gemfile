@@ -13,6 +13,11 @@ group :extras do
   gem 'tilt'
 end
 
+group :development do
+  gem 'parser'
+  gem 'unparser', :git => 'https://github.com/mbj/unparser'
+end
+
 group :test do
   gem 'minitest'
 end
