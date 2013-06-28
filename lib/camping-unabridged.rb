@@ -291,7 +291,10 @@ module Camping
     #
     def render(v, *a, &b)
       if t = lookup(v)
-        r, @_r = @_r, o = Hash === a[-1] ? a.pop : {}
+        # Has this controller rendered before?
+        r = @_r
+        # Set @_r to truthy value
+        @_r = (o = Hash === a[-1] ? a.pop : {})
         s = (t == true) ? mab { send(v, *a, &b) } : t.render(self, o[:locals] || {}, &b)
         s = render(L, o.merge(L => false)) { s } if o[L] or o[L].nil? && lookup(L) && !r && v.to_s[0] != ?_
         s
