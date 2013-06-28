@@ -14,7 +14,7 @@ end
 require 'minitest/autorun'
 require 'rack/test'
 
-class TestCase < MiniTest::Unit::TestCase
+class TestCase < MiniTest::Test
   include Rack::Test::Methods
     
   def self.inherited(mod)
