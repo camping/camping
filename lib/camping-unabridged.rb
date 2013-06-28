@@ -293,7 +293,7 @@ module Camping
       if t = lookup(v)
         r, @_r = @_r, o = Hash === a[-1] ? a.pop : {}
         s = (t == true) ? mab { send(v, *a, &b) } : t.render(self, o[:locals] || {}, &b)
-        s = render(L, o.merge(L => false)) { s } if o[L] or o[L].nil? && lookup(L) && (!r && v.to_s[0] != ?_)
+        s = render(L, o.merge(L => false)) { s } if o[L] or o[L].nil? && lookup(L) && !r && v.to_s[0] != ?_
         s
       else
         raise "no template: #{v}"
@@ -392,7 +392,7 @@ module Camping
     # Serves the string +c+ with the MIME type of the filename +p+.
     # Default text/html
     def serve(p, c)
-      t = Rack::Mime.mime_type(p[/\..*$/], "text/html") and @headers['Content-Type'] = t
+      t = Rack::Mime.mime_type(p[/\..*$/], "text/html") and @headers["Content-Type"] = t
       c
     end
     
@@ -650,7 +650,7 @@ module Camping
     # See: http://rack.rubyforge.org/doc/SPEC.html
     def call(e)
       X.M
-      k,m,*a=X.D e['PATH_INFO'],e['REQUEST_METHOD'].downcase,e
+      k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
       k.new(e,m).service(*a).to_a
     rescue
       r500(:I, k, m, $!, :env => e).to_a
