@@ -346,16 +346,20 @@ Here we meet our first _helper_:
     R(PageX, page.title)
   
 This is the <em>reversed router</em> and it generates a URL based on a
-controller. It take after the `R` the controller name and optionally the router
-parameter. Instead of typing:
+controller. R takes the controller you want to link to, followed by the router
+parameters.  . Instead of typing:
 
     :href=>'/welcome/to/my/site'
 
-You can let it be, and camping will make the dirty routes work for you.
+You can let Camping do the hard work for you.
 
     :href=>R(Words)
- 
-Camping ships with a few helpers, but very useful, and you can easily add your
+
+If the route would have some parameter, you shall write like this:
+
+   :href=>R(WordsX,'someword')
+
+Camping ships with a few, but very useful, helpers, and you can easily add your
 owns. Have a look at Camping::Helpers for how you use these.
   
 There's a lot of improvements you could do here. Let me suggest:
