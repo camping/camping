@@ -9,6 +9,20 @@ end
 $AR_EXTRAS = %{
   Base = ActiveRecord::Base unless const_defined? :Base
 
+  class ActiveRecordCloser
+    def initialize(app)
+      @app = app
+    end
+
+    def call(env)
+      @app.call(env)
+    ensure
+      ActiveRecord::Base.connection.close
+    end
+  end
+
+  Camping.use ActiveRecordCloser
+
   class SchemaInfo < Base
   end
 
@@ -71,5 +85,5 @@ module Camping
 end
 Camping::S.sub! /autoload\s*:Base\s*,\s*['"]camping\/ar['"]/, $AR_EXTRAS
 Camping::Apps.each do |c|
-  c::Models.module_eval $AR_EXTRAS
+  c::Models.module_eval $AR_EXTRAS.gsub('Camping', c)
 end
