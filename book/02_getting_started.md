@@ -241,13 +241,9 @@ upon each other like LEGO blocks. Each new Migrations must have different
 class's names, is a good idea name migration's explicit. For exmaple: 
 
       class AddTagColumn < V 1.1
-        def self.up
+        def self.change
          add_column Page.table_name, :tag, :string
          Page.reset_column_information
-        end
-  
-        def self.down
-          drop_table Page.table_name
         end
       end
 
