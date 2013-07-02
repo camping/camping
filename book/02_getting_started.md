@@ -233,7 +233,23 @@ Now we have our first version of our model. It says:
   If you want to migrate down from version one,
     remove the skeleton for the Page model.
     
-This is called a [migration](http://api.rubyonrails.org/classes/ActiveRecord/Migration.html). Whenever you want to change or add new models you simply add a new migration below, where you increase the version number. All of these migrations builds upon each other like LEGO blocks.
+This is called a
+[migration](http://api.rubyonrails.org/classes/ActiveRecord/Migration.html).
+Whenever you want to change or add new models you simply add a new migration
+below, where you increase the version number. All of these migrations builds
+upon each other like LEGO blocks. Each new Migrations must have different
+class's names, is a good idea name migration's explicit. For exmaple: 
+
+      class AddTagColumn < V 1.1
+        def self.up
+         add_column Page.table_name, :tag, :string
+         Page.reset_column_information
+        end
+  
+        def self.down
+          drop_table Page.table_name
+        end
+      end
 
 Now we just need to tell Camping to use our migration. Write this at the bottom of nuts.rb
 
