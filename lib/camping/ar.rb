@@ -85,5 +85,5 @@ module Camping
 end
 Camping::S.sub! /autoload\s*:Base\s*,\s*['"]camping\/ar['"]/, $AR_EXTRAS
 Camping::Apps.each do |c|
-  c::Models.module_eval $AR_EXTRAS.gsub('Camping', c)
+  c::Models.module_eval $AR_EXTRAS.gsub('Camping', c.to_s)
 end
