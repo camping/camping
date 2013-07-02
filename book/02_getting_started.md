@@ -468,7 +468,6 @@ let's recap for a moment:
 * Place your models before your migrations.
 * Helpers are helpful.
 
-Unfortunately, the book stops here for now. Come back in a few months, or join
-the mailing list to stay updated, and hopefully there's another chapter
-waiting for you.
+If you wanna dive deep, stay reading for a [more extended tutorial](03_more_about_controllers.md) step by step...
 
+Enjoy the code
