@@ -14,14 +14,15 @@ idea is: "let me rails write html code for you" Many framework have in the
 README a line that say: "support more populars template engines" but normally
 peoples uses the default in the framework.
 
-Markaby is the template engine used by default in camping.
+"Mab" is the template engine used by default in camping. _why Wrote the first
+implementation named Markaby and then, judofyr and Jenna, power-up markaby
+writing a more compact version of it.
 
-When your learn how to use it, you will feel between the _why's dimension and
-the HTML universe. You will ruby code front you are eyes, but your mind, will
-be seen pure HTML without tags. We will be "metaprograming HTML code". Writing
-ruby, we will be writing HTML. In order to show a Header-1 tag, we just call a
-method named h1 and send the content as parameter. It will make the dirty work
-writing all the tags just like this:
+While you are writing with mab, will see ruby code front you are eyes, but your
+mind, will be seen pure HTML without tags. We will be "metaprograming HTML
+code". In order to show a Header-1 tag, we just call a method named h1 and send
+the content as parameter. It will make the dirty work writing all the tags just
+like this:
 
       h1 'This is a header one'
 
@@ -50,7 +51,9 @@ names:
                end # each
             end # table
          end # def
-      
+
+Take a look better [here](https://github.com/camping/mab/blob/master/README.md)
+
 ##Markaby and the layout
 
 There is a special view named "layout". The layout, is view that will be
@@ -62,9 +65,9 @@ layout and the desired view. Because that, wee need some "special"
 tweaks in the layout. It must have a door with a poster that say:
 "other view will enter using this door"
 
-The layout will be rendered, and in some place you will put the other
-view. This will be do with the "yield" sentence. Put the yield sentence
-whenever you want rendering all the other views.
+The layout will be rendered, and in some place you will put the other view.
+This will be done with the "yield" sentence. Put the yield sentence whenever
+you want rendering all the other views.
 
 This is very useful, for example: We wan to write a footer in ALL the
 pages that we are rendering. You can write the footer in every views
@@ -127,7 +130,6 @@ When you call:
 Camping will rendering before, the layout view, and put all the content
 of "someview" inside div.wrapper! You shall not write a lot of tag like
 head or title.
-
 
 Finally, it will be rendering a "p" named footer. That will be the footer in
 all our pages.
