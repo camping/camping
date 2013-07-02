@@ -171,7 +171,7 @@ module Blog
               a 'Login', :href => R(Login)
               text ' to the adminpanel'
             end
-            text ' &ndash; Powered by '
+            text! ' &ndash; Powered by '
             a 'Camping', :href => 'http://camping.rubyforge.org/'
           end
         end
@@ -224,19 +224,19 @@ module Blog
 
     # partials
     def _admin_menu
-      text [['Log out', R(Logout)], ['New', R(PostNew)]].map { |name, to|
-        capture { a name, :href => to}
+      text! [['Log out', R(Logout)], ['New', R(PostNew)]].map { |name, to|
+        mab { a name, :href => to}
       }.join(' &ndash; ')
     end
 
     def _post(post)
       h2 { a post.title, :href => R(PostN, post) }
       p.info do
-        text "Written by <strong>#{post.user.username}</strong> "
+        text! "Written by <strong>#{post.user.username}</strong> "
         text post.updated_at.strftime('%B %M, %Y @ %H:%M ')
         _post_menu(post)
       end
-      text post.html_body
+      text! post.html_body
     end
     
     def _post_menu(post)
