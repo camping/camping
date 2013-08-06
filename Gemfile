@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 gemspec :name => :camping
 
 if rack = ENV['RACK']
