@@ -16,7 +16,7 @@ def camping_spec
     s.has_rdoc = true
     s.extra_rdoc_files = FileList["README.md", "CHANGELOG", "COPYING", "book/*"].to_a
     s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping.rb']
-    s.summary = "minature rails for everyone"
+    s.summary = "miniature rails for everyone"
     s.author = "why the lucky stiff"
     s.email = 'why@ruby-lang.org'
     s.homepage = 'http://camping.rubyforge.org/'
