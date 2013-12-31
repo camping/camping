@@ -115,7 +115,7 @@ module Camping
   # class, you'll find that it's loaded from the <tt>action_view/helpers/form_tag_helper.rb</tt>
   # file. You'll need to have the ActionPack gem installed for this to work.
   #
-  # Often the helpers depends on other helpers, so you would have to look up
+  # A helper often depends on other helpers, so you would have to look up
   # the dependencies too. <tt>FormTagHelper</tt> for instance required the
   # <tt>content_tag</tt> provided by <tt>TagHelper</tt>. 
   #
@@ -277,7 +277,7 @@ module Camping
       end
     end
     
-    # Display a view, calling it by its method name +v+.  If a <tt>layout</tt>
+    # Display a view, calling it by its method name +v+. If a <tt>layout</tt>
     # method is found in Camping::Views, it will be used to wrap the HTML.
     #
     #   module Nuts::Controllers
@@ -367,13 +367,13 @@ module Camping
       P % "#{p} not found"
     end
 
-    # Called when an exception is raised. However,  if there is a parse error
+    # Called when an exception is raised. However, if there is a parse error
     # in Camping or in your application's source code, it will not be caught.
     #
     # +k+ is the controller class, +m+ is the request method (GET, POST, etc.)
     # and +e+ is the Exception which can be mined for useful info.
     #
-    # Be default this simply re-raises the error so a Rack middleware can
+    # By default this simply re-raises the error so a Rack middleware can
     # handle it, but you are free to override it here:
     #
     #   module Nuts
@@ -393,7 +393,7 @@ module Camping
     end
 
     # Serves the string +c+ with the MIME type of the filename +p+.
-    # Default text/html
+    # Defaults to text/html.
     def serve(p, c)
       t = Rack::Mime.mime_type(p[/\..*$/], "text/html") and @headers["Content-Type"] = t
       c
@@ -450,7 +450,7 @@ module Camping
   end
   
   
-  # Controllers receive the requests and sends a response back to the client.
+  # Controllers receive the requests and send a response back to the client.
   # A controller is simply a class which must implement the HTTP methods it
   # wants to accept:
   #
@@ -471,16 +471,20 @@ module Camping
   # 
   # == Defining a controller
   # 
-  # There are two ways to define controllers: Just defining a class and let
-  # Camping figure out the route, or add the route explicitly using R.
+  # There are two ways to define controllers: 
+  #
+  # 1. Define a class and let Camping figure out the route.
+  # 2. Add the route explicitly using R.
   # 
   # If you don't use R, Camping will first split the controller name up by
-  # words (HelloWorld => Hello and World). Then it would do the following:
+  # words (HelloWorld => Hello and World). 
+  #
+  # After that, it will do the following:
   # 
   # * Replace Index with /
   # * Replace X with ([^/]+)
   # * Replace N with (\\\d+)
-  # * Everything else turns into lowercase
+  # * Turn everything else into lowercase
   # * Join the words with slashes
   #
   #--
@@ -488,7 +492,7 @@ module Camping
   # here in order to work correctly with RDoc.
   #++
   #
-  # Here's a few examples:
+  # Here are a few examples:
   # 
   #   Index   # => /
   #   PostN   # => /post/(\d+)
@@ -497,7 +501,7 @@ module Camping
   # 
   # == The request
   # 
-  # You have these variables which describes the request:
+  # The following variables aid in describing request:
   # 
   # * @env contains the environment as defined in http://rack.rubyforge.org/doc/SPEC.html
   # * @request is Rack::Request.new(@env)
@@ -558,8 +562,8 @@ module Camping
 
       # Dispatch routes to controller classes.
       # For each class, routes are checked for a match based on their order in the routing list
-      # given to Controllers::R.  If no routes were given, the dispatcher uses a slash followed
-      # by the name of the controller lowercased.
+      # given to Controllers::R. If no routes were given, the dispatcher uses a slash followed
+      # by the lowercased name of the controller.
       #
       # Controllers are searched in this order:
       #
@@ -580,8 +584,7 @@ module Camping
       end
 
       N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '([^/]+)', "Index" => ''
-      # The route maker, this is called by Camping internally, you shouldn't
-      # need to call it. 
+      # The route maker, called by Camping internally.
       #
       # Still, it's worth know what this method does. Since Ruby doesn't keep
       # track of class creation order, we're keeping an internal list of the
@@ -591,8 +594,8 @@ module Camping
       #
       # Anyway, if you are calling the URI dispatcher from outside of a
       # Camping server, you'll definitely need to call this to set things up.
-      # Don't call it too early though. Any controllers added after this
-      # method is called won't work properly
+      # Don't call it too early though - any controllers added after this
+      # method was called won't work properly.
       def M
         def M #:nodoc:
         end
@@ -611,7 +614,7 @@ module Camping
   X = Controllers
 
   class << self
-    # When you are running many applications, you may want to create
+    # When you are running multiple applications, you may want to create
     # independent modules for each Camping application. Camping::goes
     # defines a toplevel constant with the whole MVC rack inside:
     #
@@ -624,7 +627,9 @@ module Camping
     #
     # Additionally, you can pass a Binding as the second parameter,
     # which enables you to create a Camping-based application within
-    # another module, for example to namespace your web interface and
+    # another module.
+    #
+    # Here's an example of namespacing your web interface and
     # code for a worker process together:
     # 
     #   module YourApplication
@@ -648,7 +653,7 @@ module Camping
     
     # Ruby web servers use this method to enter the Camping realm. The +e+
     # argument is the environment variables hash as per the Rack specification.
-    # And array with [status, headers, body] is expected at the output.
+    # Array with [status, headers, body] is expected at the output.
     #
     # See: http://rack.rubyforge.org/doc/SPEC.html
     def call(e)
@@ -773,7 +778,7 @@ module Camping
   #     end
   #   end
   #
-  # Models cannot be referred to in Views at this time.
+  # Models cannot be referred from Views at this time.
   module Models
     autoload :Base,'camping/ar'
     Helpers.send(:include, X, self)
