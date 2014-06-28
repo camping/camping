@@ -8,8 +8,7 @@ require 'camping/reloader'
 # Camping includes a pretty nifty server which is built for development.
 # It follows these rules:
 # 
-# * Load all Camping apps in a directory or a file.
-# * Load new apps that appear in that directory or that file.
+# * Load all Camping apps in a file.
 # * Mount those apps according to their name. (e.g. Blog is mounted at /blog.)
 # * Run each app's <tt>create</tt> method upon startup.
 # * Reload the app if its modification time changes.
@@ -19,7 +18,6 @@ require 'camping/reloader'
 #
 # Run it like this:
 #
-#   camping examples/        # Mounts all apps in that directory
 #   camping blog.rb          # Mounts Blog at /
 #
 # And visit http://localhost:3301/ in your browser.
