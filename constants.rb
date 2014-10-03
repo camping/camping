@@ -25,8 +25,6 @@ def camping_spec
 
     s.add_dependency('rack', '>=1.0')
     s.add_dependency('mab', '>=0.0.3')
-    s.add_development_dependency('rake')
-    s.add_development_dependency('rack-test')
     s.required_ruby_version = '>= 1.8.2'
 
     s.files = %w(COPYING README.md Rakefile) +
