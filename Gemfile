@@ -11,6 +11,10 @@ end
 
 group :extras do
   gem 'tilt'
+  if ENV['AR']
+    gem 'activerecord', ENV['AR']
+    gem 'sqlite3'
+  end
 end
 
 group :development do
