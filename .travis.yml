@@ -8,10 +8,9 @@ env:
   - "RACK='~>1.4.0'"
   - "RACK='~>1.3.0'"
   - "AR='~>2.3"
-  - "AR='~>3.0.0"
-  - "AR='~>3.1.0"
   - "AR='~>3.2.0"
   - "AR='~>4.1"
+install: bundle install --without development
 script: bundle exec rake test
 notifications:
   email: false
