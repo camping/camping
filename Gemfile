@@ -15,7 +15,7 @@ end
 
 group :development do
   gem 'parser'
-  gem 'unparser', :git => 'https://github.com/mbj/unparser'
+  gem 'unparser'
 end
 
 group :test do
