@@ -17,7 +17,8 @@ $AR_EXTRAS = %{
     def call(env)
       @app.call(env)
     ensure
-      ActiveRecord::Base.connection.close
+      conn = ActiveRecord::Base.connection
+      conn.close if conn.respond_to?(:close)
     end
   end
 
