@@ -69,7 +69,7 @@ end
 ```
 
 
-# Error Handling
+## Error Handling
 Camping now uses three methods in order to handle errors. These replaces the old classes NotFound and ServerError.
 
 r404 is called when a route can’t be found.
