@@ -270,7 +270,7 @@ Server again and observe:
 Restart it, and enjoy the silence. There's no point of re-creating the
 skeleton this time.
 
-Before we go on, there's one rule you must known: Always place your models
+Before we go on, there's one rule you must know: Always place your models
 before your migrations.
 
 ## Using our model
