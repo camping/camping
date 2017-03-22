@@ -1,6 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/camping/camping.png)](http://travis-ci.org/camping/camping)
 
-#Camping, a Microframework
+# Camping, a Microframework
 
 Camping is a web framework which consistently stays at less than 4kB of code.
 You can probably view the complete source code on a single page. But, you
@@ -11,7 +11,7 @@ file like many small CGIs. But to organize it as a Model-View-Controller
 application like Rails does. You can then easily move it to Rails once you've
 got it going.
 
-##A Camping Skeleton
+## A Camping Skeleton
 
 A skeletal Camping blog could look like this:
 
@@ -54,7 +54,7 @@ module Blog::Views
 end
 ```
     
-##Installation
+## Installation
 
 Interested yet?  Luckily it's quite easy to install Camping.  We'll be using
 a tool called RubyGems, so if you don't have that installed yet, go grab it!
@@ -80,7 +80,7 @@ gem install markaby
 gem install activerecord
 ```
 
-##Learning
+## Learning
 
 First of all, you should read [the first chapters](/book/01_introduction.md)
 of The Camping Book. It should hopefully get you started pretty quick. While
@@ -96,7 +96,7 @@ subscribe to [the mailing list](http://rubyforge.org/mailman/listinfo/camping-li
 and ask there.  We also have an IRC channel over at Freenode, so if you feel
 like chatting with us, you should join [#camping @ irc.freenode.net](http://java.freenode.net/?channel=camping).
 
-##Authors
+## Authors
 
 Camping was originally crafted by [why the lucky stiff](http://en.wikipedia.org/wiki/Why_the_lucky_stiff),
 but is now maintained by the _community_.  This simply means that if we like your
