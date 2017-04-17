@@ -1,4 +1,4 @@
-##Where Markaby's come from
+## Where Markaby's come from
 
 A great musician, writer and programmer (and a bit crazy) named
 [_why](http://en.wikipedia.org/wiki/Why_the_lucky_stiff) wrote camping.  Before
@@ -32,7 +32,7 @@ That do not mean "html knowledge unneeded"
 
 But that is only the beginning, we can do more wild things.
 
-##Writing HTML pragmatically
+## Writing HTML pragmatically
 
 For example: if we want show a table for show users and their real
 names:
@@ -54,7 +54,7 @@ names:
 
 Take a look better [here](https://github.com/camping/mab/blob/master/README.md)
 
-##Markaby and the layout
+## Markaby and the layout
 
 There is a special view named "layout". The layout, is view that will be
 rendered each time any other view are rendered. In fact, the layout will take
@@ -134,7 +134,7 @@ head or title.
 Finally, it will be rendering a "p" named footer. That will be the footer in
 all our pages.
 
-##Tip
+## Tip
 
 What would happen? If you do this in the layout:
 

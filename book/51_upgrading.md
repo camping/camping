@@ -5,8 +5,8 @@ applications. If you're looking for all the new features in a version, please
 have a look at the CHANGELOG in the Camping source.
 
 
-##From 2.0 to 2.1
-###Options
+## From 2.0 to 2.1
+### Options
 
 In Camping 2.1 there is now a built-in way to store options and settings. If
 you use cookie session, it means that you'll now have to change to:
@@ -17,8 +17,8 @@ you use cookie session, it means that you'll now have to change to:
     end
 
 
-##From 1.5 to 2.0
-###Rack
+## From 1.5 to 2.0
+### Rack
 
 The biggest change in 2.0 is that it now uses [Rack](http://rack.rubyforge.org/)
 internally. This means that you'll now have to deploy Camping differently, but
@@ -26,7 +26,7 @@ hopefully more easily too. Now every Camping application is also a Rack
 application, so simply check out the documentation to the server of your
 choice.
 
-###`require 'camping/db'`
+### `require 'camping/db'`
 
 In earlier versions of Camping, you loaded database support by:
 
@@ -61,7 +61,7 @@ We also encourage you to use <tt>Model.table_name</tt> instead of
       end
     end
 
-###Cookie Sessions
+### Cookie Sessions
 
 Camping 2.0 now uses a cookie-based session system, which means you now longer
 need a database in order to use sessions. The disadvantage of this is that
@@ -81,7 +81,7 @@ required, and see Camping::Session more details.
       # Camping::Models::Session.create_schema
     end
   
-###Error handling
+### Error handling
 
 Camping now uses three methods in order to handle errors. These replaces the
 old classes NotFound and ServerError.
