@@ -1,4 +1,4 @@
-#Getting Started
+# Getting Started
 
 Start a new text file called nuts.rb. Here's what you put inside:
  
@@ -25,7 +25,7 @@ Your browser window should show:
 No problem with that. The Camping Server is running, but it doesn't know what
 to show. Let's tell him.
 
-##Hello clock
+## Hello clock
 
 So, you've got Camping installed and it's running. Keep it running. You can
 edit files and The Camping Server will reload automatically. When you need to
@@ -46,7 +46,7 @@ the time, e.g.
 
     Sun Jul 15 12:56:15 +0200 2007
 
-##Enjoying the view
+## Enjoying the view
 
 The Camping microframework allows us to separate our code using the MVC
 (Model-View-Controller) design pattern. Let's add a view to our Nuts
@@ -94,7 +94,7 @@ Soon enough, you'll find that you can return anything from the controller, and
 it will be sent to the browser. But let's keep that for later and start
 investigating the routes.
 
-##Routes
+## Routes
 
 You probably noticed the weird <tt>R '/'</tt> syntax in the previous page.
 This is an uncommon feature of Ruby that is used in our favorite
@@ -135,7 +135,7 @@ Add this to `nuts.rb` and try if you can hit all of the controllers.
 Also notice how everything inside a parenthesis gets passed into the method,
 and is ready at your disposal.
 
-###Simpler routes
+### Simpler routes
 
 This just in:
 
@@ -313,7 +313,7 @@ own pages.
   
 Now I have two pages: One about hiking and one about fishing.
 
-##Wrapping it up
+## Wrapping it up
 
 Wouldn't it be nice if we could show this wonderful our pages in a browser?
 Update nuts.rb so it also contains something like this:
@@ -386,7 +386,7 @@ There's a lot of improvements you could do here. Let me suggest:
 Helpers can work generating Markaby's code. You could write a helper for show
 some kind of data and call it from your views (Add a layout).
 
-##The last touch
+## The last touch
 
 We have one major flaw in our little application. You can't edit or add new
 pages. Let's see if we can fix that:
@@ -452,7 +452,7 @@ integrate all of this with what you already have.
     end
   
 
-##Phew.
+## Phew.
 
 You've taken quite a few steps in the last minutes. You deserve a break. But
 let's recap for a moment:

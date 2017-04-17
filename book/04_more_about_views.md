@@ -9,7 +9,7 @@ that.
 The user only see their browser and our application is just and HTML document.
 
 
-##Camping Views
+## Camping Views
 
 Inside the Nut::Views module, we will write methods. That method shall called
 with the render sentence. The views do not use class.
@@ -59,7 +59,7 @@ Imagine your applications as a big building. The controller as the
 corridors and the views as the offices. Where are the offices and we do
 in each office?
 
-##Views and Controllers
+## Views and Controllers
 
 Model View and Controller, are joined but not scrambled. The views use
 R(ControllerName) for call the controllers and "move". The controller
@@ -90,7 +90,7 @@ will use "render" for call the view.
 No, we don't have it behind the curtains, but the user believe it. There
 is the view, enjoy the show.
 
-##Template engine
+## Template engine
 
 We spoke about the views, and HTML, but we are not using html's tags for
 our view...

@@ -17,7 +17,7 @@ But that is virtual, the site have not really a directory structure like that...
 That would be useless. The site use a "routes drawing system" for get a _control_
 of that routes and that is what *the controller* does.
 
-##Camping Routes and Controllers
+## Camping Routes and Controllers
 
 In camping, each `"capitalized"` word is like the slash. For example:
 
@@ -33,7 +33,7 @@ Or you could use instead the weird R for get more control in your routes
 
 All of this will be declared inside the Nuts::Controllers module
 
-##Controllers Parameters
+## Controllers Parameters
 
 Controllers can also handle your application's parameters. For example
 when the client ask four a route like /post/1 the static web server shall
@@ -68,7 +68,7 @@ The _X_ mean: -math anything, including number and words. It will math:
 But it will NOT math: /post/mypost/1 or anything that could have a slash.
 Because a "/" mean: "the next directory", and that is another Capitalized word.
 
-##Getting parameter from the controller
+## Getting parameter from the controller
 
 Ok, we have the controller that match parameters; and now what?
 

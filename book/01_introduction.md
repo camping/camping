@@ -1,4 +1,4 @@
-#Introduction
+# Introduction
 
 Camping is a small web framework, less than 4k, a little white blood cell in
 the vein of Rails. This little book will start with a tutorial which takes
