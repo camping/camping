@@ -1,78 +1,84 @@
 # Controllers
 
-What are these `controllers`? It is a good question for a newb. In the [MVC
+What are these _controllers_? This is a good question for a Camping newb. In the [MVC
 paradigm](http://en.wikipedia.org/wiki/Model%E2%80%93View%E2%80%93Controller#Overview)
 a Models could be described as a very weird and hard to understand thing.
 
-When you look in the browsers navigation's bar, you will see something like:
+When you look in the browser's navigation bar, you will see something like:
 
 `http://localhost:3301/welcome/to/my/site`
 
 The Universal Resource Locator (URL) is showing you a "structured" web site
-running inside a server that listening in the 3301's port. The site's internals
-routes is "drawing" the path: Inside the root_dir/ are the directory /welcome/
-an it content recursive the some others dirs: "to", "my" and "site"(./to/my/site)
+running inside a server that listening in the `3301` port. The site's internal
+routes are "drawing" the path: Inside the `root_dir/` is the directory `/welcome/`
+and it recursively adds the names of the deeper directories: "to", "my", and "site" (`./to/my/site`).
 
-But that is virtual, the site have not really a directory structure like that...
-That would be useless. The site use a "routes drawing system" for get a _control_
-of that routes and that is what *the controller* does.
+But that is virtual, the site doesn't really have a directory structure like that...
+That would be useless. The site uses a "route drawing system" to get _control_
+of that route; this is what *the controller* does.
 
 ## Camping Routes and Controllers
 
-In camping, each `"capitalized"` word is like the slash. For example:
+In camping, each _capitalized_ word in a camel-cased contoller declaration is like the 
+words between each slash in a URL. For example:
 
       WelcomeToMySite
 
-Shall draw a route like:
+will draw the route:
 
       /welcome/to/my/site
 
-Or you could use instead the weird R for get more control in your routes
+Or you could instead use the weird R helper to get more specific control of your routes:
 
       Welcome < R '/welcome/to/my/site'
 
-All of this will be declared inside the Nuts::Controllers module
+All of this will be declared inside the Nuts::Controllers module.
 
-## Controllers Parameters
+## Controller Parameters
 
-Controllers can also handle your application's parameters. For example
-when the client ask four a route like /post/1 the static web server shall
-look out for the dir number 1 and serve the content. It should have a
-lot of "number-named" directories for do that simple job.
+Controllers can also handle your application's parameters. For example,
+when the client asks for a route like `/post/1`, a static web server would
+look out for the directory named "1" and serve the content in that directory.
+It would need a lot of "number-named" directories to do that simple job.
 
-But the controller, draw a dynamic path for every asked post. Wee just need
+But in our case, the controller draws a dynamic path for every asked post. We just need
 to tell him about the size of the flock.
 
-In camping, the N and the X in a controller's declaration, mean a parameter:
+In camping, adding `N` or `X` to a controller's declaration tells it to expect a parameter.
+The `N` suffix, which will match a numbered route, is declared like this:
 
       class PostN
 
-Will trigger the /post route and any number after it. For exmaple, 
+With this controller, adding a number to the simple `/post` route in your browser will trigger this route. For example,
+either of these will work:
 
       /post/1
       /post/99
 
-But it will not, math against a word. For example, if asking /pots/mypost
-it will return 404. Because the PostN only math _Numeric_ parameters.
+But this `N` route will not match against a word. For example, a request for `/pots/mypost`
+will return 404 (Not Found). Because the `PostN` declaration will only match _Numeric_ parameters.
 
-If you like to math anything else, you should write a controller like:
+If you would like to match something other than a number, you should use the `X` suffix:
 
       class PostX
 
-The _X_ mean: -math anything, including number and words. It will math:
+The _X_ tells the controller to match anything, including number and words. For example, it will match:
 
       /post/1
       /post/99
       /post/mypost
 
-But it will NOT math: /post/mypost/1 or anything that could have a slash.
-Because a "/" mean: "the next directory", and that is another Capitalized word.
+But it will NOT match: `/post/mypost/1` (or anything that has "/" in the name). Since slashes signify
+deeper directories, you would need to tell the controller to recognize the deeper directory before using a parameter.
+You can do this using camel case, followed by the "X" or "N":
 
-## Getting parameter from the controller
+      class PostMypostX
+
+## Getting parameters from the controller
 
 Ok, we have the controller that match parameters; and now what?
 
-You will like to show the post number N asked in the controller. You need the
+Say that you want to show the post number N requested in the controller. You'll need the
 number.
 
       class PostN
@@ -81,20 +87,19 @@ number.
           end
       end
 
-Please, do not try that at home, is very dirty using a view inside the controller.
+Please, do not try that at home. It's very dirty to use a _view_ inside the controller (more on that soon).
 
-The method get, for the /post/N route, will take a parameter. That number will by
-inside the "number parameter". From now, if you like to route something to you
-post route, you will write a link 100% pragmatically like this:
+The method `get`, for the `/post/N route`, will take a parameter. That number will by
+inside the "number parameter". From now, if you want to route something to your
+post route, you can write a link 100% pragmatically like this:
 
       @post=rand 1..9
       a "See the post number: #{@post}",:href=>R(PostN,@post)
 
-For that example, we just, choose a random post and then show a link for follow
-the path.
+For that example, we just choose a random post and then displayed a link to its path.
 
--but you told me that should now write that thing in the controller
+> but you told me that I shouldn't write that in the controller...
 
-Yep... I told. The things like that, are views, because that thats part, will
-be in the user's face. Our client will not see the controllers, their view,
-the [views](04_more_about_views.md).
+Yep...I said that. These things are called "views" because they will
+be in the user's face. Our client will not see the controllers; they will be hidden from them when they visit our site.
+Our client will only see the [views](04_more_about_views.md).
