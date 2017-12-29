@@ -98,7 +98,7 @@ post route, you can write a link 100% pragmatically like this:
 
 For that example, we just choose a random post and then displayed a link to its path.
 
-> but you told me that should now write that thing in the controller...
+> but you told me that I shouldn't write that in the controller...
 
 Yep...I said that. These things are called "views" because they will
 be in the user's face. Our client will not see the controllers; they will be hidden from them when they visit our site.
