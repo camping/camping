@@ -238,7 +238,7 @@ This is called a
 Whenever you want to change or add new models you simply add a new migration
 below, where you increase the version number. All of these migrations builds
 upon each other like LEGO blocks. Each new Migrations must have different
-class's names, is a good idea name migration's explicit. For exmaple: 
+class's names, is a good idea name migration's explicit. For example: 
 
       class AddTagColumn < V 1.1
         def self.change
