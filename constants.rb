@@ -20,7 +20,7 @@ def camping_spec
     s.author = "why the lucky stiff"
     s.email = 'why@ruby-lang.org'
     s.homepage = 'http://camping.rubyforge.org/'
-    s.rubyforge_project = 'camping'
+    # s.rubyforge_project = 'camping'
     s.executables = ['camping']
 
     s.add_dependency('rack', '>=1.0')
@@ -44,7 +44,7 @@ def camping_omni
     s.version = VERS
     s.platform = Gem::Platform::RUBY
     s.summary = "the camping meta-package for updating ActiveRecord, Mongrel and SQLite3 bindings"
-    %w[author email homepage rubyforge_project].each { |x| s.__send__("#{x}=", camping_spec.__send__(x)) }
+    %w[author email homepage].each { |x| s.__send__("#{x}=", camping_spec.__send__(x)) }
 
     s.add_dependency('camping', ">=#{BRANCH}")
     s.add_dependency('activerecord')
