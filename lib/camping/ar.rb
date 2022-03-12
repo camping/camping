@@ -30,7 +30,7 @@ $AR_EXTRAS = %{
   def self.V(n)
     @final = [n, @final.to_f].max
     m = (@migrations ||= [])
-    Class.new(ActiveRecord::Migration) do
+    Class.new(ActiveRecord::Migration[7.0]) do
       meta_def(:version) { n }
       meta_def(:inherited) { |k| m << k }
     end
@@ -54,7 +54,7 @@ $AR_EXTRAS = %{
           k.migrate(:up) if si.version < k.version and k.version <= opts[:version]
           k.migrate(:down) if si.version > k.version and k.version > opts[:version]
         end
-        si.update_attributes(:version => opts[:version])
+        si.update(:version => opts[:version])
       end
     end
   end

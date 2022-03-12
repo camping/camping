@@ -14,14 +14,14 @@ module Blog
   module Models
     class Post < Base
       belongs_to :user
-      
+
       before_save do |record|
         cloth = RedCloth.new(record.body)
         cloth.hard_breaks = false
         record.html_body = cloth.to_html
       end
     end
-    
+
     class Comment < Base; belongs_to :user; end
     class User < Base; end
 
@@ -31,7 +31,7 @@ module Blog
           t.integer :user_id,          :null => false
           t.string  :title,            :limit => 255
           t.text    :body, :html_body
-          t.timestamps 
+          t.timestamps
         end
         create_table :blog_users, :force => true do |t|
           t.string  :username, :password
@@ -44,7 +44,7 @@ module Blog
         end
         User.create :username => 'admin', :password => 'camping'
       end
-      
+
       def self.down
         drop_table :blog_posts
         drop_table :blog_users
@@ -67,7 +67,7 @@ module Blog
         @post = Post.new
         render :add
       end
-      
+
       def post
         require_login!
         post = Post.create(:title => input.post_title, :body => input.post_body,
@@ -77,7 +77,7 @@ module Blog
     end
 
     class PostN
-      def get(post_id) 
+      def get(post_id)
         @post = Post.find(post_id)
         render :view
       end
@@ -93,8 +93,8 @@ module Blog
       def post(post_id)
         require_login!
         @post = Post.find(post_id)
-        @post.update_attributes :title => input.post_title, :body => input.post_body
-        redirect PostN, @post  
+        @post.update :title => input.post_title, :body => input.post_body
+        redirect PostN, @post
       end
     end
 
@@ -102,7 +102,7 @@ module Blog
       def get
         render :login
       end
-      
+
       def post
         @user = User.find_by_username_and_password(input.username, input.password)
 
@@ -112,7 +112,7 @@ module Blog
         else
           @info = 'Wrong username or password.'
         end
-        
+
         render :login
       end
     end
@@ -133,12 +133,12 @@ module Blog
       end
     end
   end
-  
+
   module Helpers
     def logged_in?
       !!@state.user_id
     end
-    
+
     def require_login!
       unless logged_in?
         redirect Controllers::Login
@@ -152,18 +152,18 @@ module Blog
       html do
         head do
           title 'My Blog'
-          link :rel => 'stylesheet', :type => 'text/css', 
+          link :rel => 'stylesheet', :type => 'text/css',
           :href => '/styles.css', :media => 'screen'
         end
         body do
           h1 { a 'My Blog', :href => R(Index) }
-          
+
           div.wrapper! do
             self << yield
           end
-          
+
           hr
-          
+
           p.footer! do
             if logged_in?
               _admin_menu
@@ -196,10 +196,10 @@ module Blog
     def login
       h2 'Login'
       p.info @info if @info
-      
+
       form :action => R(Login), :method => 'post' do
         input :name => 'to', :type => 'hidden', :value => @to if @to
-        
+
         label 'Username', :for => 'username'
         input :name => 'username', :id => 'username', :type => 'text'
 
@@ -238,7 +238,7 @@ module Blog
       end
       text! post.html_body
     end
-    
+
     def _post_menu(post)
       if logged_in?
         a '(edit)', :href => R(Edit, post)
@@ -248,7 +248,7 @@ module Blog
     def _form(post, opts)
       form({:method => 'post'}.merge(opts)) do
         label 'Title', :for => 'post_title'
-        input :name => 'post_title', :id => 'post_title', :type => 'text', 
+        input :name => 'post_title', :id => 'post_title', :type => 'text',
               :value => post.title
 
         label 'Body', :for => 'post_body'
@@ -281,12 +281,12 @@ h1, h2, h3, h4 {
   font-weight: normal;
 }
 
-h1 {  
+h1 {
   background-color: #EEE;
   border-bottom: 5px solid #6F812D;
-  outline: 5px solid #9CB441;       
+  outline: 5px solid #9CB441;
   font-weight: normal;
-  font-size: 3em;  
+  font-size: 3em;
   padding: 0.5em 0;
   text-align: center;
 }
@@ -301,7 +301,7 @@ h1 a:hover { color: #143D55; text-decoration: underline }
 h2 a { color: #287AA9; text-decoration: none }
 h2 a:hover { color: #287AA9; text-decoration: underline }
 
-#wrapper { 
+#wrapper {
   margin: 3em auto;
   width: 700px;
 }
@@ -333,29 +333,29 @@ a:hover {
 
 hr {
   border-width: 5px 0;
-  border-style: solid;     
+  border-style: solid;
   border-color: #9CB441;
   border-bottom-color: #6F812D;
-  height: 0;   
+  height: 0;
 }
 
-p#footer {    
+p#footer {
   font-size: 0.9em;
-  margin: 0;      
+  margin: 0;
   padding: 1em;
   text-align: center;
 }
 
-label {  
+label {
   display: block;
   width: 100%;
 }
 
 input, textarea {
-  padding: 5px;     
+  padding: 5px;
   margin-bottom: 1em;
   margin-right: 490px;
-  width: 200px;  
+  width: 200px;
 }
 
 input.submit {
