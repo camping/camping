@@ -13,16 +13,13 @@ def camping_spec
     s.name = NAME
     s.version = VERS
     s.platform = Gem::Platform::RUBY
-    s.has_rdoc = true
     s.extra_rdoc_files = FileList["README.md", "CHANGELOG", "COPYING", "book/*"].to_a
     s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping.rb']
     s.summary = "miniature rails for anyone"
     s.author = "why the lucky stiff"
     s.email = 'why@ruby-lang.org'
     s.homepage = 'http://camping.rubyforge.org/'
-    # s.rubyforge_project = 'camping'
     s.executables = ['camping']
-
     s.add_dependency('rack', '>=1.0')
     s.add_dependency('mab', '>=0.0.3')
     s.required_ruby_version = '>= 1.8.2'
