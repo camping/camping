@@ -126,7 +126,7 @@ namespace :check do
   task :size do
     FileList["lib/camping*.rb"].each do |path|
       s = File.size(path)
-      puts "%%21s : %% 6d %% 4d%%" % [File.basename(path), s, (100 * s / SIZE_LIMIT)]
+      puts "%21s : % 6d % 4d%%" % [File.basename(path), s, (100 * s / SIZE_LIMIT)]
     end
     if File.size("lib/camping.rb") > SIZE_LIMIT
       STDERR.puts "lib/camping.rb: file is too big (> #{SIZE_LIMIT})"
