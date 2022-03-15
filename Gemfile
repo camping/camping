@@ -1,7 +1,5 @@
 source 'https://rubygems.org'
 
-gemspec :name => :camping
-
 gem 'rake'
 
 if rack = ENV['RACK']
