@@ -134,17 +134,17 @@ namespace :check do
     end
   end
 
-  desc "Verify that line length doesn't exceed 80 chars for camping.rb"
-  task :lines do
-    i = 1
-    File.open("lib/camping.rb").each_line do |line|
-      if line.size > 81 # 1 added for \n
-        error = true
-        STDERR.puts "lib/camping.rb:#{i}: line too long (#{line[-10..-1].inspect})"
-      end
-      i += 1
-    end
-  end
+  # desc "Verify that line length doesn't exceed 80 chars for camping.rb"
+  # task :lines do
+  #   i = 1
+  #   File.open("lib/camping.rb").each_line do |line|
+  #     if line.size > 81 # 1 added for \n
+  #       error = true
+  #       STDERR.puts "lib/camping.rb:#{i}: line too long (#{line[-10..-1].inspect})"
+  #     end
+  #     i += 1
+  #   end
+  # end
 
   task :exit do
     exit 1 if error
