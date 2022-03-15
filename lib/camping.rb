@@ -49,9 +49,9 @@ map{|c|k=const_get(c);k.send:include,C,X,Base,Helpers,Models
 N.method(:[]))*'/'}"]}if !k.respond_to?:urls}end end;I=R()end;X=
 Controllers;class<<self;def
 goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);
-caller[0]=~/:/
-IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split /^@@\s*(.+?)\s*\r?\n/m).shift rescue nil
-a.set :_t,H[*b||[]];end;def call e;X.M
+caller[0]=~/:/IO
+.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split /^@@\s*(.+?)\s*\r?\n/m).shift
+rescue nil a.set :_t,H[*b||[]];end;def call e;X.M
 k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
 downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
 def method_missing m,c,*a;X.M;h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
