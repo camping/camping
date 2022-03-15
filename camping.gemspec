@@ -1,3 +1,11 @@
+NAME = "camping"
+BRANCH = "2.1"
+GIT = ENV['GIT'] || "git"
+REV = `#{GIT} rev-list HEAD`.strip.split.length
+VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
+
+RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
+
 Gem::Specification.new do |s|
     s.name = NAME
     s.version = VERS
