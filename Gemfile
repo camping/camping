@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
-gemspec :name => :camping
+
+gemspec
 
 gem 'rake'
 
