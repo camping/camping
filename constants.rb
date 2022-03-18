@@ -40,7 +40,7 @@ def camping_omni
     s.name = "camping-omnibus"
     s.version = VERS
     s.platform = Gem::Platform::RUBY
-    s.summary = "the camping meta-package for updating ActiveRecord, Mongrel and SQLite3 bindings"
+    s.summary = "the camping meta-package for updating ActiveRecord, and SQLite3 bindings"
     %w[author email homepage].each { |x| s.__send__("#{x}=", camping_spec.__send__(x)) }
 
     s.add_dependency('camping', ">=#{BRANCH}")
