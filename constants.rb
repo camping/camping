@@ -1,7 +1,7 @@
 require 'rake'
 
 NAME = "camping"
-BRANCH = "2.1"
+BRANCH = "2.2"
 GIT = ENV['GIT'] || "git"
 REV = `#{GIT} rev-list HEAD`.strip.split.length
 VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
