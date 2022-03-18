@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/camping/camping.png)](http://travis-ci.org/camping/camping)
+![example workflow](https://github.com/camping/camping/actions/workflows/ruby.yml/badge.svg)
 
 # Camping, a Microframework
 
@@ -53,7 +53,7 @@ module Blog::Views
   end
 end
 ```
-    
+
 ## Installation
 
 Interested yet?  Luckily it's quite easy to install Camping.  We'll be using
@@ -91,7 +91,7 @@ documentation for all the different parts of Camping.
 useful tricks that we've collected over the years.  Don't be afraid to share
 your own discoveries; the more, the better!
 
-And if there's anything you're wondering about, don't be shy, but rather 
+And if there's anything you're wondering about, don't be shy, but rather
 subscribe to [the mailing list](http://rubyforge.org/mailman/listinfo/camping-list)
 and ask there.  We also have an IRC channel over at Freenode, so if you feel
 like chatting with us, you should join [#camping @ irc.freenode.net](http://java.freenode.net/?channel=camping).
