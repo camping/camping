@@ -1,13 +1,9 @@
 = 2.2
 === date not yet determined
 * Updated ActiveRecord migrations class to reference version 6.1
-* ActiveRecord update_attributes renamed to update
 * Removed deprecated gemfile definitions
-* Replace File.exists? with File.exist? because the first was deprecated
-* Remove XHTML testing because it's no longer necessary
-* Remove references to rubyforge as it's now defunct
-* Expand line length check to 121 characters to get tests to pass
-*
+* Rename deprecated methods
+* Get tests to pass
 
 = 2.1
 === 19th Aug, 2010 (whyday)
