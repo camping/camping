@@ -1,4 +1,5 @@
 [![Build Status](https://secure.travis-ci.org/camping/camping.png)](http://travis-ci.org/camping/camping)
+![Build Status](https://github.com/camping/camping/actions/workflows/ruby.yml/badge.svg)
 
 # Camping, a Microframework
 
