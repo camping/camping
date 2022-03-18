@@ -1,4 +1,4 @@
-![example workflow](https://github.com/camping/camping/actions/workflows/ruby.yml/badge.svg)
+![Build Status](https://github.com/camping/camping/actions/workflows/ruby.yml/badge.svg)
 
 # Camping, a Microframework
 
