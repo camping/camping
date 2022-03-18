@@ -33,7 +33,7 @@ module Camping
   # You can also give Reloader more than one script.
   class Reloader
     attr_reader :file
-
+    
     def initialize(file, &blk)
       @file = file
       @mtime = Time.at(0)
@@ -50,7 +50,7 @@ module Camping
         File.basename(base).to_sym
       end
     end
-
+    
     # Loads the apps availble in this script.  Use <tt>apps</tt> to get
     # the loaded apps.
     def load_apps(old_apps)
@@ -62,7 +62,7 @@ module Camping
       @requires = []
       dirs = []
       new_apps = Camping::Apps - all_apps
-
+      
       @apps = new_apps.inject({}) do |hash, app|
         if file = app.options[:__FILE__]
           full = File.expand_path(file)
@@ -72,7 +72,7 @@ module Camping
 
         key = app.name.to_sym
         hash[key] = app
-
+        
         if !old_apps.include?(key)
           @callback.call(app) if @callback
           app.create if app.respond_to?(:create)
@@ -87,7 +87,7 @@ module Camping
       end
 
       @mtime = mtime
-
+      
       self
     end
 
@@ -98,7 +98,7 @@ module Camping
         load(@file)
       end
     end
-
+    
     # Removes all the apps defined in this script.
     def remove_apps
       @requires.each do |(path, full)|
@@ -112,7 +112,7 @@ module Camping
     ensure
       @apps.clear
     end
-
+    
     # Reloads the file if needed.  No harm is done by calling this multiple
     # times, so feel free call just to be sure.
     def reload
@@ -123,7 +123,7 @@ module Camping
     def reload!
       load_apps(remove_apps)
     end
-
+    
     # Checks if both scripts watches the same file.
     def ==(other)
       @file == other.file
@@ -136,20 +136,20 @@ module Camping
         @apps
       end
     end
-
+    
     private
-
+    
     def mtime
       @requires.map do |(path, full)|
         File.mtime(full)
       end.reject {|t| t > Time.now }.max || Time.now
     end
-
-    # Figures out the full path of a required file.
+    
+    # Figures out the full path of a required file. 
     def full_path(req)
-      return req if File.exist?(req)
-      dir = $LOAD_PATH.detect { |l| File.exist?(File.join(l, req)) }
-      if dir
+      return req if File.exists?(req)
+      dir = $LOAD_PATH.detect { |l| File.exists?(File.join(l, req)) }
+      if dir 
         File.expand_path(req, File.expand_path(dir))
       else
         req

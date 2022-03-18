@@ -1,8 +1,15 @@
 source 'https://rubygems.org'
+gemspec :name => :camping
 
 gem 'rake'
-gem 'rack'
-gem 'mab'
+
+if rack = ENV['RACK']
+  if rack == "master"
+    gem 'rack', :git => 'git://github.com/rack/rack.git'
+  else
+    gem 'rack', rack
+  end
+end
 
 group :extras do
   gem 'tilt'
@@ -20,6 +27,5 @@ end
 group :test do
   gem 'minitest', '~> 5.0'
   gem 'rack-test'
-  gem 'ruby_parser'
 end
 
