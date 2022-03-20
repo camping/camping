@@ -14,26 +14,30 @@ The user only see their browser and our application is just and HTML document.
 Inside the Nut::Views module, we will write methods. That method shall called
 with the render sentence. The views do not use class.
 
-      module Nust::Views
+```ruby
+module Nust::Views
 
-         def post_number
-            p "you asked the post number @postn"
-         end
+   def post_number
+      p "you asked the post number @postn"
+   end
 
-      end
+end
+```
 
 Well, well, that was a views, but now: How we show it to the user? We will call
 the view from the controller. And we pass to the view all the parameters that we
 want to show.
 
-       module Nuts::Controller
-         class PostN
-             def get number
-               @postn=number
-               render :post_number
-             end
-          end
+```ruby
+ module Nuts::Controller
+   class PostN
+       def get number
+         @postn=number
+         render :post_number
        end
+    end
+ end
+```
 
 We just declared a controller for the route /post/(number here). When the browser
 ask for the route /post/1 the controller will be trigged and the get
@@ -50,7 +54,9 @@ declared in the views. Now we have only a view named post_number.
 
 You could "associate" it MENTALLY as a hash like this:
 
-      def my_view => render :my_view
+```ruby
+def my_view => render :my_view
+```
 
 But that will happen in your mind. In camping these will be happening in
 the modules, not in a hash, therefore, their are very associated too.
@@ -65,27 +71,31 @@ Model View and Controller, are joined but not scrambled. The views use
 R(ControllerName) for call the controllers and "move". The controller
 will use "render" for call the view.
 
--And now... what do you thing we have behind the curtains?
+-And now... what do you think we have behind the curtains?
 
-   module Why::Controllers
-      class CircusCourtains
-         def get
-            require 'endertromb'
-            @monkey=Endertromb::Animals::StartMonkew.new :frog=>true,:place=>:hand
-            render :behind_curtain
-         end
+```ruby
+module Why::Controllers
+   class CircusCourtains
+      def get
+         require 'endertromb'
+         @monkey=Endertromb::Animals::StartMonkey.new :frog=>true,:place=>:hand
+         render :behind_curtain
       end
    end
+end
+```
 
--OMG! Is a monkey with a start in the hand!
+-OMG! It's a monkey with a start in the hand!
 
--yes, ladies and gentlemans, we have it just here for you
+-yes, ladies and gentleman, we have it just here for you
 
-      module Views
-         def behind_curtain
-            p @monkey
-         end
-      end
+```ruby
+module Views
+   def behind_curtain
+      p @monkey
+   end
+end
+```
 
 No, we don't have it behind the curtains, but the user believe it. There
 is the view, enjoy the show.
@@ -97,8 +107,8 @@ our view...
 
 How happening this?
 
-The rubyst have not necessary to write HTML code. Exists some options
-named template. That the "p" before the @monkey in the view. A template
+The rubyist have not necessary to write HTML code. Exists some options
+named template. That the "p" before the `@monkey` in the view. A template
 engine is a kind of "pseudo-language" for handle HTML code. In some
 template engines you will also write HTML in a more easy way. Their also
 handle ruby data inside HTML. Templates engine are the wheels of the
