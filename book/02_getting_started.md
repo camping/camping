@@ -3,20 +3,20 @@
 Start a new text file called nuts.rb. Here's what you put inside:
 
 ```ruby
-    Camping.goes :Nuts
+Camping.goes :Nuts
 ```
 
 Save it. Then, open a command prompt in the same directory. You'll want to
 run:
 
 ```ruby
-    $ camping nuts.rb
+$ camping nuts.rb
 ```
 
 And you should get a message which reads:
 
 ```ruby
-    ** Camping running on 0.0.0.0:3301.
+** Camping running on 0.0.0.0:3301.
 ```
 
 This means that right now The Camping Server is running on port 3301 on your
@@ -25,9 +25,9 @@ machine. Open your browser and visit http://localhost:3301/.
 Your browser window should show:
 
 ```
-    Camping Problem!
+Camping Problem!
 
-    / Not found
+/ Not found
 ```
 
 No problem with that. The Camping Server is running, but it doesn't know what
@@ -42,20 +42,20 @@ stop the server, press Control-C.
 Let's show something. At the bottom of nuts.rb add:
 
 ```ruby
-    module Nuts::Controllers
-      class Index < R '/'
-        def get
-          Time.now.to_s
-        end
-      end
+module Nuts::Controllers
+  class Index < R '/'
+    def get
+      Time.now.to_s
     end
+  end
+end
 ```
 
 Save the file and refresh the browser window. Your browser window should show
 the time, e.g.
 
 ```
-    Sun Jul 15 12:56:15 +0200 2007
+Sun Jul 15 12:56:15 +0200 2007
 ```
 
 ## Enjoying the view
@@ -65,38 +65,38 @@ The Camping microframework allows us to separate our code using the MVC
 application. Replace the <tt>module Nuts::Controllers</tt> with:
 
 ```ruby
-    module Nuts::Controllers
-      class Index < R '/'
-        def get
-          @time = Time.now
-          render :sundial
-        end
-      end
+module Nuts::Controllers
+  class Index < R '/'
+    def get
+      @time = Time.now
+      render :sundial
     end
+  end
+end
 ```
 
 ```ruby
-    module Nuts::Views
-      def layout
-        html do
-          head do
-            title { "Nuts And GORP" }
-          end
-          body { self << yield }
-        end
+module Nuts::Views
+  def layout
+    html do
+      head do
+        title { "Nuts And GORP" }
       end
-
-      def sundial
-        p "The current time is: #{@time}"
-      end
+      body { self << yield }
     end
+  end
+
+  def sundial
+    p "The current time is: #{@time}"
+  end
+end
 ```
 
 Save the file, refresh your browser window and it should show a message
 like:
 
 ```
-    The current time is: Sun Jul 15 13:05:41 +0200 2013
+The current time is: Sun Jul 15 13:05:41 +0200 2013
 ```
 
 And the window title reads "Nuts And GORP".
@@ -123,31 +123,31 @@ These routes can be very powerful, but we're going to have look at the
 simplest ones first.
 
 ```ruby
-    module Nuts::Controllers
-      class Words < R '/welcome/to/my/site'
-        def get
-          "You got here by: /welcome/to/my/site"
-        end
-      end
-
-      class Digits < R '/nuts/(\d+)'
-        def get(number)
-          "You got here by: /nuts/#{number}"
-        end
-      end
-
-      class Segment < R '/gorp/([^/]+)'
-        def get(everything_else_than_a_slash)
-          "You got here by: /gorp/#{everything_else_than_a_slash}"
-        end
-      end
-
-      class DigitsAndEverything < R '/nuts/(\d+)/([^/]+)'
-        def get(number, everything)
-          "You got here by: /nuts/#{number}/#{everything}"
-        end
-      end
+module Nuts::Controllers
+  class Words < R '/welcome/to/my/site'
+    def get
+      "You got here by: /welcome/to/my/site"
     end
+  end
+
+  class Digits < R '/nuts/(\d+)'
+    def get(number)
+      "You got here by: /nuts/#{number}"
+    end
+  end
+
+  class Segment < R '/gorp/([^/]+)'
+    def get(everything_else_than_a_slash)
+      "You got here by: /gorp/#{everything_else_than_a_slash}"
+    end
+  end
+
+  class DigitsAndEverything < R '/nuts/(\d+)/([^/]+)'
+    def get(number, everything)
+      "You got here by: /nuts/#{number}/#{everything}"
+    end
+  end
+end
 ```
 
 Add this to `nuts.rb` and try if you can hit all of the controllers.
@@ -160,37 +160,37 @@ and is ready at your disposal.
 This just in:
 
 ```ruby
-    module Nuts::Controllers
-      class Index
-        def get
-          "You got here by: /"
-        end
-      end
-
-      class WelcomeToMySite
-        def get
-          "You got here by: /welcome/to/my/site"
-        end
-      end
-
-      class NutsN
-        def get(number)
-          "You got here by: /nuts/#{number}"
-        end
-      end
-
-      class GorpX
-        def get(everything_else_than_a_slash)
-          "You got here by: /gorp/#{everything_else_than_a_slash}"
-        end
-      end
-
-      class NutsNX
-        def get(number, everything)
-          "You got here by: /nuts/#{number}/#{everything}"
-        end
-      end
+module Nuts::Controllers
+  class Index
+    def get
+      "You got here by: /"
     end
+  end
+
+  class WelcomeToMySite
+    def get
+      "You got here by: /welcome/to/my/site"
+    end
+  end
+
+  class NutsN
+    def get(number)
+      "You got here by: /nuts/#{number}"
+    end
+  end
+
+  class GorpX
+    def get(everything_else_than_a_slash)
+      "You got here by: /gorp/#{everything_else_than_a_slash}"
+    end
+  end
+
+  class NutsNX
+    def get(number, everything)
+      "You got here by: /nuts/#{number}/#{everything}"
+    end
+  end
+end
 ```
 
 Drop the <tt>< R</tt>-part and it attemps to read your mind. It won't always
@@ -204,12 +204,12 @@ playing a bit off-book, but it's time to take the next step: Storing data.
 Let's start over again.
 
 ```ruby
-    Camping.goes :Nuts
+Camping.goes :Nuts
 
-    module Nuts::Models
-      class Page < Base
-      end
-    end
+module Nuts::Models
+  class Page < Base
+  end
+end
 ```
 
 Obviously, this won't do anything, since we don't have any controllers, but
@@ -223,42 +223,42 @@ to do it.
 However, our model is missing something essential: a skeleton.
 
 ```ruby
-    Camping.goes :Nuts
+Camping.goes :Nuts
 
-    module Nuts::Models
-      class Page < Base
-      end
+module Nuts::Models
+  class Page < Base
+  end
 
-      class BasicFields < V 1.0
-        def self.up
-          create_table Page.table_name do |t|
-            t.string :title
-            t.text   :content
-            # This gives us created_at and updated_at
-            t.timestamps
-          end
-        end
-
-        def self.down
-          drop_table Page.table_name
-        end
+  class BasicFields < V 1.0
+    def self.up
+      create_table Page.table_name do |t|
+        t.string :title
+        t.text   :content
+        # This gives us created_at and updated_at
+        t.timestamps
       end
     end
+
+    def self.down
+      drop_table Page.table_name
+    end
+  end
+end
 ```
 
 Now we have our first version of our model. It says:
 
 ```
-  If you want to migrate up to version one,
-    create the skeleton for the Page model,
-    which should be able to store,
-      "title" which is a string,
-      "content" which is a larger text,
-      "created_at" which is the time it was created,
-      "updated_at" which is the previous time it was updated.
+If you want to migrate up to version one,
+  create the skeleton for the Page model,
+  which should be able to store,
+    "title" which is a string,
+    "content" which is a larger text,
+    "created_at" which is the time it was created,
+    "updated_at" which is the previous time it was updated.
 
-  If you want to migrate down from version one,
-    remove the skeleton for the Page model.
+If you want to migrate down from version one,
+  remove the skeleton for the Page model.
  ```
 
 This is called a
@@ -269,20 +269,20 @@ upon each other like LEGO blocks. Each new Migrations must have different
 class's names, is a good idea name migration's explicit. For example:
 
 ```ruby
-      class AddTagColumn < V 1.1
-        def self.change
-         add_column Page.table_name, :tag, :string
-         Page.reset_column_information
-        end
-      end
+class AddTagColumn < V 1.1
+  def self.change
+   add_column Page.table_name, :tag, :string
+   Page.reset_column_information
+  end
+end
 ```
 
 Now we just need to tell Camping to use our migration. Write this at the bottom of nuts.rb
 
 ```ruby
-    def Nuts.create
-      Nuts::Models.create_schema
-    end
+def Nuts.create
+  Nuts::Models.create_schema
+end
 ```
 
 When The Camping Server boots up, it will automatically call
@@ -291,14 +291,14 @@ we only want to create our skeleton (or upgrade if needed). Start The Camping
 Server again and observe:
 
 ```bash
-    $ camping nuts.rb
-    ** Starting Mongrel on 0.0.0.0:3301
-    -- create_table("nuts_schema_infos")
-       -> 0.1035s
-    ==  Nuts::Models::BasicFields: migrating ===================================
-    -- create_table(:nuts_pages)
-       -> 0.0033s
-    ==  Nuts::Models::BasicFields: migrated (0.0038s) ==========================
+$ camping nuts.rb
+** Starting Mongrel on 0.0.0.0:3301
+-- create_table("nuts_schema_infos")
+   -> 0.1035s
+==  Nuts::Models::BasicFields: migrating ===================================
+-- create_table(:nuts_pages)
+   -> 0.0033s
+==  Nuts::Models::BasicFields: migrated (0.0038s) ==========================
 ```
 
 Restart it, and enjoy the silence. There's no point of re-creating the
@@ -314,9 +314,9 @@ is good way to familiarize with your models. Test your models adding some
 data by bare hand before addin it to the application.
 
 ```bash
-    $ camping -C nuts.rb
-    ** Starting console
-    >>
+$ camping -C nuts.rb
+** Starting console
+>>
 ```
 
 Now it's waiting for your input, and will give you the answer when you press
@@ -324,29 +324,29 @@ Enter. Here's what I did, leaving out the boring answers. You should add your
 own pages.
 
 ```bash
-    >> Page = Nuts::Models::Page
+>> Page = Nuts::Models::Page
 
-    >> hiking = Page.new(:title => "Hiking")
-    >> hiking.content = "You can also set the values like this."
-    >> hiking.save
+>> hiking = Page.new(:title => "Hiking")
+>> hiking.content = "You can also set the values like this."
+>> hiking.save
 
-    >> page = Page.find_by_title("Hiking")
-    => #<Nuts::Models::Page id: 1, ... >
-    >> page = Page.find(1)
-    => #<Nuts::Models::Page id: 1, ... >
-    >> page.title
-    >> page.content
-    >> page.created_at
-    >> page.updated_at
+>> page = Page.find_by_title("Hiking")
+=> #<Nuts::Models::Page id: 1, ... >
+>> page = Page.find(1)
+=> #<Nuts::Models::Page id: 1, ... >
+>> page.title
+>> page.content
+>> page.created_at
+>> page.updated_at
 
-    >> Page.find_by_title("Fishing")
-    => nil
+>> Page.find_by_title("Fishing")
+=> nil
 
-    ## Page.create automatically saves the page for you.
-    >> Page.create(:title => "Fishing", :content => "Go fish!")
+## Page.create automatically saves the page for you.
+>> Page.create(:title => "Fishing", :content => "Go fish!")
 
-    >> Page.count
-    => 2
+>> Page.count
+=> 2
 ```
 
 Now I have two pages: One about hiking and one about fishing.
@@ -357,65 +357,65 @@ Wouldn't it be nice if we could show this wonderful our pages in a browser?
 Update nuts.rb so it also contains something like this:
 
 ```ruby
-    module Nuts::Controllers
-      class Pages
-        def get
-          # Only fetch the titles of the pages.
-          @pages = Page.all(:select => "title")
-          render :list
-        end
-      end
+module Nuts::Controllers
+  class Pages
+    def get
+      # Only fetch the titles of the pages.
+      @pages = Page.all(:select => "title")
+      render :list
+    end
+  end
 
-      class PageX
-        def get(title)
-          @page = Page.find_by_title(title)
-          render :view
+  class PageX
+    def get(title)
+      @page = Page.find_by_title(title)
+      render :view
+    end
+  end
+end
+
+module Nuts::Views
+  def list
+    h1 "All pages"
+    ul do
+      @pages.each do |page|
+        li do
+          a page.title, :href => R(PageX, page.title)
         end
       end
     end
+  end
 
-    module Nuts::Views
-      def list
-        h1 "All pages"
-        ul do
-          @pages.each do |page|
-            li do
-              a page.title, :href => R(PageX, page.title)
-            end
-          end
-        end
-      end
-
-      def view
-        h1 @page.title
-        self << @page.content
-      end
-    end
+  def view
+    h1 @page.title
+    self << @page.content
+  end
+end
 ```
 
 Here we meet our first _helper_:
 
 ```ruby
-    R(PageX, page.title)
+R(PageX, page.title)
 ```
 This is the <em>reversed router</em> and it generates a URL based on a
 controller. R takes the controller you want to link to, followed by the router
 parameters.  . Instead of typing:
 
 ```ruby
-    :href=>'/welcome/to/my/site'
+:href=>'/welcome/to/my/site'
 ```
 
 You can let Camping do the hard work for you.
 
 ```ruby
-    :href=>R(Words)
+:href=>R(Words)
 ```
 
 If the route would have some parameter, you shall write like this:
 
 ```ruby
-   :href=>R(WordsX,'someword')
+:href=>R(WordsX,'someword')
 ```
 
 Camping ships with a few, but very useful, helpers, and you can easily add your
@@ -439,35 +439,35 @@ We have one major flaw in our little application. You can't edit or add new
 pages. Let's see if we can fix that:
 
 ```ruby
-    module Nuts::Controllers
-      class PageX
-        def get(title)
-          if @page = Page.find_by_title(title)
-            render :view
-          else
-            redirect PageXEdit, title
-          end
-        end
-
-        def post(title)
-          # If it doesn't exist, initialize it:
-          @page = Page.find_or_initialize_by_title(title)
-          # This is the same as:
-          # @page = Page.find_by_title(title) || Page.new(:title => title)
-
-          @page.content = @input.content
-          @page.save
-          redirect PageX, title
-        end
-      end
-
-      class PageXEdit
-        def get(title)
-          @page = Page.find_or_initialize_by_title(title)
-          render :edit
-        end
+module Nuts::Controllers
+  class PageX
+    def get(title)
+      if @page = Page.find_by_title(title)
+        render :view
+      else
+        redirect PageXEdit, title
       end
     end
+
+    def post(title)
+      # If it doesn't exist, initialize it:
+      @page = Page.find_or_initialize_by_title(title)
+      # This is the same as:
+      # @page = Page.find_by_title(title) || Page.new(:title => title)
+
+      @page.content = @input.content
+      @page.save
+      redirect PageX, title
+    end
+  end
+
+  class PageXEdit
+    def get(title)
+      @page = Page.find_or_initialize_by_title(title)
+      render :edit
+    end
+  end
+end
 ```
 
 The core of this code lies in the new <tt>post</tt> method in the PageX
@@ -487,19 +487,19 @@ Here's an <tt>edit</tt>-view, but you can probably do better. See if you can
 integrate all of this with what you already have.
 
 ```ruby
-    module Nuts::Views
-      def edit
-        h1 @page.title
-        form :action => R(PageX, @page.title), :method => :post do
-          textarea @page.content, :name => :content,
-            :rows => 10, :cols => 50
+module Nuts::Views
+  def edit
+    h1 @page.title
+    form :action => R(PageX, @page.title), :method => :post do
+      textarea @page.content, :name => :content,
+        :rows => 10, :cols => 50
 
-          br
+      br
 
-          input :type => :submit, :value => "Submit!"
-        end
-      end
+      input :type => :submit, :value => "Submit!"
     end
+  end
+end
 ```
 
 ## Phew.
