@@ -38,9 +38,7 @@ A folder called 'tmp', containing a file called 'restart.txt', which you'll need
 
 A file called config.ru, containing something like:
 
-```
-ruby
-
+```ruby
 require 'rubygems'
 ENV['GEM_PATH'] = File.join(File.dirname(__FILE__), '..', '.gems') if File.exist?('/dh')
 Gem.clear_paths
@@ -68,17 +66,13 @@ Someone should also add information to this section. It's possible using jRuby s
 # Using a CGI Webhost
 Firstly, make sure your webhost can run ruby apps. Most can, thankfully. If you have shell access, you can check by entering 'which ruby' and seeing if it finds anything. Unfortunately, different webhosts work differently, so we can't provide specific instructions for installing rubygems on your webhost. If all else fails, you can extract the files from the lib folder within each gem, put the files in a folder, and add the big folder to your load path. Once you've done this, you'll just need to make sure your camping app file starts with:
 
-```
-ruby
-
+```ruby
 #!/usr/bin/ruby
 ```
 
 And then either the simple postamble, or the complex postamble:
 
-```
-ruby
-
+```ruby
 # Plug it in to CGI
 Rack::Handler::CGI.run(Blog)) if __FILE__ == $0
 ```
@@ -90,8 +84,8 @@ Then upload it to your server, and change the file's permissions to have all the
 
 Follow your Webhost's instructions, and in the config.ru file, add a little something like this:
 
-```
-ruby ... require 'blog' run Blog end
+```ruby
+... require 'blog' run Blog end
 ```
 
 To set up Passenger and Rack for really easy deployment under Apache or Nginx see the screencasts on the Passenger site. If you have (e.g.) Apache on your computer, this is also good for local testing too.

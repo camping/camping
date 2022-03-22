@@ -19,18 +19,23 @@ of that route; this is what *the controller* does.
 
 ## Camping Routes and Controllers
 
-In camping, each _capitalized_ word in a camel-cased contoller declaration is like the 
+In camping, each _capitalized_ word in a camel-cased contoller declaration is like the
 words between each slash in a URL. For example:
 
-      WelcomeToMySite
-
+```ruby
+WelcomeToMySite
+```
 will draw the route:
 
-      /welcome/to/my/site
+```
+/welcome/to/my/site
+```
 
 Or you could instead use the weird R helper to get more specific control of your routes:
 
-      Welcome < R '/welcome/to/my/site'
+```ruby
+Welcome < R '/welcome/to/my/site'
+```
 
 All of this will be declared inside the Nuts::Controllers module.
 
@@ -47,32 +52,42 @@ to tell him about the size of the flock.
 In camping, adding `N` or `X` to a controller's declaration tells it to expect a parameter.
 The `N` suffix, which will match a numbered route, is declared like this:
 
-      class PostN
+```ruby
+class PostN
+```
 
 With this controller, adding a number to the simple `/post` route in your browser will trigger this route. For example,
 either of these will work:
 
-      /post/1
-      /post/99
+```
+/post/1
+/post/99
+```
 
 But this `N` route will not match against a word. For example, a request for `/pots/mypost`
 will return 404 (Not Found). Because the `PostN` declaration will only match _Numeric_ parameters.
 
 If you would like to match something other than a number, you should use the `X` suffix:
 
-      class PostX
+```ruby
+class PostX
+```
 
 The _X_ tells the controller to match anything, including number and words. For example, it will match:
 
-      /post/1
-      /post/99
-      /post/mypost
+```
+/post/1
+/post/99
+/post/mypost
+```
 
 But it will NOT match: `/post/mypost/1` (or anything that has "/" in the name). Since slashes signify
 deeper directories, you would need to tell the controller to recognize the deeper directory before using a parameter.
 You can do this using camel case, followed by the "X" or "N":
 
-      class PostMypostX
+```ruby
+class PostMypostX
+```
 
 ## Getting parameters from the controller
 
@@ -81,11 +96,13 @@ Ok, we have the controller that match parameters; and now what?
 Say that you want to show the post number N requested in the controller. You'll need the
 number.
 
-      class PostN
-          def get number
-               p "the parameter was: #{number}"
-          end
-      end
+```ruby
+class PostN
+    def get number
+         p "the parameter was: #{number}"
+    end
+end
+```
 
 Please, do not try that at home. It's very dirty to use a _view_ inside the controller (more on that soon).
 
@@ -93,8 +110,10 @@ The method `get`, for the `/post/N route`, will take a parameter. That number wi
 inside the "number parameter". From now, if you want to route something to your
 post route, you can write a link 100% pragmatically like this:
 
-      @post=rand 1..9
-      a "See the post number: #{@post}",:href=>R(PostN,@post)
+```ruby
+@post=rand 1..9
+a "See the post number: #{@post}",:href=>R(PostN,@post)
+```
 
 For that example, we just choose a random post and then displayed a link to its path.
 

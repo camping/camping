@@ -24,7 +24,9 @@ code". In order to show a Header-1 tag, we just call a method named h1 and send
 the content as parameter. It will make the dirty work writing all the tags just
 like this:
 
-      h1 'This is a header one'
+```ruby
+h1 'This is a header one'
+```
 
 "Write HTML pragmatically" mean: -write html using not html tags.
 Markaby is a way for write Hyper Text Markup Language (HTML) using Ruby.
@@ -37,20 +39,22 @@ But that is only the beginning, we can do more wild things.
 For example: if we want show a table for show users and their real
 names:
 
-         # call me using render :users 
-         # from a get in the controllers
-         def users
-            table do
-            th 'User'
-            th 'Realname'
-               @users.each do |user,realname|
-                  tr do
-                       td user
-                       td realname
-                  end # tr
-               end # each
-            end # table
-         end # def
+```ruby
+# call me using render :users
+# from a get in the controllers
+def users
+table do
+th 'User'
+th 'Realname'
+   @users.each do |user,realname|
+      tr do
+           td user
+           td realname
+      end # tr
+   end # each
+end # table
+end # def
+```
 
 Take a look better [here](https://github.com/camping/mab/blob/master/README.md)
 
@@ -80,52 +84,58 @@ worry, the layout is here.
 
 Lets write our layout, with all the HTML shape and including a footer
 
-            def layout
-            
-              html do 
-                head do
-                  title 'My Blog'
-                end
+```ruby
+def layout
 
-                 body do
-                  
-                  div.wrapper! do
-                    self << yield
-                 end
-                  
-                  p.footer! do
-                    text 'Powered by Camping'
-                 end
-                end
-              end
+  html do
+    head do
+      title 'My Blog'
+    end
 
-            end # layout
+     body do
 
+      div.wrapper! do
+        self << yield
+     end
+
+      p.footer! do
+        text 'Powered by Camping'
+     end
+    end
+  end
+
+end # layout
+```
 Well, that was wild. Let's see: First we have everything inside a block, the
 html's block. At the next level, the first block is head, that is rendering
 something like:
 
-            <html>
-               <head>
-                  <title> My Blog </title>
-               </head>
-            </html>
+```html
+<html>
+   <head>
+      <title> My Blog </title>
+   </head>
+</html>
+```
 
 If you look at the HTML's source of camping, you will see a VERY LOOOONG
 line with every the HTML code, better do not look it.
 
 Then, come the more weird thing. A div with a estrange sentence:
 
-         self << yield
-         
+```ruby
+self << yield
+```
 That mean: -put just right here, the other view called.
 
 In that place, in the center of the div.wrapper, will be placed all our
 views called using render's sentence.
 
-When you call: 
+When you call:
 
-            render :someview
+```ruby
+render :someview
+```
 
 Camping will rendering before, the layout view, and put all the content
 of "someview" inside div.wrapper! You shall not write a lot of tag like
@@ -138,15 +148,17 @@ all our pages.
 
 What would happen? If you do this in the layout:
 
-                head do
-                  title "#{@title}"
-                end
+```ruby
+head do
+    title "#{@title}"
+end
+```
 
 Hummm... You could "rewrite" the titles of each pages. In the
 controller, you just need to declare the variable @title, and that will
 be the title for that page.
 
-Remember: 
+Remember:
 
 * Views take @variables from the controller
 * Layout is rendered before any called view.
@@ -154,7 +166,7 @@ Remember:
 * View's modules use not `class` declarations
 
 In the table example, we used a hash named @users. But. Where come from all
-thats data? 
+thats data?
 
 It come from the controller, but the controller took it from the
 [model](06_more_about_models.md). The M of the MVC, the layer who stare

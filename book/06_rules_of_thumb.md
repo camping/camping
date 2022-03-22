@@ -4,8 +4,8 @@ Generally, the idea is keep your app small and store in a single file. Your app 
 
 1. Camping setup
 
-```
-ruby do
+```ruby
+do
   require 'rubygems'
   require 'camping'
   Camping.goes :Blog
@@ -14,8 +14,8 @@ end
 
 2. Models
 
-```
-ruby do
+```ruby
+do
   module Blog::Models
     class User < Base; end
     class Post < Base; belongs_to :user end
@@ -25,8 +25,8 @@ end
 
 3. Controllers
 
-```
-ruby do
+```ruby
+do
   module Blog::Controllers
     class Index < R '/'
       def get; render :index end
@@ -37,8 +37,8 @@ end
 
 4. Views
 
-```
-ruby do
+```ruby
+do
   module Blog::Views
     def layout
       html { body { self << yield } }
@@ -66,8 +66,8 @@ blog/
 
 Your blog.rb would still contain the setup (No. 1):
 
-```
-ruby do
+```ruby
+do
   require 'rubygems'
   require 'camping'
   Camping.goes :Blog
@@ -98,8 +98,8 @@ For example, if R(View, 1) is used in the blogging app mounted at /blog, the lin
 
 # Give us a create method
 
-```
-ruby do
+```ruby
+do
   def Blog.create
     # Code in here will run when the app starts, or reloads, but not when requests happen.
     # You can use it to create database bits and pieces, files, folders, and so on.
