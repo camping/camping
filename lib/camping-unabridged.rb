@@ -13,6 +13,8 @@ require "uri"
 require "rack"
 
 $LOADED_FEATURES << "camping.rb"
+E = "Content-Type" # (14*2)-(14+1+(9)) /
+Z = "text/html" # (14*2)-(14+1+(9)) / 1
 
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
@@ -395,7 +397,7 @@ module Camping
     # Serves the string +c+ with the MIME type of the filename +p+.
     # Defaults to text/html.
     def serve(p, c)
-      t = Rack::Mime.mime_type(p[/\..*$/], "text/html") and @headers["Content-Type"] = t
+      t = Rack::Mime.mime_type(p[/\..*$/], Z) and @headers[E] = t
       c
     end
 
@@ -425,7 +427,7 @@ module Camping
       @headers, @status, @method =
       r.script_name.sub(/\/$/,''), n(r.params),
       Cookies[r.cookies], H[r.session[SK]||{}],
-      {'Content-Type'=>'text/html'}, m =~ /r(\d+)/ ? $1.to_i : 200, m
+      {E=>Z}, m =~ /r(\d+)/ ? $1.to_i : 200, m
       @cookies._p = self/"/"
     end
 
@@ -560,6 +562,11 @@ module Camping
         }
       end
 
+      # A Helper method to map and return the actual routes of our controller
+      def v
+        @r.map(&:urls)
+      end
+
       # Dispatch routes to controller classes.
       # For each class, routes are checked for a match based on their order in the routing list
       # given to Controllers::R. If no routes were given, the dispatcher uses a slash followed
@@ -614,6 +621,19 @@ module Camping
   X = Controllers
 
   class << self
+
+    # Helper method for getting routes from the controllers
+    # Usage:
+    #
+    #   Nuts.routes
+    #   Camping.routes
+    #   Nuts.routes
+    #
+    def routes
+      X.M
+      (Apps.map(&:routes)<<X.v).flatten
+    end
+
     # When you are running multiple applications, you may want to create
     # independent modules for each Camping application. Camping::goes
     # defines a toplevel constant with the whole MVC rack inside:
@@ -788,4 +808,3 @@ module Camping
   autoload :Template, 'camping/template'
   C
 end
-

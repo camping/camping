@@ -7,7 +7,7 @@ require 'camping/reloader'
 #
 # Camping includes a pretty nifty server which is built for development.
 # It follows these rules:
-# 
+#
 # * Load all Camping apps in a file.
 # * Mount those apps according to their name. (e.g. Blog is mounted at /blog.)
 # * Run each app's <tt>create</tt> method upon startup.
@@ -34,43 +34,51 @@ module Camping
         DB = nil
         RC = nil
       end
-      
+
       HOME = File.expand_path(home) + '/'
-      
+
       def parse!(args)
         args = args.dup
         options = {}
-        
+
         opt_parser = OptionParser.new("", 24, '  ') do |opts|
           opts.banner = "Usage: camping my-camping-app.rb"
           opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
           opts.separator ""
           opts.separator "Specific options:"
-          
+
           opts.on("-h", "--host HOSTNAME",
           "Host for web server to bind to (default is all IPs)") { |v| options[:Host] = v }
-          
+
           opts.on("-p", "--port NUM",
           "Port for web server (defaults to 3301)") { |v| options[:Port] = v }
-          
+
           db = DB.sub(HOME, '~/') if DB
           opts.on("-d", "--database FILE",
           "SQLite3 database path (defaults to #{db ? db : '<none>'})") { |db_path| options[:database] = db_path }
-          
+
           opts.on("-C", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
-          
+
           server_list = ["thin", "webrick", "console"]
           opts.on("-s", "--server NAME",
           "Server to force (#{server_list.join(', ')})") { |v| options[:server] = v }
 
           opts.separator ""
           opts.separator "Common options:"
-          
+
           # No argument, shows at tail.  This will print an options summary.
           # Try it and see!
           opts.on_tail("-?", "--help", "Show this message") do
             puts opts
+            exit
+          end
+
+          # Another typical switch to print the version.
+          opts.on_tail("-m", "--mounting", "Shows Mounting Guide") do
+            puts "Mounting Guide"
+            puts ""
+            puts "To mount your horse, hop up on the side and put it."
             exit
           end
 
@@ -80,26 +88,26 @@ module Camping
             exit
           end
         end
-        
+
         opt_parser.parse!(args)
-        
+
         if args.empty?
           puts opt_parser
           exit
         end
-        
+
         options[:script] = args.shift
         options
       end
     end
-    
+
     def initialize(*)
       super
       @reloader = Camping::Reloader.new(options[:script]) do |app|
         if !app.options.has_key?(:dynamic_templates)
 		      app.options[:dynamic_templates] = true
 	      end
-	      
+
         if !Camping::Models.autoload?(:Base) && options[:database]
           Camping::Models::Base.establish_connection(
             :adapter => 'sqlite3',
@@ -108,7 +116,7 @@ module Camping
         end
       end
     end
-    
+
     def opt_parser
       Options.new
     end
@@ -119,7 +127,7 @@ module Camping
         :database => Options::DB
       })
     end
-    
+
     def middleware
       h = super
       h["development"] << [XSendfile]
@@ -145,43 +153,92 @@ module Camping
     def public_dir
       File.expand_path('../public', @reloader.file)
     end
-    
+
     def app
       Rack::Cascade.new([Rack::File.new(public_dir), self], [405, 404, 403])
     end
-    
-    def current_app
+
+    # path_matches?
+    # accepts a regular expression string
+    # in our case our apps and controllers
+    def path_matches?(path, *reg)
+      reg.each do |r|
+        return true if Regexp.new(r).match? path
+      end
+      false
+    end
+
+    # call(env) res
+    # == How routing works
+    #
+    # The first app added using Camping.goes is set at the root, we walk through
+    # the defined routes of the first app to see if there is a match.
+    # With no match we then walk through every other defined app.
+    # Each subsequent app defined is loaded at a directory named after them:
+    #
+    #   camping.goes :Nuts          # Mounts Nuts at /
+    #   camping.goes :Auth          # Mounts Auth at /auth/
+    #   camping.goes :Blog          # Mounts Blog at /blog/
+    #
+    def call(env)
       @reloader.reload
       apps = @reloader.apps
-      return apps.values.first if apps.size == 1
-      if key = apps.keys.grep(/^#{@reloader.name}$/i)[0]
-        apps[key]
+
+      case apps.length
+      when 0
+        [200, {'Content-Type' => 'text/html'}, ["I'm sorry but no apps were found."]]
+      when 1
+        apps.values.first.call(env) # When we have one
+      else
+        # 2 and up get special treatment
+        count = 0
+        apps.each do |name, app|
+          if count == 0
+            app.routes.each do |r|
+              puts "match? path:#{env['PATH_INFO']} to #{r} "
+              if (path_matches?(env['PATH_INFO'], r))
+                next
+              end
+              return app.call(env) unless !(path_matches?(env['PATH_INFO'], r))
+            end
+          else
+            mount = name.to_s.downcase
+            case env["PATH_INFO"]
+            when %r{^/#{mount}}
+              env["SCRIPT_NAME"] = env["SCRIPT_NAME"] + $&
+              env["PATH_INFO"] = $'
+              return app.call(env)
+            when %r{^/code/#{mount}}
+              return [200, {'Content-Type' => 'text/plain', 'X-Sendfile' => @reloader.file}, []]
+            end
+          end
+          count += 1
+          puts "count: #{count}"
+        end
+
+        # Just return the first app if we didn't find a match.
+        return apps.values.first.call(env)
       end
     end
 
-    def call(env)
-      app = current_app || raise("Could not find an app called `#{@reloader.name}`")
-      app.call(env)
-    end
-    
     class XSendfile
       def initialize(app)
         @app = app
       end
-      
+
       def call(env)
         status, headers, body = @app.call(env)
-        
+
         if key = headers.keys.grep(/X-Sendfile/i).first
           filename = headers[key]
           content = open(filename,'rb') { | io | io.read}
           headers['Content-Length'] = size(content).to_s
           body = [content]
         end
-        
+
         return status, headers, body
       end
-      
+
       if "".respond_to?(:bytesize)
         def size(str)
           str.bytesize

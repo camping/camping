@@ -9,7 +9,7 @@ module Camping
   #    to store your application's data.
   #
   #   require 'camping/session'    # 1
-  #   
+  #
   #   module Nuts
   #     set :secret, "Oh yeah!"    # 2
   #     include Camping::Session   # 3
@@ -28,7 +28,6 @@ module Camping
     def self.included(app)
       key    = "#{app}.state".downcase
       secret = app.options[:secret] || [__FILE__, File.mtime(__FILE__)].join(":")
-      
       app.use Rack::Session::Cookie, :key => key, :secret => secret
     end
   end
