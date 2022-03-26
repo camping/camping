@@ -118,6 +118,8 @@ namespace :check do
     unless u == m
       STDERR.puts "camping.rb and camping-unabridged.rb are not synchronized."
       error = true
+    else
+      puts "✅ synchronized....."
     end
   end
 
