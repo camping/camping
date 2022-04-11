@@ -155,7 +155,7 @@ module Camping
     end
 
     def app
-      Rack::Cascade.new([Rack::File.new(public_dir), self], [405, 404, 403])
+      Rack::Cascade.new([Rack::Files.new(public_dir), self], [405, 404, 403])
     end
 
     # path_matches?
