@@ -2,6 +2,7 @@ require 'irb'
 require 'erb'
 require 'rack'
 require 'camping/reloader'
+require 'camping/commands'
 
 # == The Camping Server (for development)
 #
@@ -39,6 +40,7 @@ module Camping
 
       def parse!(args)
         args = args.dup
+
         options = {}
 
         opt_parser = OptionParser.new("", 24, '  ') do |opts|
@@ -69,13 +71,13 @@ module Camping
 
           # No argument, shows at tail.  This will print an options summary.
           # Try it and see!
-          opts.on_tail("-?", "--help", "Show this message") do
+          opts.on("-?", "--help", "Show this message") do
             puts opts
             exit
           end
 
           # Another typical switch to print the version.
-          opts.on_tail("-m", "--mounting", "Shows Mounting Guide") do
+          opts.on("-m", "--mounting", "Shows Mounting Guide") do
             puts "Mounting Guide"
             puts ""
             puts "To mount your horse, hop up on the side and put it."
@@ -83,19 +85,45 @@ module Camping
           end
 
           # Another typical switch to print the version.
-          opts.on_tail("-v", "--version", "Show version") do
+          opts.on("-v", "--version", "Show version") do
             puts Gem.loaded_specs['camping'].version
             exit
           end
+
+          # Crude start at a generator
+#           opts.separator ""
+#           opts.separator "Generators:"
+#
+#           generator_list = ["controller", "model", "helper"]
+#           opts.on("-g", "--generator NAME",
+#           "generators (#{generator_list.join(', ')})") { |g|
+#             options[:generator] = g
+#             options[:args] = args
+#           }
+#
+#           opts.separator ""
+
         end
 
         opt_parser.parse!(args)
 
+        # Crude start at a generator command parser thing
+        # if options[:generator] != nil
+          # puts "someone wants to generate."
+          # puts args
+          # Camping::Commands.new(options)
+          # exit
+        # end
+
+        # If no Arguments were called.
         if args.empty?
-          puts opt_parser
-          exit
+          # puts "arguments were empty"
+          args << "cabin.rb" # adds cabin.rb as a default camping entrance file
+          # puts opt_parser
+          # exit
         end
 
+        # Parses the first argument as the script to load into the server.
         options[:script] = args.shift
         options
       end
@@ -150,10 +178,13 @@ module Camping
       end
     end
 
+    # defines the public directory to be /public
     def public_dir
       File.expand_path('../public', @reloader.file)
     end
 
+    # add the public directory as a Rack app serving files first, then the
+    # current value of self, which is our camping apps, as an app.
     def app
       Rack::Cascade.new([Rack::Files.new(public_dir), self], [405, 404, 403])
     end
@@ -184,6 +215,8 @@ module Camping
       @reloader.reload
       apps = @reloader.apps
 
+      # our switch statement iterates through possible app outcomes, no apps
+      # loaded, one app loaded, or multiple apps loaded.
       case apps.length
       when 0
         [200, {'Content-Type' => 'text/html'}, ["I'm sorry but no apps were found."]]
@@ -195,7 +228,6 @@ module Camping
         apps.each do |name, app|
           if count == 0
             app.routes.each do |r|
-              puts "match? path:#{env['PATH_INFO']} to #{r} "
               if (path_matches?(env['PATH_INFO'], r))
                 next
               end
@@ -213,7 +245,6 @@ module Camping
             end
           end
           count += 1
-          puts "count: #{count}"
         end
 
         # Just return the first app if we didn't find a match.

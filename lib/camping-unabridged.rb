@@ -13,8 +13,8 @@ require "uri"
 require "rack"
 
 $LOADED_FEATURES << "camping.rb"
-E = "Content-Type" # (14*2)-(14+1+(9)) /
-Z = "text/html" # (14*2)-(14+1+(9)) / 1
+E = "Content-Type"
+Z = "text/html"
 
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
@@ -422,6 +422,7 @@ module Camping
     end
 
     def initialize(env, m) #:nodoc:
+      # puts "ancestors: {self.class.ancestors}"
       r = @request = Rack::Request.new(@env = env)
       @root, @input, @cookies, @state,
       @headers, @status, @method =
@@ -634,48 +635,11 @@ module Camping
       (Apps.map(&:routes)<<X.v).flatten
     end
 
-    # When you are running multiple applications, you may want to create
-    # independent modules for each Camping application. Camping::goes
-    # defines a toplevel constant with the whole MVC rack inside:
-    #
-    #   require 'camping'
-    #   Camping.goes :Nuts
-    #
-    #   module Nuts::Controllers; ... end
-    #   module Nuts::Models;      ... end
-    #   module Nuts::Views;       ... end
-    #
-    # Additionally, you can pass a Binding as the second parameter,
-    # which enables you to create a Camping-based application within
-    # another module.
-    #
-    # Here's an example of namespacing your web interface and
-    # code for a worker process together:
-    #
-    #   module YourApplication
-    #     Camping.goes :Web, binding()
-    #     module Web
-    #       ...
-    #     end
-    #     module Worker
-    #       ...
-    #     end
-    #   end
-    #
-    # All the applications will be available in Camping::Apps.
-    def goes(m, g=TOPLEVEL_BINDING)
-      Apps << a = eval(S.gsub(/Camping/,m.to_s), g)
-      caller[0]=~/:/
-      IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
-      (b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
-      a.set :_t,H[*b||[]]
-    end
-
     # Ruby web servers use this method to enter the Camping realm. The +e+
     # argument is the environment variables hash as per the Rack specification.
     # Array with [status, headers, body] is expected at the output.
     #
-    # See: http://rack.rubyforge.org/doc/SPEC.html
+    # See: https://github.com/rack/rack/blob/main/SPEC.rdoc
     def call(e)
       X.M
       k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
@@ -722,6 +686,28 @@ module Camping
       meta_def(:call) { |e| m.call(e) }
     end
 
+
+    # Adds gear to your app:
+    #
+    #   module Blog
+    #     gear Camping::Gear::CSRF
+    #   end
+    #
+    # This feature is an experiment. Inspired by the way that Cuba allows
+    # plugins.
+    #
+    # Why have plugins in the first place if we can just include and extend our
+    # modules and classes directly? To perform setup actions.
+    #
+    # Sometimes you might have ClassMethods that you want to modify camping with
+    # This gives us a way to do that.
+    def gear(g)
+      # puts "packing gear #{g.name}."
+      self.include g
+      self.extend  g::ClassMethods if defined?(g::ClassMethods)
+      g.setup(self) if g.respond_to?(:setup)
+    end
+
     # A hash where you can set different settings.
     def options
       O
@@ -734,6 +720,43 @@ module Camping
     #   end
     def set(k, v)
       O[k] = v
+    end
+
+    # When you are running multiple applications, you may want to create
+    # independent modules for each Camping application. Camping::goes
+    # defines a toplevel constant with the whole MVC rack inside:
+    #
+    #   require 'camping'
+    #   Camping.goes :Nuts
+    #
+    #   module Nuts::Controllers; ... end
+    #   module Nuts::Models;      ... end
+    #   module Nuts::Views;       ... end
+    #
+    # Additionally, you can pass a Binding as the second parameter,
+    # which enables you to create a Camping-based application within
+    # another module.
+    #
+    # Here's an example of namespacing your web interface and
+    # code for a worker process together:
+    #
+    #   module YourApplication
+    #     Camping.goes :Web, binding()
+    #     module Web
+    #       ...
+    #     end
+    #     module Worker
+    #       ...
+    #     end
+    #   end
+    #
+    # All the applications will be available in Camping::Apps.
+    def goes(m, g=TOPLEVEL_BINDING)
+      Apps << a = eval(S.gsub(/Camping/,m.to_s), g)
+      caller[0]=~/:/
+      IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
+      (b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
+      a.set :_t,H[*b||[]]
     end
   end
 
