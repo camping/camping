@@ -90,6 +90,10 @@ module Camping
             exit
           end
 
+          # Show Routes
+          opts.on("-R", "--routes",
+          "Show Routes") { options[:routes] = true }
+
           # Crude start at a generator
 #           opts.separator ""
 #           opts.separator "Generators:"
@@ -163,6 +167,17 @@ module Camping
     end
 
     def start
+
+      # If routes option was chosen to short circut here
+      if options[:routes] == true
+        @reloader.reload!
+        r = @reloader
+        eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
+        ARGV.clear
+        Camping::Commands.routes
+        exit
+      end
+
       if options[:server] == "console"
         puts "** Starting console"
         @reloader.reload!
