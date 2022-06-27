@@ -7,119 +7,90 @@ module Camping
       end
 
       def initialize(app)
-        @parent_app = app
-        @routes = []
+        @parent_app, @routes = app, []
       end
 
-      def normy(themethod)
-        case themethod.to_s
-        when "post"
-          "POST  "
-        when "put"
-          "PUT   "
-        when "patch"
-          "PATCH "
-        when "delete"
-          "DELETE"
-        else
-          "GET   "
-        end
-      end
+      def url_from_name(controller_name, params)
 
-      def makeRoutes(controllers, controller)
+        # We have to figure out the route from the Controller name
+        splitty = controller_name.split(/(?<=\p{Ll})(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})/)
 
-        contr_const = controllers.const_get(controller)
-
-        # gets the http methods from the list of instance methods
-        http_methods = contr_const.instance_methods false
-        class_methods = contr_const.methods false
-
-        mappedURLS = []
-
-        http_methods.each { |http_method|
-          # Gets the list of params
-          named_parameters = contr_const.instance_method(http_method).parameters.map(&:last).map(&:to_s)
-
-          # Craft the URL
-          splitty = controller.name.split(/(?<=\p{Ll})(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})/)
-
-          mappedurl = ""; parameteriteration = 0
-          splitty.each { |sis|
-            if sis != "X" && sis != "N"
-              mappedurl += "/#{sis.downcase}"
-            else
-              if named_parameters[parameteriteration] == nil
-                if sis == "N"
-                  mappedurl += "/:Integer"
-                elsif sis == "X"
-                  mappedurl += "/:String"
-                else
-                  puts "{sis}"
-                  mappedurl += "/#{sis}"
-                end
+        url, it = "", 0
+        splitty.each { |sis|
+          if sis != "X" && sis != "N"
+            url += "/#{sis.downcase}"
+          else
+            if params[it] == nil
+              if sis == "N"
+                url += "/:Integer"
+              elsif sis == "X"
+                url += "/:String"
               else
-                mappedurl += "/:#{named_parameters[parameteriteration]}"
+                url += "/#{sis}"
               end
-              parameteriteration += 1
+            else
+              url += "/:#{params[it]}"
             end
-          }
-          mappedurl += "/"
+            it += 1
+          end
+        }
+        url
+      end
 
-          # puts mappedurl
-          # puts "#{controller} - #{mappedurl}"
-          # message = "#{(normy(http_method))} - #{mappedurl}"
-          route = Route.new(http_method, controller.name, "App", mappedurl)
+      def makeRoutes(controllers, controller, prefix = "", appname = "", routes = nil)
+        contr_const, mappedURLS = controllers.const_get(controller), []
 
-          # puts route
+        (contr_const.instance_methods false).each { |http_method|
 
-          mappedURLS.append route
+          # Parse named parameters from the method names
+          params = contr_const.instance_method(http_method).parameters.map(&:last).map(&:to_s)
+
+          if routes == nil
+            url = url_from_name(controller.name, params)
+            url = prefix + url if !prefix.empty?
+            # puts "#{http_method.upcase} - prefix: #{prefix}, url: #{url}"
+            mappedURLS.append Route.new(http_method, controller.name, appname, url)
+          else
+
+            # We have a list of routes that we need to match to methods now.
+            routes.each { |route|
+              url = route
+              url = prefix + route if !prefix.empty?
+              # puts "#{http_method.upcase} - prefix: #{prefix}, url: #{url}"
+              mappedURLS.append Route.new(http_method, controller.name, appname, url)
+            }
+          end
         }
         mappedURLS
       end
 
-      # Route Struct, for making and formatting a route from underlying data.
+      # Route Struct, for making and formatting a route.
       Route = Struct.new(:http_method, :controller, :app, :url)
       class Route
 
-        # The width of the controller name
-        def width; @width ||= 0; end
-        def width=(value); @width = value; end
+        def to_s
+          "#{controller} #{normy(http_method)} " + "#{url}"
+        end
 
-        # The Actual controller name
-        def controller_name; @controller_name ||= ""; end
-        def controller_name=(value); @controller_name = value; end
-
-        # The Actual controller name
-        def the_url; @the_url ||= ""; end
-        def the_url=(value); @the_url = value; end
-
-        def message
-          pad
-          "#{controller_name} #{normy(http_method)} "
-          "/#{app.name.downcase}#{self.reverse_regex(route)}"
+        # pad the controller name to be the right length, if we can.
+        def padded_message(appNameWidth, width)
+          "#{"".ljust(appNameWidth, " ")}#{controller.ljust(width, " ")} #{normy(http_method)} " + "#{url}"
         end
 
         protected
 
-        # pad the controller name to be the right length, if we can.
-        def pad
-          if controller.length < width
-            @controller_name = @controller_name.ljust(width, " ")
-          end
-        end
-
         def normy(themethod)
           case themethod.to_s
           when "post"
-            "POST  "
+            "POST    "
           when "put"
-            "PUT   "
+            "PUT     "
           when "patch"
-            "PATCH "
+            "PATCH   "
           when "delete"
-            "DELETE"
+            "DELETE  "
           else
-            "GET   "
+            "GET     "
           end
         end
 
@@ -127,40 +98,46 @@ module Camping
 
       def parse
         it = 0; routes = []
+
+        # Iterate over each app
         @parent_app::Apps.each { |app|
-          # puts app.name
-          if it == 0
-            app::X.constants.each { |controller|
-              contr_const = app::X.const_get(controller)
 
-              if (contr_const.respond_to? :urls) && !(contr_const.send :urls).empty?
-                # puts controller
-                puts "  urls:"
-                urls = contr_const.send :urls
+          prefix = ""; prefix = "/#{app.name.downcase}" unless it == 0
+          appname = app.name.downcase
 
-                urls.each { |url|
-                  puts url
-                }
-                routes.append(makeRoutes(app::X, controller)).flatten
+          #Iterate over each controller
+          app::X.constants.each { |controller|
 
-              else
-                routes.append(makeRoutes(app::X, controller)).flatten
-                puts routes
-              end
-              # puts " "
-              # return (k.method_defined?(m)) ?
-              # if contr_const.responds_to
-              #   c.respond_to? :urls
+            contr_const = app::X.const_get(controller)
 
-              # puts contr_const.method_defined? :urls
-            }
-          else
-            app.routes.each { |route|
-              puts "  /#{app.name.downcase}#{self.reverse_regex(route)}"
-            }
-          end
+            if (contr_const.respond_to? :urls) && !(contr_const.send :urls).empty?
+              urls = contr_const.send :urls
+              routes << makeRoutes(app::X, controller, prefix, appname, urls)
+            else
+              routes << makeRoutes(app::X, controller, prefix, appname)
+            end
+          }
+
           it += 1
         }
+
+        routes.flatten!
+
+        appNameWidth, width, appNames = 0, 0, []
+        routes.each { |r|
+          width = r.controller.length + 3 if r.controller.length > width
+          appNameWidth = r.app.length + 3 if r.app.length > appNameWidth
+        }
+        puts "#{"App".ljust(appNameWidth, " ")}#{"Controller".ljust(width, " ")} VERB     Route"
+        routes.each {|r|
+          if !appNames.include? r.app
+            puts "--------------------------------------"
+            puts "#{r.app.ljust(appNameWidth, " ")}".capitalize
+            appNames << r.app
+          end
+          puts r.padded_message(appNameWidth, width)
+        }
+        routes
       end
 
       # takes a route string, which is regex and converts it to the defined Class in the App.
@@ -182,14 +159,10 @@ module Camping
 
   end
 
-
   class Commands
 
     # A helper method to spit out Routes for an application
     def self.routes()
-      # get all the routes?
-      # Camping::Apps[0]::Controllers.constants
-      # (Camping::Apps[0]::X.const_get :Pages).instance_methods false
       Camping::CommandsHelpers::RoutesParser.parse(Camping)
     end
 
