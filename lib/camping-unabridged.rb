@@ -49,11 +49,12 @@ end
 module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
-  P = "<h1>Camping Problem!</h1><h2>%s</h2>"
+  P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
   O = {} # Our Hash of Options
   Apps = [] # Our array of Apps
   SK = :camping #Key for r.session
+
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
   #
@@ -453,7 +454,6 @@ module Camping
     end
   end
 
-
   # Controllers receive the requests and send a response back to the client.
   # A controller is simply a class which must implement the HTTP methods it
   # wants to accept:
@@ -624,17 +624,18 @@ module Camping
 
   class << self
 
-    # Helper method for getting routes from the controllers
+    # Helper method for getting routes from the controllers.
+    # helps Camping::Server map routes to multiple apps.
     # Usage:
     #
     #   Nuts.routes
     #   Camping.routes
     #   Nuts.routes
     #
-    # def routes # I think we'll remove this as it's kinda weak, and supplanted by a better command line solution.
-    #   X.M
-    #   (Apps.map(&:routes)<<X.v).flatten
-    # end
+    def routes
+      X.M
+      (Apps.map(&:routes)<<X.v).flatten
+    end
 
     # Ruby web servers use this method to enter the Camping realm. The +e+
     # argument is the environment variables hash as per the Rack specification.
@@ -687,7 +688,6 @@ module Camping
       d(:call) { |e| m.call(e) }
     end
 
-
     # Add gear to your app:
     #
     #   module Blog
@@ -703,20 +703,22 @@ module Camping
     # Sometimes you might have ClassMethods that you want to modify camping with,
     # This gives us a way to do that.
     #
-    # The only requirement for a plugin is to have a setup method and a ClassMethods module:
+    # Optionally a plugin may have a setup method and a ClassMethods module:
     #
     #   module MyGear
-    #     def self.setup;end
-    #     module ClassMethods;end
+    #     def self.setup
+    #       # Perform setup actions
+    #     end
+    #     module ClassMethods
+    #       # Define Class Methods here
+    #     end
     #   end
     #
     def gear(g)
       include g
-      extend g::ClassMethods
-      g.setup(self)
+      extend g::ClassMethods if defined?(g::ClassMethods)
+      g.setup(self) if g.respond_to?(:setup)
     end
-
-
 
     # A hash where you can set different settings.
     def options
@@ -839,5 +841,6 @@ module Camping
 
   autoload :Mab, 'camping/mab'
   autoload :Template, 'camping/template'
+
   C
 end
