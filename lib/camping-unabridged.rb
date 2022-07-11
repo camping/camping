@@ -17,10 +17,10 @@ E ||= "Content-Type"
 Z ||= "text/html"
 
 class Object #:nodoc:
-  # meta_def, used to define a method onto an object's class.
-  def md(m,&b) #:nodoc:
+  def meta_def(m,&b) #:nodoc:
     (class<<self;self end).send(:define_method,m,&b)
   end
+  alias d meta_def
 end
 
 # If you're new to Camping, you should probably start by reading the first
@@ -559,8 +559,8 @@ module Camping
       def R *u
         r=@r
         Class.new {
-          md(:urls){u}
-          md(:inherited){|x|r<<x}
+          d(:urls){u}
+          d(:inherited){|x|r<<x}
         }
       end
 
@@ -612,7 +612,7 @@ module Camping
           k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models
           @r=[k]+@r if @r-[k]==@r
-          k.md(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
+          k.d(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
       end
     end
@@ -684,7 +684,7 @@ module Camping
     #   end
     def use(*a, &b)
       m = a.shift.new(method(:call), *a, &b)
-      md(:call) { |e| m.call(e) }
+      d(:call) { |e| m.call(e) }
     end
 
 
