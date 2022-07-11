@@ -169,8 +169,6 @@ module Camping
 
       # If routes option was chosen to short circut here
       if options[:routes] == true
-        # Disable Verbose because we just want routes.
-        $VERBOSE = nil
         @reloader.reload!
         r = @reloader
         eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
