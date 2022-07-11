@@ -13,11 +13,12 @@ require "uri"
 require "rack"
 
 $LOADED_FEATURES << "camping.rb"
-E = "Content-Type"
-Z = "text/html"
+E ||= "Content-Type"
+Z ||= "text/html"
 
 class Object #:nodoc:
-  def meta_def(m,&b) #:nodoc:
+  # meta_def, used to define a method onto an object's class.
+  def md(m,&b) #:nodoc:
     (class<<self;self end).send(:define_method,m,&b)
   end
 end
@@ -48,7 +49,7 @@ end
 module Camping
   C = self
   S = IO.read(__FILE__) rescue nil
-  P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
+  P = "<h1>Camping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
   O = {} # Our Hash of Options
   Apps = [] # Our array of Apps
@@ -558,8 +559,8 @@ module Camping
       def R *u
         r=@r
         Class.new {
-          meta_def(:urls){u}
-          meta_def(:inherited){|x|r<<x}
+          md(:urls){u}
+          md(:inherited){|x|r<<x}
         }
       end
 
@@ -611,7 +612,7 @@ module Camping
           k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models
           @r=[k]+@r if @r-[k]==@r
-          k.meta_def(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
+          k.md(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
         }
       end
     end
@@ -630,10 +631,10 @@ module Camping
     #   Camping.routes
     #   Nuts.routes
     #
-    def routes
-      X.M
-      (Apps.map(&:routes)<<X.v).flatten
-    end
+    # def routes # I think we'll remove this as it's kinda weak, and supplanted by a better command line solution.
+    #   X.M
+    #   (Apps.map(&:routes)<<X.v).flatten
+    # end
 
     # Ruby web servers use this method to enter the Camping realm. The +e+
     # argument is the environment variables hash as per the Rack specification.
@@ -683,11 +684,11 @@ module Camping
     #   end
     def use(*a, &b)
       m = a.shift.new(method(:call), *a, &b)
-      meta_def(:call) { |e| m.call(e) }
+      md(:call) { |e| m.call(e) }
     end
 
 
-    # Adds gear to your app:
+    # Add gear to your app:
     #
     #   module Blog
     #     gear Camping::Gear::CSRF
@@ -699,14 +700,23 @@ module Camping
     # Why have plugins in the first place if we can just include and extend our
     # modules and classes directly? To perform setup actions.
     #
-    # Sometimes you might have ClassMethods that you want to modify camping with
+    # Sometimes you might have ClassMethods that you want to modify camping with,
     # This gives us a way to do that.
+    #
+    # The only requirement for a plugin is to have a setup method and a ClassMethods module:
+    #
+    #   module MyGear
+    #     def self.setup;end
+    #     module ClassMethods;end
+    #   end
+    #
     def gear(g)
-      # puts "packing gear #{g.name}."
-      self.include g
-      self.extend  g::ClassMethods if defined?(g::ClassMethods)
-      g.setup(self) if g.respond_to?(:setup)
+      include g
+      extend g::ClassMethods
+      g.setup(self)
     end
+
+
 
     # A hash where you can set different settings.
     def options
