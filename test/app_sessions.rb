@@ -16,14 +16,14 @@ module Sessions::Controllers
       redirect R(Two)
     end
   end
-  
+
   class Two
     def get
       @state.two = 56
       redirect R(Three)
     end
   end
-  
+
   class Three
     def get
       @state.three = 99

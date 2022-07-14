@@ -10,7 +10,7 @@ $TILT_CODE = %{
   Template = Tilt
 }
 
-Camping::S.sub! /autoload\s*:Template\s*,\s*['"]camping\/template['"]/, $TILT_CODE
+Camping::S.sub!(/autoload\s*:Template\s*,\s*['"]camping\/template['"]/, $TILT_CODE)
 Camping::Apps.each do |c|
   c.module_eval $TILT_CODE
 end
