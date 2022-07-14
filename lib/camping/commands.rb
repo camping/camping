@@ -2,8 +2,8 @@ module Camping
   module CommandsHelpers
     class RoutesParser
 
-      def self.parse(app)
-        new(app).parse
+      def self.parse(app, silent)
+        new(app).parse silent
       end
 
       def initialize(app)
@@ -96,11 +96,17 @@ module Camping
 
       end
 
-      def parse
-        it = 0; routes = []
+      def parse(silent)
+        it = 0; routes = []; apps = []
+
+        if @parent_app.name == "Camping"
+          apps = @parent_app::Apps
+        else
+          apps.append @parent_app
+        end
 
         # Iterate over each app
-        @parent_app::Apps.each { |app|
+        apps.each { |app|
 
           prefix = ""; prefix = "/#{app.name.downcase}" unless it == 0
           appname = app.name.downcase
@@ -128,15 +134,17 @@ module Camping
           width = r.controller.length + 3 if r.controller.length > width
           appNameWidth = r.app.length + 3 if r.app.length > appNameWidth
         }
-        puts "#{"App".ljust(appNameWidth, " ")}#{"Controller".ljust(width, " ")} VERB     Route"
-        routes.each {|r|
-          if !appNames.include? r.app
-            puts "--------------------------------------"
-            puts "#{r.app.ljust(appNameWidth, " ")}".capitalize
-            appNames << r.app
-          end
-          puts r.padded_message(appNameWidth, width)
-        }
+        if silent != false
+          puts "#{"App".ljust(appNameWidth, " ")}#{"Controller".ljust(width, " ")} VERB     Route"
+          routes.each {|r|
+            if !appNames.include? r.app
+              puts "--------------------------------------"
+              puts "#{r.app.ljust(appNameWidth, " ")}".capitalize
+              appNames << r.app
+            end
+            puts r.padded_message(appNameWidth, width)
+          }
+        end
         routes
       end
 
@@ -149,7 +157,7 @@ module Camping
           "Index"
         else
           newpattern = ""
-          (pattern.gsub("([^/]+)", "X").gsub("(\d+)", "N").split('/').each { |str| str.capitalize! }).each {|str| newpattern += str}
+          (pattern.gsub(xstr, "X").gsub(nstr, "N").split('/').each { |str| str.capitalize! }).each {|str| newpattern += str}
           newpattern
         end
 
@@ -162,8 +170,8 @@ module Camping
   class Commands
 
     # A helper method to spit out Routes for an application
-    def self.routes()
-      Camping::CommandsHelpers::RoutesParser.parse(Camping)
+    def self.routes(theApp = Camping, silent = false)
+      Camping::CommandsHelpers::RoutesParser.parse theApp, silent
     end
 
   end

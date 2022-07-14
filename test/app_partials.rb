@@ -38,9 +38,11 @@ end
 
 # Copy over all controllers
 module TiltPartials::Controllers
+  $VERBOSE = nil
   Partials::Controllers.constants.each do |const|
     const_set(const, Partials::Controllers.const_get(const).dup)
   end
+  $VERBOSE = 1
 end
 
 module Partials::Views

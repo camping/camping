@@ -37,7 +37,7 @@ class TestReloader < TestCase
   def test_counter
     assert_equal 1, $counter
   end
-  
+
   def test_forced_reload
     reloader.reload!
     assert_equal 2, $counter

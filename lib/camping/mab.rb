@@ -33,7 +33,7 @@ $MAB_CODE = %q{
   end
 }
 
-Camping::S.sub! /autoload\s*:Mab\s*,\s*['"]camping\/mab['"]/, $MAB_CODE
+Camping::S.sub!(/autoload\s*:Mab\s*,\s*['"]camping\/mab['"]/, $MAB_CODE)
 Camping::Apps.each do |c|
   c.module_eval $MAB_CODE
 end
