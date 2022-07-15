@@ -607,8 +607,8 @@ module Camping
       # Don't call it too early though - any controllers added after this
       # method was called won't work properly.
       def M
-        # def M #:nodoc:
-        # end
+        def M #:nodoc:
+        end
         constants.map { |c|
           k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models

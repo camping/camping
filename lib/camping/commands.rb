@@ -14,7 +14,6 @@ module Camping
 
         # We have to figure out the route from the Controller name
         splitty = controller_name.split(/(?<=\p{Ll})(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})/)
-
         url, it = "", 0
         splitty.each { |sis|
           if sis != "X" && sis != "N"
@@ -51,10 +50,9 @@ module Camping
             # puts "#{http_method.upcase} - prefix: #{prefix}, url: #{url}"
             mappedURLS.append Route.new(http_method, controller.name, appname, url)
           else
-
             # We have a list of routes that we need to match to methods now.
             routes.each { |route|
-              url = route
+              url = url_from_name(controller.name, params)
               url = prefix + route if !prefix.empty?
               # puts "#{http_method.upcase} - prefix: #{prefix}, url: #{url}"
               mappedURLS.append Route.new(http_method, controller.name, appname, url)
@@ -134,7 +132,7 @@ module Camping
           width = r.controller.length + 3 if r.controller.length > width
           appNameWidth = r.app.length + 3 if r.app.length > appNameWidth
         }
-        if silent != false
+        if silent != true
           puts "#{"App".ljust(appNameWidth, " ")}#{"Controller".ljust(width, " ")} VERB     Route"
           routes.each {|r|
             if !appNames.include? r.app
@@ -157,7 +155,7 @@ module Camping
           "Index"
         else
           newpattern = ""
-          (pattern.gsub(xstr, "X").gsub(nstr, "N").split('/').each { |str| str.capitalize! }).each {|str| newpattern += str}
+          (pattern.gsub("([^/]+)", "X").gsub("(\d+)", "N").split('/').each { |str| str.capitalize! }).each {|str| newpattern += str}
           newpattern
         end
 
