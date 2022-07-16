@@ -1,4 +1,5 @@
 $:.unshift File.dirname(__FILE__) + '/../lib'
+$VERBOSE = nil
 
 begin
   require 'rubygems'
@@ -16,19 +17,19 @@ require 'rack/test'
 
 class TestCase < MiniTest::Test
   include Rack::Test::Methods
-    
+
   def self.inherited(mod)
     mod.app = Object.const_get(mod.to_s[/\w+/])
     super
   end
-  
+
   class << self
     attr_accessor :app
   end
-  
+
   def body() last_response.body end
   def app()  self.class.app     end
-    
+
   def assert_reverse
     begin
       yield
@@ -37,7 +38,7 @@ class TestCase < MiniTest::Test
       assert false, "Block didn't fail"
     end
   end
-    
+
   def assert_body(str)
     case str
     when Regexp
@@ -46,7 +47,7 @@ class TestCase < MiniTest::Test
       assert_equal(str.to_s, last_response.body.strip)
     end
   end
-  
+
   def assert_status(code)
     assert_equal(code, last_response.status)
   end

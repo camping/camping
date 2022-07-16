@@ -20,7 +20,6 @@ class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
     (class<<self;self end).send(:define_method,m,&b)
   end
-  alias d meta_def
 end
 
 # If you're new to Camping, you should probably start by reading the first
@@ -51,7 +50,7 @@ module Camping
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
-  O = {} # Our Hash of Options
+  O = { url_prefix: "" } # Our Hash of Options
   Apps = [] # Our array of Apps
   SK = :camping #Key for r.session
 
@@ -424,7 +423,6 @@ module Camping
     end
 
     def initialize(env, m) #:nodoc:
-      # puts "ancestors: {self.class.ancestors}"
       r = @request = Rack::Request.new(@env = env)
       @root, @input, @cookies, @state,
       @headers, @status, @method =
@@ -560,8 +558,8 @@ module Camping
       def R *u
         r=@r
         Class.new {
-          d(:urls){u}
-          d(:inherited){|x|r<<x}
+          meta_def(:urls){u}
+          meta_def(:inherited){|x|r<<x}
         }
       end
 
@@ -593,6 +591,20 @@ module Camping
         [I, 'r404', p]
       end
 
+      # The F module collects lambda functions to help the route maker do it's job.
+      module F
+        # Trail, a lambda to enforce a trailing slash at the end of each route
+        T = -> (u) {
+          return u unless u.respond_to? :last
+          u << "/" unless u.last == "/"
+          u
+        }
+        # Avoid, a lambda to avoid internal controller route
+        A = -> (c, u, p) {
+          u.prepend("/"+p) unless c.to_s == "I"
+        }
+      end
+
       N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '([^/]+)', "Index" => ''
       # The route maker, called by Camping internally.
       #
@@ -606,14 +618,14 @@ module Camping
       # Camping server, you'll definitely need to call this to set things up.
       # Don't call it too early though - any controllers added after this
       # method was called won't work properly.
-      def M
-        def M #:nodoc:
+      def M(pr)
+        def M(pr) #:nodoc:
         end
         constants.map { |c|
           k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models
           @r=[k]+@r if @r-[k]==@r
-          k.d(:urls){["/#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}"]}if !k.respond_to?:urls
+          k.meta_def(:urls){[ F::T.(F::A.(k, "#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", pr)) ]}if !k.respond_to?:urls
         }
       end
     end
@@ -634,7 +646,7 @@ module Camping
     #   Nuts.routes
     #
     def routes
-      X.M
+      X.M O[:url_prefix]
       (Apps.map(&:routes)<<X.v).flatten
     end
 
@@ -644,7 +656,7 @@ module Camping
     #
     # See: https://github.com/rack/rack/blob/main/SPEC.rdoc
     def call(e)
-      X.M
+      X.M O[:url_prefix]
       k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
       k.new(e,m).service(*a).to_a
     rescue
@@ -670,7 +682,7 @@ module Camping
     #   #=> #<Blog::Controllers::Info @headers={'HTTP_HOST'=>'wagon'} ...>
     #
     def method_missing(m, c, *a)
-      X.M
+      X.M O[:url_prefix]
       h = Hash === a[-1] ? a.pop : {}
       e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
       k = X.const_get(c).new(e,m.to_s)
@@ -686,7 +698,7 @@ module Camping
     #   end
     def use(*a, &b)
       m = a.shift.new(method(:call), *a, &b)
-      d(:call) { |e| m.call(e) }
+      meta_def(:call) { |e| m.call(e) }
     end
 
     # Add gear to your app:
