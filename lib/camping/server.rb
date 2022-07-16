@@ -118,15 +118,10 @@ module Camping
           # exit
         # end
 
-        # If no Arguments were called.
         if args.empty?
-          # puts "arguments were empty"
-          args << "cabin.rb" # adds cabin.rb as a default camping entrance file
-          # puts opt_parser
-          # exit
+          args << "camp.rb"
         end
 
-        # Parses the first argument as the script to load into the server.
         options[:script] = args.shift
         options
       end
@@ -203,15 +198,38 @@ module Camping
       Rack::Cascade.new([Rack::Files.new(public_dir), self], [405, 404, 403])
     end
 
+    def current_app
+      @reloader.reload
+      apps = @reloader.apps
+      return apps.values.first if apps.size == 1
+      if key = apps.keys.grep(/^#{@reloader.name}$/i)[0]
+        apps[key]
+      end
+    end
+
+    def old_call(env)
+      app = current_app || raise("Could not find an app called `#{@reloader.name}`")
+      app.call(env)
+    end
+
     # path_matches?
     # accepts a regular expression string
     # in our case our apps and controllers
     def path_matches?(path, *reg)
+      p = T.(path)
       reg.each do |r|
-        return true if Regexp.new(r).match? path
+        return true if Regexp.new(T.(r)).match?(p) && p == T.(r)
       end
       false
     end
+
+    # Ensure trailing slash lambda
+    T = -> (u) {
+      if u.last != "/"
+        u << "/"
+      end
+      return u
+    }
 
     # call(env) res
     # == How routing works
@@ -219,11 +237,29 @@ module Camping
     # The first app added using Camping.goes is set at the root, we walk through
     # the defined routes of the first app to see if there is a match.
     # With no match we then walk through every other defined app.
-    # Each subsequent app defined is loaded at a directory named after them:
+    # When we reach a matching route we call that app and Camping's router
+    # handles the rest.
+    #
+    # Mounting apps at different directories is now explicit by setting the
+    # url_prefix option:
     #
     #   camping.goes :Nuts          # Mounts Nuts at /
+    #   module Auth
+    #      set :url_prefix, "auth/"
+    #   end
     #   camping.goes :Auth          # Mounts Auth at /auth/
-    #   camping.goes :Blog          # Mounts Blog at /blog/
+    #   camping.goes :Blog          # Mounts Blog at /
+    #
+    # Note that routes that you set explicitly with R are not prefixed. This
+    # us explicit control over routes:
+    #
+    #   module Auth::Controllers
+    #      class Whatever < R '/thing/' # Mounts at /thing/
+    #         def get
+    #            render :some_view
+    #         end
+    #      end
+    #   end
     #
     def call(env)
       @reloader.reload
@@ -238,27 +274,13 @@ module Camping
         apps.values.first.call(env) # When we have one
       else
         # 2 and up get special treatment
-        count = 0
         apps.each do |name, app|
-          if count == 0
-            app.routes.each do |r|
-              if (path_matches?(env['PATH_INFO'], r))
-                next
-              end
-              return app.call(env) unless !(path_matches?(env['PATH_INFO'], r))
-            end
-          else
-            mount = name.to_s.downcase
-            case env["PATH_INFO"]
-            when %r{^/#{mount}}
-              env["SCRIPT_NAME"] = env["SCRIPT_NAME"] + $&
-              env["PATH_INFO"] = $'
+          app.routes.each do |r|
+            if (path_matches?(env['PATH_INFO'], r))
               return app.call(env)
-            when %r{^/code/#{mount}}
-              return [200, {'Content-Type' => 'text/plain', 'X-Sendfile' => @reloader.file}, []]
+              next
             end
           end
-          count += 1
         end
 
         # Just return the first app if we didn't find a match.

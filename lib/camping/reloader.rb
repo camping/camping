@@ -51,7 +51,7 @@ module Camping
       end
     end
 
-    # Loads the apps availble in this script.  Use <tt>apps</tt> to get
+    # Loads the apps available in this script.  Use <tt>apps</tt> to get
     # the loaded apps.
     def load_apps(old_apps)
       all_requires = $LOADED_FEATURES.dup
