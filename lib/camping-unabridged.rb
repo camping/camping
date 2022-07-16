@@ -704,7 +704,7 @@ module Camping
     # Add gear to your app:
     #
     #   module Blog
-    #     gear Camping::Gear::CSRF
+    #     pack Camping::Gear::CSRF
     #   end
     #
     # This feature is an experiment. Inspired by the way that Cuba allows
@@ -727,7 +727,7 @@ module Camping
     #     end
     #   end
     #
-    def gear(g)
+    def pack(g)
       include g
       extend g::ClassMethods if defined?(g::ClassMethods)
       g.setup(self) if g.respond_to?(:setup)

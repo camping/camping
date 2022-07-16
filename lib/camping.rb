@@ -50,7 +50,7 @@ downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
 def method_missing m,c,*a;X.M O[:url_prefix];h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s);h.each{|i,v|k.
 send"#{i}=",v};k.service(*a) end;def use*a,&b;m=a.shift.new(method(:call),*a,&b)
-meta_def(:call){|e|m.call(e)}end;def gear g;include g;
+meta_def(:call){|e|m.call(e)}end;def pack g;include g;
 extend g::ClassMethods if defined?(g::ClassMethods);g.setup(self)if g.respond_to?(:setup)end;
 def options;O end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);caller[0]=~/:/
