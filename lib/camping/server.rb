@@ -198,20 +198,6 @@ module Camping
       Rack::Cascade.new([Rack::Files.new(public_dir), self], [405, 404, 403])
     end
 
-    def current_app
-      @reloader.reload
-      apps = @reloader.apps
-      return apps.values.first if apps.size == 1
-      if key = apps.keys.grep(/^#{@reloader.name}$/i)[0]
-        apps[key]
-      end
-    end
-
-    def old_call(env)
-      app = current_app || raise("Could not find an app called `#{@reloader.name}`")
-      app.call(env)
-    end
-
     # path_matches?
     # accepts a regular expression string
     # in our case our apps and controllers
