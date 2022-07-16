@@ -32,11 +32,10 @@ class Routes::Test < TestCase
 
   def test_routes_helper
     collection = Camping::Commands.routes Camping::Apps[8], true
-    routes = collection.routes
-    puts routes
+    routes = collection.routes.map(&:to_s)
     assert_equal routes.count, 3, "Routes are not numbered correctly"
-    assert routes[0].to_s == "get: /page/([^/]+)", "Routes do not include: [#{routes[0].to_s}]"
-    assert routes[1].to_s == "post: /page/([^/]+)", "Routes do not include: [#{routes[1].to_s}]"
-    assert routes[2].to_s == "get: /", "Routes do not include: [#{routes[2].to_s}]"
+    assert (routes.include? "get: /page/([^/]+)"), "Routes do not include: [get: /page/([^/]+)]"
+    assert (routes.include? "post: /page/([^/]+)"), "Routes do not include: [post: /page/([^/]+)]"
+    assert (routes.include? "get: /"), "Routes do not include: [get: /]"
   end
 end
