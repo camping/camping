@@ -67,12 +67,12 @@ gem install camping
 Even better, install the Camping Omnibus, a full package of recommended libs:
 
 ```
-gem install camping-omnibus --source http://gems.judofyr.net
+gem install camping-omnibus 
 ```
 
 If not, you should be aware of that Camping itself only depends on
-[Rack](http://rack.rubyforge.org), and if you're going to use the views you also
-need to install **[markaby](http://markaby.github.com/)**, and if you're going to use the database you need
+[Rack](https://github.com/rack/rack), and if you're going to use the views you also
+need to install **[markaby](https://github.com/markaby/markaby)**, and if you're going to use the database you need
 **activerecord** as well.
 
 ```
@@ -87,7 +87,7 @@ of The Camping Book. It should hopefully get you started pretty quick. While
 you're doing that, you should be aware of the _reference_ which contains
 documentation for all the different parts of Camping.
 
-[The wiki](http://wiki.github.com/camping/camping) is the place for all tiny,
+[The wiki](https://github.com/camping/camping/wiki) is the place for all tiny,
 useful tricks that we've collected over the years.  Don't be afraid to share
 your own discoveries; the more, the better!
 
