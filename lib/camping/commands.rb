@@ -7,21 +7,15 @@ module Camping
       # Assumes that Route structs are stored in :routes.
       def display
         current_app, current_method = "", ""
+        puts "App      VERB     Route"
         routes.each { |r|
-          # puts r
           if current_app != r.app.to_s
-            puts ""
             current_app = r.app.to_s
             current_method = ""
-            puts r.app_header
             puts "-----------------------------------"
+            puts r.app_header
           end
-          if current_method != r.http_method.to_s
-            current_method = r.http_method.to_s
-            puts r.padded_message true
-          else
-            puts r.padded_message
-          end
+          puts r.padded_message true
         }
       end
 
@@ -37,7 +31,7 @@ module Camping
 
       # pad the controller name to be the right length, if we can.
       def padded_message(with_method = false)
-        with_method ? "#{http_method.to_s.upcase.ljust(10, " ") } " + "#{url}" : "           " + "#{url}"
+        "#{pad}#{(with_method ? http_method.to_s.upcase.ljust(pad.length, " ") : pad)}#{replace_reg url}"
       end
 
       def app_header
@@ -45,13 +39,23 @@ module Camping
       end
 
       def controller_header
-        "           #{app.to_s}::#{controller.to_s}"
+        "#{pad}#{app.to_s}::#{controller.to_s}"
       end
 
       protected
 
       def http_methods
         ["get", "post", "put", "patch", "delete"]
+      end
+
+      def replace_reg(pattern = "")
+        xstr = "([^/]+)"; nstr = "(\d+)"
+        pattern = pattern.gsub(xstr, ":string").gsub("(\\d+)", ":integer") unless pattern == "/"
+        pattern
+      end
+
+      def pad
+        "         "
       end
 
     end
@@ -95,21 +99,6 @@ module Camping
         routes_collection = Camping::CommandsHelpers::RouteCollection.new(collected_routes)
       end
     end
-
-#       # takes a route string, which is regex and converts it to the defined Class in the App.
-#       def reverse_regex(pattern)
-#         nstr = "(\d+)"
-#         xstr = "([^/]+)"
-#
-#         if pattern == "/"
-#           "Index"
-#         else
-#           newpattern = ""
-#           (pattern.gsub("([^/]+)", "X").gsub("(\d+)", "N").split('/').each { |str| str.capitalize! }).each {|str| newpattern += str}
-#           newpattern
-#         end
-#
-#       end
 
   end
 
