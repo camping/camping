@@ -19,6 +19,7 @@ end
 
 group :test do
   gem 'minitest', '~> 5.0'
+  gem 'minitest-reporters'
   gem 'rack-test'
   gem 'ruby_parser'
 end
