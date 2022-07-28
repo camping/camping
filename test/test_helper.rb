@@ -14,6 +14,8 @@ end
 
 require 'minitest/autorun'
 require 'rack/test'
+require "minitest/reporters"
+Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(:color => true)]
 
 class TestCase < MiniTest::Test
   include Rack::Test::Methods

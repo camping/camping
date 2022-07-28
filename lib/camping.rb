@@ -2,7 +2,7 @@ require"uri";require"rack";E||="Content-Type";Z||="text/html"
 class Object;def meta_def m,&b;(class<<self;self
 end).send:define_method,m,&b end;end;module Camping;C=self;S=IO.read(__FILE__
 )rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;O={url_prefix:""};Apps=[];
-SK=:camping;class H<Hash;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.
+SK=:camping;G=[];class H<Hash;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.
 to_s]:super end;undef id,type if ??==63 end;class Cookies<H;attr_accessor :_p;
 def _n;@n||={}end;alias _s []=;def set k,v,o={};_s(j=k.to_s,v);_n[j]=
 {:value=>v,:path=>_p}.update o;end;def []=(k,v)set(k,v,v.is_a?(Hash)?v:{})end
@@ -50,9 +50,9 @@ downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
 def method_missing m,c,*a;X.M O[:url_prefix];h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s);h.each{|i,v|k.
 send"#{i}=",v};k.service(*a) end;def use*a,&b;m=a.shift.new(method(:call),*a,&b)
-meta_def(:call){|e|m.call(e)}end;def pack g;include g;
+meta_def(:call){|e|m.call(e)}end;def pack g;G<<g;include g;
 extend g::ClassMethods if defined?(g::ClassMethods);g.setup(self)if g.respond_to?(:setup)end;
-def options;O end;def set k,v;O[k]=v end
+def gear;G end;def options;O end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split /^@@\s*(.+?)\s*\r?\n/m).shift rescue nil
 a.set :_t,H[*b||[]];end;end

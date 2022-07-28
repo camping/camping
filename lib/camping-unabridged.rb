@@ -53,6 +53,7 @@ module Camping
   O = { url_prefix: "" } # Our Hash of Options
   Apps = [] # Our array of Apps
   SK = :camping #Key for r.session
+  G = [] # Our array of Gear
 
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
@@ -728,9 +729,15 @@ module Camping
     #   end
     #
     def pack(g)
+      G << g
       include g
       extend g::ClassMethods if defined?(g::ClassMethods)
       g.setup(self) if g.respond_to?(:setup)
+    end
+
+    # Helper method to list gear
+    def gear
+      G
     end
 
     # A hash where you can set different settings.

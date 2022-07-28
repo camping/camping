@@ -82,10 +82,27 @@ end
 
 Rather than building huge Camping apps, the idea here is to write small apps which can each be mounted at directories on your web server. One restriction: these apps will share a database. However, this allows applications to access each other’s tables and simplifies setup and configuration.
 
-The camping tool starts a web server which mounts apps in this fashion. If you want to mount all your apps, run camping apps/**/*.rb.
+To mount multiple camping apps, you can `require` the app files. When you mount more than one app they won't be mounted according to their parent directory, routing is explicit. If you'd like to give one of your apps a prefix, set the `url_prefix` option in your app:
+
+```ruby
+# camp.rb
+require 'camping'
+Camping.goes :Blog
+require 'blog.rb'
+
+Camping.goes :Wiki
+require 'wiki.rb'
+Wiki.set :url_prefix, 'tepee/'
+
+Camping.goes :Charty
+require 'charty.rb'
+Charty.set :url_prefix, 'charts/'
+
+```
+
+By default Camping will look for a file called `camp.rb` in the root where Camping is executed. You can also supply a ruby filename to load your apps from there.
 
 You’ll end up with:
-
 ```
 http://localhost:3301/blog, a blogging app.
 http://localhost:3301/tepee, a wiki app.
@@ -114,6 +131,7 @@ The Camping Server is basically a set of rules. At the very least, The Camping S
 - Load all Camping apps in a directory.
 - Load new apps that appear in that directory.
 - Mount those apps according to their filename. (e.g. blog.rb is mounted at /blog.)
+
 - Run each app’s create method upon startup.
 - Reload the app if its modification time changes.
 - Reload the app if it requires any files under the same directory and one of their modification times changes.
