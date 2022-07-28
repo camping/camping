@@ -1,5 +1,16 @@
+= 2.3
+===
+* New routes command line helper command.
+* plugin support added via the gear method.
+* Restored support for mounting multiple apps.
+* Add url_prefix option for mounting apps at different urls.
+* Increase camping test limit to 5120 bytes. We needed just a bit more space.
+* Add a book stub about Models.
+* Add a chapter about middleware and how it works.
+* Camping a '/' is now forcibly terminating each route. May revert this back if we run into trouble.
+
 = 2.2
-=== date not yet determined
+=== Never Released
 * Updated ActiveRecord migrations class to reference version 6.1
 * Removed deprecated gemfile definitions
 * Rename deprecated methods
