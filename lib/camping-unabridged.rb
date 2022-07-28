@@ -719,7 +719,7 @@ module Camping
     # Optionally a plugin may have a setup method and a ClassMethods module:
     #
     #   module MyGear
-    #     def self.setup
+    #     def self.setup(s)
     #       # Perform setup actions
     #     end
     #     module ClassMethods
