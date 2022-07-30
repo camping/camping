@@ -10,7 +10,7 @@ end;module Helpers;def R c,*g;p,h=
 /\(.+?\)/,g.grep(Hash);g-=h;raise"bad route"if !u=c.urls.find{|x|break x if
 x.scan(p).size==g.size&&/^#{x}\/?$/=~(x=g.inject(x){|x,a|x.sub p,U.escape((a.
 to_param rescue a))}.gsub(/\\(.)/){$1})};h.any?? u+"?"+U.build_query(h[0]):u
-end;def / p;p[0]==?/?@root+p :p end;def URL c='/',*a;c=R(c,*a) if c.respond_to?(
+end;def / p;p[0]==?/?@root+p : p end;def URL c='/',*a;c=R(c,*a) if c.respond_to?(
 :urls);c=self/c;c=@request.url[/.{8,}?(?=\/|$)/]+c if c[0]==?/;URI c end end
 module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,
 :headers,:body;T={};L=:layout;def lookup n;T.fetch(n.to_sym){|k|t=Views.

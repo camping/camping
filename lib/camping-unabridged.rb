@@ -221,7 +221,9 @@ module Camping
     #   self / "styles.css" #=> "styles.css"
     #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
-    def /(p); p[0] == ?/ ? @root + p : p end #/
+    def /(p)
+      p[0] == ?/ ? @root + p : p #/
+    end
 
     # Builds a URL route to a controller or a path, returning a URI object.
     # This way you'll get the hostname and the port number, a complete URL.

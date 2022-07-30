@@ -67,7 +67,7 @@ gem install camping
 Even better, install the Camping Omnibus, a full package of recommended libs:
 
 ```
-gem install camping-omnibus 
+gem install camping-omnibus
 ```
 
 If not, you should be aware of that Camping itself only depends on
@@ -95,6 +95,10 @@ And if there's anything you're wondering about, don't be shy, but rather
 subscribe to [the mailing list](http://rubyforge.org/mailman/listinfo/camping-list)
 and ask there.  We also have an IRC channel over at Freenode, so if you feel
 like chatting with us, you should join [#camping @ irc.freenode.net](http://java.freenode.net/?channel=camping).
+
+## Running Tests
+
+Tests should be run using bundler and rake: `bundle exec rake`.
 
 ## Authors
 
