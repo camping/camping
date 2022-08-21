@@ -77,12 +77,12 @@ module Camping
           end
 
           # Another typical switch to print the version.
-          opts.on("-m", "--mounting", "Shows Mounting Guide") do
-            puts "Mounting Guide"
-            puts ""
-            puts "To mount your horse, hop up on the side and put it."
-            exit
-          end
+          # opts.on("-m", "--mounting", "Shows Mounting Guide") do
+          #   puts "Mounting Guide"
+          #   puts ""
+          #   puts "To mount your horse, hop up on the side and put it."
+          #   exit
+          # end
 
           # Another typical switch to print the version.
           opts.on("-v", "--version", "Show version") do
