@@ -252,6 +252,11 @@ module Camping
       c = @request.url[/.{8,}?(?=\/|$)/]+c if c[0]==?/ #/
       URI(c)
     end
+
+    # Just a helper to tell you the App Name
+    # During the instantiation of the app, "Camping" is replaced with the Apps namespace.
+    def app_name;"Camping"end
+
   end
 
   # Camping::Base is built into each controller by way of the generic routing
@@ -597,11 +602,11 @@ module Camping
       # The F module collects lambda functions to help the route maker do it's job.
       module F
         # Trail, a lambda to enforce a trailing slash at the end of each route
-        T = -> (u) {
-          return u unless u.respond_to? :last
-          u << "/" unless u.last == "/"
-          u
-        }
+        # T = -> (u) {
+        #   return u unless u.respond_to? :last
+        #   u << "/" unless u.last == "/"
+        #   u
+        # }
         # Avoid, a lambda to avoid internal controller route
         A = -> (c, u, p) {
           u.prepend("/"+p) unless c.to_s == "I"
@@ -628,7 +633,7 @@ module Camping
           k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models
           @r=[k]+@r if @r-[k]==@r
-          k.meta_def(:urls){[ F::T.(F::A.(k, "#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", pr)) ]}if !k.respond_to?:urls
+          k.meta_def(:urls){[F::A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", pr) ]}if !k.respond_to?:urls
         }
       end
     end
@@ -730,11 +735,11 @@ module Camping
     #     end
     #   end
     #
-    def pack(g)
-      G << g
+    def pack(*a, &b)
+      G << g = a.shift
       include g
       extend g::ClassMethods if defined?(g::ClassMethods)
-      g.setup(self) if g.respond_to?(:setup)
+      g.setup(self, *a, &b) if g.respond_to?(:setup)
     end
 
     # Helper method to list gear
@@ -785,6 +790,28 @@ module Camping
     #   end
     #
     # All the applications will be available in Camping::Apps.
+    #
+    # Camping offers a shortcut for adding thin files, and templates to your apps.
+    # Add them at the end of the same ruby file that you call `Camping.goes`:
+    #
+    #   require 'camping'
+    #   Camping.goes :Nuts
+    #
+    #   module Nuts::Controllers; ... end
+    #   module Nuts::Models;      ... end
+    #   module Nuts::Views;       ... end
+    #
+    #   __END__
+    #
+    #   @@ /style.css
+    #   * { margin: 0; padding: 0 }
+    #
+    #   @@ /test.foo
+    #   <H1>Hello friends! Nice to meet you.<H1>
+    #
+    #   @@ index.erb
+    #   Hello <%= @world %>
+    #
     def goes(m, g=TOPLEVEL_BINDING)
       Apps << a = eval(S.gsub(/Camping/,m.to_s), g)
       caller[0]=~/:/

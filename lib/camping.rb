@@ -11,7 +11,8 @@ end;module Helpers;def R c,*g;p,h=
 x.scan(p).size==g.size&&/^#{x}\/?$/=~(x=g.inject(x){|x,a|x.sub p,U.escape((a.
 to_param rescue a))}.gsub(/\\(.)/){$1})};h.any?? u+"?"+U.build_query(h[0]):u
 end;def / p;p[0]==?/?@root+p : p end;def URL c='/',*a;c=R(c,*a) if c.respond_to?(
-:urls);c=self/c;c=@request.url[/.{8,}?(?=\/|$)/]+c if c[0]==?/;URI c end end
+:urls);c=self/c;c=@request.url[/.{8,}?(?=\/|$)/]+c if c[0]==?/;URI c end
+def app_name;"Camping"end end
 module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,
 :headers,:body;T={};L=:layout;def lookup n;T.fetch(n.to_sym){|k|t=Views.
 method_defined?(k)||(t=O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{
@@ -38,20 +39,19 @@ def v;@r.map(&:urls);end;def D p,m,e;p='/'if
 !p||!p[0];(a=O[:_t].find{|n,_|n==p}) and return [I,:serve,*a]
 @r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1].map{|x|U.unescape x}]:
 [I, 'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end;
-module F;T= ->(u){return u unless u.respond_to? :last;u << "/" unless u.last == "/";u};
-A= ->(c,u,p){u.prepend("/"+p) unless c.to_s == "I"}end;N=H.new{|_,x|x.downcase}.
+module F;A= ->(c,u,p){u.prepend("/"+p) unless c.to_s == "I"}end;N=H.new{|_,x|x.downcase}.
 merge!("N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>'');def M(pr);def M(pr);end;constants.
 map{|c|k=const_get(c);k.send:include,C,X,Base,Helpers,Models
-@r=[k]+@r if @r-[k]==@r;k.meta_def(:urls){[F::T.(F::A.(k,"#{c.to_s.scan(/.[^A-Z]*/)
-.map(&N.method(:[]))*'/'}",pr))]}if !k.respond_to?:urls}end end;I=R()end;X=
+@r=[k]+@r if @r-[k]==@r;k.meta_def(:urls){[F::A.(k,"#{c.to_s.scan(/.[^A-Z]*/)
+.map(&N.method(:[]))*'/'}",pr)]}if !k.respond_to?:urls}end end;I=R()end;X=
 Controllers;class<<self;def routes;X.M O[:url_prefix];(Apps.map(&:routes)<<X.v).flatten;end;
 def call e;X.M O[:url_prefix];k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
 downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
 def method_missing m,c,*a;X.M O[:url_prefix];h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s);h.each{|i,v|k.
 send"#{i}=",v};k.service(*a) end;def use*a,&b;m=a.shift.new(method(:call),*a,&b)
-meta_def(:call){|e|m.call(e)}end;def pack g;G<<g;include g;
-extend g::ClassMethods if defined?(g::ClassMethods);g.setup(self)if g.respond_to?(:setup)end;
+meta_def(:call){|e|m.call(e)}end;def pack*a,&b;G<<g=a.shift;include g;
+extend g::ClassMethods if defined?(g::ClassMethods);g.setup(self,*a,&b)if g.respond_to?(:setup)end;
 def gear;G end;def options;O end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split /^@@\s*(.+?)\s*\r?\n/m).shift rescue nil
