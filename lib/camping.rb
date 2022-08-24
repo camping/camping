@@ -54,7 +54,7 @@ meta_def(:call){|e|m.call(e)}end;def pack*a,&b;G<<g=a.shift;include g;
 extend g::ClassMethods if defined?(g::ClassMethods);g.setup(self,*a,&b)if g.respond_to?(:setup)end;
 def gear;G end;def options;O end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);caller[0]=~/:/
-IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split /^@@\s*(.+?)\s*\r?\n/m).shift rescue nil
+IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
 a.set :_t,H[*b||[]];end;end
 module Views;include X,Helpers end;module Models;autoload:Base,'camping/ar'
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
