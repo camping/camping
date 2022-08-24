@@ -26,7 +26,7 @@ module Camping
       end
 
       # Run a setup routine with this Gear.
-      def self.setup(app)
+      def self.setup(app, *a, &block)
         @app = app
         @app.set :secret_token, "top_secret_code"
       end
