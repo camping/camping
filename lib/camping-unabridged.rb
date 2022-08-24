@@ -279,9 +279,18 @@ module Camping
     #   instance of Tilt  # => Found template in a file
     def lookup(n)
       T.fetch(n.to_sym) do |k|
+        # Find a view defined in the Views module first
         t = Views.method_defined?(k) ||
+          # Find inline templates (delimited by @@), and then put it in a new Template and return that.
+          # `:_t` is the options key for inline templates. Inline templats are added in `Camping#goes`.
           (t = O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{O[:_t][t]}) ||
+
+          # Find templates in a views directory, and return the first view that matches the symbol provided.
+          # Then pipe that template file into Template, which is just Tilt.
           (f = Dir[[O[:views] || "views", "#{n}.*"]*'/'][0]) &&
+
+          # Grab any settings set for the template files, as set by their filename extension
+          # and add that to the options of Template (Tilt), or an empty Hash
           Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
 
         O[:dynamic_templates] ? t : T[k] = t
@@ -601,13 +610,7 @@ module Camping
 
       # The F module collects lambda functions to help the route maker do it's job.
       module F
-        # Trail, a lambda to enforce a trailing slash at the end of each route
-        # T = -> (u) {
-        #   return u unless u.respond_to? :last
-        #   u << "/" unless u.last == "/"
-        #   u
-        # }
-        # Avoid, a lambda to avoid internal controller route
+        # A lambda to avoid internal controller route
         A = -> (c, u, p) {
           u.prepend("/"+p) unless c.to_s == "I"
         }
