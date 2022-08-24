@@ -2,7 +2,7 @@
 
 # Camping, a Microframework
 
-Camping is a web framework which consistently stays at less than 4kB of code.
+Camping is a web framework which consistently stays at less than 5kB of code.
 You can probably view the complete source code on a single page. But, you
 know, it's so small that, if you think about it, what can it really do?
 
