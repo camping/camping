@@ -222,7 +222,7 @@ module Camping
     #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
     def /(p)
-      p[0] == ?/ ? @root + p : p #/
+      p[0] == ?/ ? (@root + p) : p #/
     end
 
     # Builds a URL route to a controller or a path, returning a URI object.
@@ -291,6 +291,13 @@ module Camping
 
           # Grab any settings set for the template files, as set by their filename extension
           # and add that to the options of Template (Tilt), or an empty Hash
+          # What does adding settings for a template look like? :
+          #   module Nuts
+          #     def r404(path)
+          #       @path = path
+          #       render :not_found
+          #     end
+          #   end
           Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
 
         O[:dynamic_templates] ? t : T[k] = t
