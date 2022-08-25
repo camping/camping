@@ -1,8 +1,6 @@
 # require File.expand_path('../constants', __FILE__)
 # camping_omni
 
-require 'rake'
-
 NAME = "camping"
 BRANCH = "2.3"
 GIT = ENV['GIT'] || "git"
