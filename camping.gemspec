@@ -37,3 +37,5 @@ def camping_spec
     s.bindir = "bin"
   end
 end
+
+camping_spec
