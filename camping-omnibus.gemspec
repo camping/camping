@@ -25,3 +25,4 @@ def camping_omni
   end
 end
 
+camping_omni
