@@ -59,6 +59,9 @@ module Camping
           opts.on("-d", "--database FILE",
           "SQLite3 database path (defaults to #{db ? db : '<none>'})") { |db_path| options[:database] = db_path }
 
+          opts.on("-a", "--adapter ADAPTER_NAME",
+          "The database adapter (defaults to sqlite3)") { |db_adapter| options[:adapter] = db_adapter }
+
           opts.on("-C", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
 
@@ -133,13 +136,6 @@ module Camping
         if !app.options.has_key?(:dynamic_templates)
 		      app.options[:dynamic_templates] = true
 	      end
-
-        if !Camping::Models.autoload?(:Base) && options[:database]
-          Camping::Models::Base.establish_connection(
-            :adapter => 'sqlite3',
-            :database => options[:database]
-          )
-        end
       end
     end
 
