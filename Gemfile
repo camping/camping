@@ -7,8 +7,8 @@ gem 'mab'
 group :extras do
   gem 'tilt'
   if ENV['AR']
-    gem 'activerecord', ENV['AR']
-    gem 'sqlite3'
+    gem 'cairn',
+    gem 'guidebook'
   end
 end
 

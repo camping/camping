@@ -56,6 +56,6 @@ def gear;G end;def options;O end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
 a.set :_t,H[*b||[]];end;end
-module Views;include X,Helpers end;module Models;autoload:Base,'camping/ar'
+module Views;include X,Helpers end;module Models;
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
 autoload:Template,'camping/template';C end

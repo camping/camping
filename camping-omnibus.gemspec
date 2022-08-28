@@ -47,8 +47,9 @@ def camping_omni
     %w[author email homepage].each { |x| s.__send__("#{x}=", camping_spec.__send__(x)) }
 
     s.add_dependency('camping', ">=#{BRANCH}")
-    s.add_dependency('activerecord')
-    s.add_dependency('sqlite3', '>=1.1.0.1')
+    s.add_dependency('guidebook')
+    s.add_dependency('sqlite3', '~> 1.4', '>= 1.4.4')
+    s.add_dependency('cairn', '>= 7.1.0')
   end
 end
 
