@@ -1,5 +1,27 @@
 Once you've built your Camping app, you'll almost certainly want to get it online some place, so others can get at it! There are tons of ways to do this, some easy, some hard, some free, and some expensive. Some of these techniques also come with limitations.
 
+# Using a Rackup compatible host
+First make a config.ru file and fill it with goodies:
+```ruby
+# config.ru
+require 'camping'
+require 'camping/server'
+
+Camping::Server.start
+```
+
+If your app has any settings, like the port number, or the file where your camping app is located if it's not camp.rb, then pass those along as a hash:
+```ruby
+# config.ru
+require 'camping'
+require 'camping/server'
+
+Camping::Server.start({
+  :script => 'blog.rb',
+  :Port => '80'
+})
+```
+
 # Using a spare computer
 Cost: Usually free; Limitations: None really; Extra Requirements: Need to have a computer you can leave on all the time.
 

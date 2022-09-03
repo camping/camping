@@ -90,7 +90,7 @@ class Partials::Test < TestCase
     assert_body "<body><p>Partial</p></body>"
   end
 
-  def test_netsted
+  def test_nested
     get '/nested'
     assert_body "<body><h1>Nested</h1><p>Regular</p></body>"
   end

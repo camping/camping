@@ -7,7 +7,7 @@ gem 'mab'
 group :extras do
   gem 'tilt'
   if ENV['AR']
-    gem 'cairn',
+    gem 'cairn'
     gem 'guidebook'
   end
 end
