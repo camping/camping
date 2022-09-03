@@ -31,7 +31,7 @@ class Routes::Test < TestCase
   end
 
   def test_routes_helper
-    collection = Camping::Commands.routes Camping::Apps[9], true
+    collection = Camping::Commands.routes((Camping::Apps.select{|a| a.name == "Routes" }.first), true)
     routes = collection.routes.map(&:to_s)
     assert_equal routes.count, 3, "Routes are not numbered correctly"
     assert (routes.include? "get: /page/([^/]+)"), "Routes do not include: [get: /page/([^/]+)]"

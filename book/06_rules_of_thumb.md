@@ -131,7 +131,6 @@ The Camping Server is basically a set of rules. At the very least, The Camping S
 - Load all Camping apps in a directory.
 - Load new apps that appear in that directory.
 - Mount those apps according to their filename. (e.g. blog.rb is mounted at /blog.)
-
 - Run each app’s create method upon startup.
 - Reload the app if its modification time changes.
 - Reload the app if it requires any files under the same directory and one of their modification times changes.
