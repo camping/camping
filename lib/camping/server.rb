@@ -55,12 +55,12 @@ module Camping
           opts.on("-p", "--port NUM",
           "Port for web server (defaults to 3301)") { |v| options[:Port] = v }
 
-          db = DB.sub(HOME, '~/') if DB
-          opts.on("-d", "--database FILE",
-          "SQLite3 database path (defaults to #{db ? db : '<none>'})") { |db_path| options[:database] = db_path }
-
-          opts.on("-a", "--adapter ADAPTER_NAME",
-          "The database adapter (defaults to sqlite3)") { |db_adapter| options[:adapter] = db_adapter }
+#           db = DB.sub(HOME, '~/') if DB
+#           opts.on("-d", "--database FILE",
+#           "SQLite3 database path (defaults to #{db ? db : '<none>'})") { |db_path| options[:database] = db_path }
+#
+#           opts.on("-a", "--adapter ADAPTER_NAME",
+#           "The database adapter (defaults to sqlite3)") { |db_adapter| options[:adapter] = db_adapter }
 
           opts.on("-C", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
@@ -136,6 +136,15 @@ module Camping
         if !app.options.has_key?(:dynamic_templates)
 		      app.options[:dynamic_templates] = true
 	      end
+
+        # This starts a database connection. But how?
+        # This assumes that we have a database gear packed into our app.
+        # If we do, then that gear will add an establish_connection method
+        # to our app. Which will get us started.
+        # We should probably replace this with a start command in the future.
+        if app.respond_to? :establish_connection
+          app.establish_connection
+        end
       end
     end
 
@@ -145,8 +154,8 @@ module Camping
 
     def default_options
       super.merge({
-        :Port => 3301,
-        :database => Options::DB
+        :Port => 3301#,
+        # :database => Options::DB
       })
     end
 
