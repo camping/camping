@@ -167,6 +167,25 @@ module Camping
 
     def start
 
+      commands = []
+      ARGV.each do |cmd|
+        commands << cmd
+      end
+
+      case commands[0]
+      when "new"
+        Camping::Commands.new_cmd(commands[1])
+        exit
+      # when "-v" || "--version"
+        # puts "Guidebook v#{Camping::GuideBook::VERSION}"
+        # exit
+      else
+        # puts parser
+        # exit
+      end
+
+      # exit
+
       # If routes option was chosen to short circut here
       if options[:routes] == true
         @reloader.reload!
