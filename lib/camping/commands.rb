@@ -1,7 +1,6 @@
 module Camping
   module CommandsHelpers
 
-
     # transform app_name to snake case
     def self.to_snake_case(string)
       string = string.to_s if string.class == Symbol
@@ -11,7 +10,6 @@ module Camping
       tr("-", "_").
       downcase
     end
-
 
     RouteCollection = Struct.new(:routes)
     class RouteCollection
@@ -132,7 +130,7 @@ module Camping
       end
 
       def make_camp_file(app_name="Tent")
-        write "#{app_name}.rb", <<-RUBY
+        write "camp.rb", <<-RUBY
 require 'camping'
 
 Camping.goes :#{app_name}
@@ -189,6 +187,9 @@ RUBY
 .DS_Store
 node_modules/
 tmp/
+db/camping.db
+db/camping.sqlite3
+db/camping.sqlite
 GIT
       end
 
