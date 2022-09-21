@@ -13,7 +13,7 @@ require "uri"
 require "rack"
 
 $LOADED_FEATURES << "camping.rb"
-E ||= "Content-Type"
+E ||= "content-type"
 Z ||= "text/html"
 
 class Object #:nodoc:
