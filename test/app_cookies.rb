@@ -55,7 +55,7 @@ class Cookies::Test < TestCase
   def test_path
     get '/one', {}, 'SCRIPT_NAME' => '/mnt'
     assert_body '["42", "43", "past"]'
-    assert_equal 3, last_response.headers["Set-Cookie"].scan('path=/mnt/').size
+    assert_equal 3, last_response.headers["Set-Cookie"].map{|d|d.include?('path=/mnt/')}.size, "We were expecting a different number of 'path=/mnt/' declarations in the array. #{last_response.headers['Set-Cookie']}"
   end
 end
 

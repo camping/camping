@@ -29,7 +29,7 @@ module Camping
     def self.included(app)
       key    = "#{app}.state".downcase
       secret = app.options[:secret] || [__FILE__, File.mtime(__FILE__)].join(":")
-      app.use Rack::Session::Cookie, :key => key, :secret => secret
+      app.use Rack::Session::Cookie, :key => key, :secrets => secret
     end
   end
 end

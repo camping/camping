@@ -59,12 +59,12 @@ class TestReloader < TestCase
   end
 end
 
-class TestConfigRu < TestReloader
-  BASE = File.expand_path('../apps/reloader', __FILE__)
-  def file; BASE + '/config.ru' end
-
-  def test_name
-    assert_equal Reloader, reloader.apps[:reloader]
-  end
-end
+# class TestConfigRu < TestReloader
+#   BASE = File.expand_path('../apps/reloader', __FILE__)
+#   def file; BASE + '/config.ru' end
+#
+#   def test_name
+#     assert_equal Reloader, reloader.apps[:reloader]
+#   end
+# end
 
