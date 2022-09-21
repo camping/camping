@@ -1,3 +1,4 @@
+require 'rack/session'
 module Camping
   # == Getting Started
   #
