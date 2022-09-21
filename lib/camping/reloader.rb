@@ -93,7 +93,7 @@ module Camping
 
     def load_file
       if @file =~ /\.ru$/
-        @app,_ = Rack::Builder.parse_file(@file)
+        @app = Rack::Builder.parse_file(@file)
       else
         load(@file)
       end
