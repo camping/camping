@@ -1,4 +1,4 @@
-require"uri";require"rack";E||="Content-Type";Z||="text/html"
+require"uri";require"rack";E||="content-type";Z||="text/html"
 class Object;def meta_def m,&b;(class<<self;self
 end).send:define_method,m,&b end;end;module Camping;C=self;S=IO.read(__FILE__
 )rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;O={url_prefix:""};Apps=[];
