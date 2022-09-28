@@ -1,9 +1,10 @@
 require"uri";require"rack";E||="content-type";Z||="text/html"
 class Object;def meta_def m,&b;(class<<self;self
 end).send:define_method,m,&b end;end;module Camping;C=self;S=IO.read(__FILE__
-)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;O={url_prefix:""};Apps=[];
+)rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;Apps=[];
 SK=:camping;G=[];class H<Hash;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.
-to_s]:super end;undef id,type if ??==63 end;class Cookies<H;attr_accessor :_p;
+to_s]:super end;undef id,type if ??==63 end;O=H.new;O.url_prefix="";
+class Cookies<H;attr_accessor :_p;
 def _n;@n||={}end;alias _s []=;def set k,v,o={};_s(j=k.to_s,v);_n[j]=
 {:value=>v,:path=>_p}.update o;end;def []=(k,v)set(k,v,v.is_a?(Hash)?v:{})end
 end;module Helpers;def R c,*g;p,h=
@@ -44,10 +45,10 @@ merge!("N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>'');def M(pr);def M(pr);end;constant
 map{|c|k=const_get(c);k.send:include,C,X,Base,Helpers,Models
 @r=[k]+@r if @r-[k]==@r;k.meta_def(:urls){[F::A.(k,"#{c.to_s.scan(/.[^A-Z]*/)
 .map(&N.method(:[]))*'/'}",pr)]}if !k.respond_to?:urls}end end;I=R()end;X=
-Controllers;class<<self;def routes;X.M O[:url_prefix];(Apps.map(&:routes)<<X.v).flatten;end;
-def call e;X.M O[:url_prefix];k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
+Controllers;class<<self;def routes;X.M O.url_prefix;(Apps.map(&:routes)<<X.v).flatten;end;
+def call e;routes;k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
 downcase,e;k.new(e,m).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
-def method_missing m,c,*a;X.M O[:url_prefix];h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
+def method_missing m,c,*a;routes;h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s);h.each{|i,v|k.
 send"#{i}=",v};k.service(*a) end;def use*a,&b;m=a.shift.new(method(:call),*a,&b)
 meta_def(:call){|e|m.call(e)}end;def pack*a,&b;G<<g=a.shift;include g;

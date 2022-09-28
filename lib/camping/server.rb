@@ -279,7 +279,7 @@ module Camping
       # loaded, one app loaded, or multiple apps loaded.
       case apps.length
       when 0
-        [200, {'Content-Type' => 'text/html'}, ["I'm sorry but no apps were found."]]
+        [200, {'content-type' => 'text/html'}, ["I'm sorry but no apps were found."]]
       when 1
         apps.values.first.call(env) # When we have one
       else
