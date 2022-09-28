@@ -15,13 +15,42 @@ class MyMiddleware
   end
   def call(env)
     status, headers, body = @app.call(env)
-    [status, headers, body]
+    # Do something to status, headers, and body here...
+    [status, headers, body] # return an array of the status, headers, body.
   end
 end
 ```
 
-The `#initialize` method must store a reference to an `app` object that is passed in as a parameter. The `#call` method accepts an environment parameter that we call `env` and returns an array with 3 values: `status`, `headers`, and `body`. Now, when I first saw this I was confused, why do we immediately Call
+The `#initialize` method must store a reference to an `app` object that is passed in as a parameter. The `#call` method accepts an environment parameter that we call `env` and returns an array with 3 values: `status`, `headers`, and `body`. Now, when I first saw this I was confused, why do we immediately call `Call` on the app? Each Rack app receives an array to represent the environment, and then returns that same array at the end. It's just passing along the status, headers, and body of our request/response object.
 
+calling @app sets up each middleware in the middleware chain. It's like taking a break in the middle of washing the dishes, to take out the trash. If you have a lot of middleware it's like:
+* start washing dishes.
+* start taking out trash.
+* start sweeping the floor.
+* finish sweeping the floor.
+* finish taking out the trash.
+* finish washing the dishes.
+
+Sometimes middleware accepts settings or a block, to get your own middleware to do that write it like this:
+
+```ruby
+class MyMiddleware
+  def initialize(app, *a, &b)
+    @app = app
+    a.each { |setting|
+      # do something with each setting
+    }
+    yield # calls the block that's been passed.
+  end
+  def call(env)
+    status, headers, body = @app.call(env)
+    # Do something to status, headers, and body here...
+    [status, headers, body] # return an array of the status, headers, body.
+  end
+end
+```
+
+Good Rack Middleware shouldn't know if you're running a Camping app, or a Sinatra app, or a Rails app. Keep it Framework agnostic. The Rack specification is pretty great at keeping that up.
 
 ### notes:
 * really good railscast about it that's like... 13 years old: http://railscasts.com/episodes/151-rack-middleware?autoplay=true

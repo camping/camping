@@ -50,7 +50,7 @@ module Camping
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
-  O = { url_prefix: "" } # Our Hash of Options
+  # O = { url_prefix: "" } # Our Hash of Options. Moved below H
   Apps = [] # Our array of Apps
   SK = :camping #Key for r.session
   G = [] # Our array of Gear
@@ -87,6 +87,8 @@ module Camping
     end
     undef id, type if ?? == 63
   end
+
+  O=H.new;O.url_prefix="" # Our Hash of Options
 
   class Cookies < H
     attr_accessor :_p
@@ -663,8 +665,11 @@ module Camping
     #   Camping.routes
     #   Nuts.routes
     #
+    # Also sets up the Camping Controllers and Routes by calling M with our
+    # url_prefix. If you're using something other than the built in server, you
+    # will need to call routes to set up the routes properly.
     def routes
-      X.M O[:url_prefix]
+      X.M O.url_prefix
       (Apps.map(&:routes)<<X.v).flatten
     end
 
@@ -674,7 +679,7 @@ module Camping
     #
     # See: https://github.com/rack/rack/blob/main/SPEC.rdoc
     def call(e)
-      X.M O[:url_prefix]
+      routes
       k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
       k.new(e,m).service(*a).to_a
     rescue
@@ -700,7 +705,7 @@ module Camping
     #   #=> #<Blog::Controllers::Info @headers={'HTTP_HOST'=>'wagon'} ...>
     #
     def method_missing(m, c, *a)
-      X.M O[:url_prefix]
+      routes
       h = Hash === a[-1] ? a.pop : {}
       e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
       k = X.const_get(c).new(e,m.to_s)
@@ -714,6 +719,30 @@ module Camping
     #     use Rack::MethodOverride
     #     use Rack::Session::Memcache, :key => "session"
     #   end
+    #
+    # This piece of code feels a bit confusing, but let's walk through it.
+    # Rack apps all implement a Call method. This is how Rub web servers
+    # pass call the app, or code that you're set up. In our case, our camping
+    # apps.
+    #
+    # The Use method is setting up a new middleware, it first shifts the first
+    # argument supplied to Use, which should be the Middleware name, then
+    # initializes it. That's your new middleware. Rack based middleware accept
+    # a single argument to their initialize methods, which is an app. Optionally
+    # settings and a block are supplied.
+    #
+    # So a new app is made, and it's settings are supplied, then immediately
+    # sent to the new middleware we just added. But the cool part is where we
+    # call meta_def. meta_def takes a symbol and a block, and defines a class
+    # method into the current context. Our current context is our camping app.
+    # So when we call it below we're redefining the call method to call the new
+    # middleware that we just added. The `m` variable below represents our
+    # newly created middleware object, that we initialized with our old app. and
+    # because we're defining a new call method with a block, it's captured in
+    # that block.
+    #
+    # This creates a sequence of middleware that isn't recorded anywhere, but
+    # nonetheless is set up in the proper order and called in the proper order.
     def use(*a, &b)
       m = a.shift.new(method(:call), *a, &b)
       meta_def(:call) { |e| m.call(e) }
