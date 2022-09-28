@@ -35,18 +35,14 @@ Sometimes middleware accepts settings or a block, to get your own middleware to 
 
 ```ruby
 class MyMiddleware
-  def initialize(app, *a, &b)
+  def initialize(app, *a, &block) # &block can be omitted, because it's implicitly passed
     @app = app
     a.each { |setting|
       # do something with each setting
     }
     yield # calls the block that's been passed.
   end
-  def call(env)
-    status, headers, body = @app.call(env)
-    # Do something to status, headers, and body here...
-    [status, headers, body] # return an array of the status, headers, body.
-  end
+  # ... call and stuff ...
 end
 ```
 
