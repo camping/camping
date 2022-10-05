@@ -88,7 +88,7 @@ module Camping
     undef id, type if ?? == 63
   end
 
-  O=H.new;O.url_prefix="" # Our Hash of Options
+  O=H.new;O[:url_prefix]="" # Our Hash of Options
 
   class Cookies < H
     attr_accessor :_p
@@ -224,7 +224,7 @@ module Camping
     #   self / R(Edit, 1)   #=> "/blog/edit/1"
     #
     def /(p)
-      p[0] == ?/ ? (@root + p) : p #/
+      p[0] == ?/ ? (@root + @url_prefix.dup.prepend("/").chop + p) : p
     end
 
     # Builds a URL route to a controller or a path, returning a URI object.
@@ -269,7 +269,7 @@ module Camping
   # Everything in this module is accessible inside your controllers.
   module Base
     attr_accessor :env, :request, :root, :input, :cookies, :state,
-                  :status, :headers, :body
+                  :status, :headers, :body, :url_prefix
 
     T = {}
     L = :layout
@@ -448,13 +448,13 @@ module Camping
       r.to_a
     end
 
-    def initialize(env, m) #:nodoc:
+    def initialize(env, m, p) #:nodoc:
       r = @request = Rack::Request.new(@env = env)
       @root, @input, @cookies, @state,
-      @headers, @status, @method =
+      @headers, @status, @method, @url_prefix =
       r.script_name.sub(/\/$/,''), n(r.params),
       Cookies[r.cookies], H[r.session[SK]||{}],
-      {E=>Z}, m =~ /r(\d+)/ ? $1.to_i : 200, m
+      {E=>Z}, m =~ /r(\d+)/ ? $1.to_i : 200, m, p
       @cookies._p = self/"/"
     end
 
@@ -585,7 +585,7 @@ module Camping
         r=@r
         Class.new {
           meta_def(:urls){u}
-          meta_def(:inherited){|x|r<<x}
+          meta_def(:inherited){|x|r<< x}
         }
       end
 
@@ -617,13 +617,17 @@ module Camping
         [I, 'r404', p]
       end
 
-      # The F module collects lambda functions to help the route maker do it's job.
-      module F
-        # A lambda to avoid internal controller route
-        A = -> (c, u, p) {
-          u.prepend("/"+p) unless c.to_s == "I"
-        }
-      end
+      # A lambda to avoid internal controller route
+      A = -> (c, u, p) {
+        d = p.dup
+        d.chop! if u == ''
+        u.prepend("/"+d) if !["I","Index"].include? c.to_s
+        if c.to_s == "Index"
+          while d[-1] == "/"; d.chop! end
+          u.prepend("/"+d)
+        end
+        u
+      }
 
       N = H.new { |_,x| x.downcase }.merge! "N" => '(\d+)', "X" => '([^/]+)', "Index" => ''
       # The route maker, called by Camping internally.
@@ -638,14 +642,14 @@ module Camping
       # Camping server, you'll definitely need to call this to set things up.
       # Don't call it too early though - any controllers added after this
       # method was called won't work properly.
-      def M(pr)
-        def M(pr) #:nodoc:
+      def M(p)
+        def M(p) #:nodoc:
         end
         constants.map { |c|
           k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models
           @r=[k]+@r if @r-[k]==@r
-          k.meta_def(:urls){[F::A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", pr) ]}if !k.respond_to?:urls
+          k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", p)]}if !k.respond_to?:urls
         }
       end
     end
@@ -669,9 +673,25 @@ module Camping
     # url_prefix. If you're using something other than the built in server, you
     # will need to call routes to set up the routes properly.
     def routes
-      X.M O.url_prefix
+      X.M prx
       (Apps.map(&:routes)<<X.v).flatten
     end
+
+    # prx is an internal method used to return the current app's url_prefix.
+    # the prefix is processed to make sure that it's not all wonky. excessive
+    # trailing and leading slashes are removed. A trailing slash is added.
+    def prx
+      @_prx ||= PRF.(O[:url_prefix])
+    end
+
+    #:nodoc:
+    PRF = -> (p) {
+      f = p.dup
+      return "" if f == "" # Short circuit for blank prefixes.
+      f.chop!until f[-1] != "/"
+      f.slice!(0)until f[0] != "/"
+      f << "/"
+    }
 
     # Ruby web servers use this method to enter the Camping realm. The +e+
     # argument is the environment variables hash as per the Rack specification.
@@ -681,7 +701,7 @@ module Camping
     def call(e)
       routes
       k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
-      k.new(e,m).service(*a).to_a
+      k.new(e,m,prx).service(*a).to_a
     rescue
       r500(:I, k, m, $!, :env => e).to_a
     end
@@ -708,7 +728,7 @@ module Camping
       routes
       h = Hash === a[-1] ? a.pop : {}
       e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
-      k = X.const_get(c).new(e,m.to_s)
+      k = X.const_get(c).new(e,m.to_s,prx)
       h.each { |i, v| k.send("#{i}=", v) }
       k.service(*a)
     end
