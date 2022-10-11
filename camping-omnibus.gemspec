@@ -22,10 +22,13 @@ def camping_spec
     s.homepage = 'http://camping.rubyforge.org/'
     s.executables = ['camping']
     s.add_runtime_dependency('rack', '~> 2.0', '>= 2.2.4')
-    # s.add_runtime_dependency('rack', '~> 3.0', '>= 3.0.0')
-    s.add_runtime_dependency('rack-session', '~> 0.3', '>=0.3.0')
-    # s.add_runtime_dependency('rackup', '~> 0.2', '>=0.2.2')
+    s.add_runtime_dependency('rack-session', '~> 0.1', '>=0.1.0')
     s.add_runtime_dependency('mab', '~> 0.0', '>=0.0.3')
+
+    # Post Rack 3.0 dependencies.
+    # s.add_runtime_dependency('rack', '~> 3.0', '>= 3.0.0')
+    # s.add_runtime_dependency('rack-session', '~> 0.3', '>=0.3.0')
+    # s.add_runtime_dependency('rackup', '~> 0.2', '>=0.2.2')
     s.required_ruby_version = '>= 2.5.3'
 
     s.files = %w(COPYING README.md Rakefile) +
