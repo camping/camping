@@ -142,9 +142,9 @@ module Camping
         # If we do, then that gear will add an establish_connection method
         # to our app. Which will get us started.
         # We should probably replace this with a start command in the future.
-        if app.respond_to? :establish_connection
-          app.establish_connection
-        end
+        # if app.respond_to? :establish_connection
+        #   app.establish_connection
+        # end
       end
     end
 
