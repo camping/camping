@@ -1,4 +1,6 @@
 require 'rack/session'
+class InsecureSecret < Exception #:nodoc: all
+end
 module Camping
   # == Getting Started
   #
@@ -28,7 +30,8 @@ module Camping
   module Session
     def self.included(app)
       key    = "#{app}.state".downcase
-      secret = app.options[:secret] || [__FILE__, File.mtime(__FILE__)].join(":")
+      secret = app.options[:secret] || ['camping-secret',__FILE__, File.mtime('Rakefile')].join(":")
+      raise InsecureSecret, "You're Session Secret is too short. Minimum length is 64." if secret.length < 64
       app.use Rack::Session::Cookie, :key => key, :secrets => secret
     end
   end
