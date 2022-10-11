@@ -22,7 +22,8 @@ def camping_spec
     s.homepage = 'http://camping.rubyforge.org/'
     s.executables = ['camping']
     s.add_dependency('rack', '>=2.2.4')
-    s.add_dependency('rack-session', '>=0.2.1')
+    s.add_dependency('rack-session', '>=0.3.0')
+    s.add_dependency('rackup', '>=0.2.2')
     s.add_dependency('mab', '>=0.0.3')
     s.required_ruby_version = '>= 1.8.2'
 
