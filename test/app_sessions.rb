@@ -39,4 +39,26 @@ class Sessions::Test < TestCase
     follow_redirect!
     assert_body "[42, 56, 99]"
   end
+
+  def test_secret_length
+    app.set :secret, "whateverloser"
+    begin
+      app.include Camping::Session
+    rescue InsecureSecret => e
+      message = "You're Session Secret is too short. Minimum length is 64."
+      assert_equal(e.message, message, "You're session secret wasn't long enough.")
+    end
+
+    e = "empty"
+    message = "empty"
+    begin
+      app.set :secret, "whateverloserwhateverloserwhateverloserwhateverloserwhateverloser"
+      app.include Camping::Session
+    rescue InsecureSecret => e
+      message = e
+    end
+
+    assert_equal(e, message, "You're session secret wasn't long enough.")
+  end
 end
+
