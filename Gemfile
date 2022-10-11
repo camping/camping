@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'rake'
 gem 'rack'
 gem 'rack-session'
-gem 'rackup'
+# gem 'rackup'
 gem 'mab'
 
 group :extras do
