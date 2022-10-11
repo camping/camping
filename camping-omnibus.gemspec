@@ -2,10 +2,10 @@
 # camping_omni
 
 NAME = "camping"
-BRANCH = "2.3"
+BRANCH = "3.0.0"
 GIT = ENV['GIT'] || "git"
 REV = `#{GIT} rev-list HEAD`.strip.split.length
-VERS = ENV['VERSION'] || (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
+VERS = ENV['VERSION'] || BRANCH # (REV.zero? ? BRANCH : [BRANCH, REV] * '.')
 
 RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
 
@@ -21,9 +21,11 @@ def camping_spec
     s.email = 'why@ruby-lang.org'
     s.homepage = 'http://camping.rubyforge.org/'
     s.executables = ['camping']
-    s.add_dependency('rack', '>=1.0')
-    s.add_dependency('mab', '>=0.0.3')
-    s.required_ruby_version = '>= 1.8.2'
+    s.add_runtime_dependency('rack', '~> 3.0', '>= 3.0.0')
+    s.add_runtime_dependency('rack-session', '~> 0.3', '>=0.3.0')
+    s.add_runtime_dependency('rackup', '~> 0.2', '>=0.2.2')
+    s.add_runtime_dependency('mab', '~> 0.0', '>=0.0.3')
+    s.required_ruby_version = '>= 2.5.3'
 
     s.files = %w(COPYING README.md Rakefile) +
       Dir.glob("{bin,doc,test,lib,extras,book}/**/*") +
