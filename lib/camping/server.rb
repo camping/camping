@@ -1,6 +1,7 @@
 require 'irb'
 require 'erb'
 require 'rack'
+require 'camping/version'
 require 'camping/reloader'
 require 'camping/commands'
 
@@ -55,13 +56,6 @@ module Camping
           opts.on("-p", "--port NUM",
           "Port for web server (defaults to 3301)") { |v| options[:Port] = v }
 
-#           db = DB.sub(HOME, '~/') if DB
-#           opts.on("-d", "--database FILE",
-#           "SQLite3 database path (defaults to #{db ? db : '<none>'})") { |db_path| options[:database] = db_path }
-#
-#           opts.on("-a", "--adapter ADAPTER_NAME",
-#           "The database adapter (defaults to sqlite3)") { |db_adapter| options[:adapter] = db_adapter }
-
           opts.on("-C", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
 
@@ -80,14 +74,6 @@ module Camping
           end
 
           # Another typical switch to print the version.
-          # opts.on("-m", "--mounting", "Shows Mounting Guide") do
-          #   puts "Mounting Guide"
-          #   puts ""
-          #   puts "To mount your horse, hop up on the side and put it."
-          #   exit
-          # end
-
-          # Another typical switch to print the version.
           opts.on("-v", "--version", "Show version") do
             puts Gem.loaded_specs['camping'].version
             exit
@@ -96,30 +82,9 @@ module Camping
           # Show Routes
           opts.on("-r", "--routes", "Show Routes") { options[:routes] = true }
 
-          # Crude start at a generator
-#           opts.separator ""
-#           opts.separator "Generators:"
-#
-#           generator_list = ["controller", "model", "helper"]
-#           opts.on("-g", "--generator NAME",
-#           "generators (#{generator_list.join(', ')})") { |g|
-#             options[:generator] = g
-#             options[:args] = args
-#           }
-#
-#           opts.separator ""
-
         end
 
         opt_parser.parse!(args)
-
-        # Crude start at a generator command parser thing
-        # if options[:generator] != nil
-          # puts "someone wants to generate."
-          # puts args
-          # Camping::Commands.new(options)
-          # exit
-        # end
 
         if args.empty?
           args << "camp.rb"
@@ -172,19 +137,18 @@ module Camping
         commands << cmd
       end
 
+      # Parse commands
       case commands[0]
       when "new"
         Camping::Commands.new_cmd(commands[1])
         exit
-      # when "-v" || "--version"
-        # puts "Guidebook v#{Camping::GuideBook::VERSION}"
-        # exit
+      when "-v" || "--version"
+        puts "Camping v#{Camping::VERSION}"
+        exit
       else
         # puts parser
         # exit
       end
-
-      # exit
 
       # If routes option was chosen to short circut here
       if options[:routes] == true
