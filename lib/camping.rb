@@ -55,8 +55,7 @@ downcase,e;k.new(e,m,prx).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a e
 def method_missing m,c,*a;routes;h=Hash===a[-1]?a.pop: {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s,prx);h.each{|i,v|k.
 send"#{i}=",v};k.service(*a) end;def use*a,&b;m=a.shift.new(method(:call),*a,&b)
-meta_def(:call){|e|m.call(e)}end;def pack*a,&b;G<<g=a.shift;include g;
-extend g::ClassMethods if defined?(g::ClassMethods);g.setup(self,*a,&b)if g.respond_to?(:setup)end;
+meta_def(:call){|e|m.call(e)}end;def pack*a,&b;G<<g=a.shift;include g;g.setup(self,*a,&b)end
 def gear;G end;def options;O end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil

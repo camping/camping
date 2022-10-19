@@ -13,7 +13,7 @@ module Camping
       module ClassMethods
         # define class methods
         def secret_token
-          @_secret_token ||= SecureRandom.base64(32)
+          @_secret_token ||= SecureRandom.base64(64)
         end
 
         def erase_token
@@ -29,6 +29,10 @@ module Camping
       def self.setup(app, *a, &block)
         @app = app
         @app.set :secret_token, "top_secret_code"
+      end
+
+      def self.included(mod)
+        mod.extend(ClassMethods)
       end
 
       # Adds an instance method csrf

@@ -585,7 +585,7 @@ module Camping
         r=@r
         Class.new {
           meta_def(:urls){u}
-          meta_def(:inherited){|x|r<< x}
+          meta_def(:inherited){|x|r<<x}
         }
       end
 
@@ -797,8 +797,15 @@ module Camping
     def pack(*a, &b)
       G << g = a.shift
       include g
-      extend g::ClassMethods if defined?(g::ClassMethods)
-      g.setup(self, *a, &b) if g.respond_to?(:setup)
+      # extend g::ClassMethods if defined?(g::ClassMethods) # this can be
+      # performed by code like this instead:
+      #
+      #  def self.included(mod)
+      #    mod.extend(ClassMethods)
+      #  end
+      #
+      #
+      g.setup(self, *a, &b) # if g.respond_to?(:setup) # Force all gear to have a setup function
     end
 
     # Helper method to list gear
