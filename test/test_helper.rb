@@ -41,17 +41,17 @@ class TestCase < MiniTest::Test
     end
   end
 
-  def assert_body(str)
+  def assert_body(str, message="")
     case str
     when Regexp
-      assert_match(str, last_response.body.strip)
+      assert_match(str, last_response.body.strip, message)
     else
-      assert_equal(str.to_s, last_response.body.strip)
+      assert_equal(str.to_s, last_response.body.strip, message)
     end
   end
 
-  def assert_status(code)
-    assert_equal(code, last_response.status)
+  def assert_status(code, message="")
+    assert_equal(code, last_response.status, message)
   end
 
   def test_silly; end
