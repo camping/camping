@@ -1,4 +1,4 @@
-require"uri";require"rack";E||="content-type";Z||="text/html"
+require"uri";require"rack";require"cam\ping/filters";E||="content-type";Z||="text/html"
 class Object;def meta_def m,&b;(class<<self;self
 end).send:define_method,m,&b end;end;module Camping;C=self;S=IO.read(__FILE__
 )rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;Apps=[];
@@ -62,4 +62,4 @@ IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shi
 a.set :_t,H[*b||[]];end;end
 module Views;include X,Helpers end;module Models;
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
-autoload:Template,'camping/template';C end
+autoload:Template,'camping/template';pack Filters;C end

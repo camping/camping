@@ -11,6 +11,7 @@
 # found in the extras directory of any camping distribution.
 require "uri"
 require "rack"
+require 'camping/filters'
 
 $LOADED_FEATURES << "camping.rb"
 E ||= "content-type"
@@ -955,6 +956,8 @@ module Camping
 
   autoload :Mab, 'camping/mab'
   autoload :Template, 'camping/template'
+
+  pack Filters
 
   C
 end

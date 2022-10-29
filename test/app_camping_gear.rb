@@ -54,18 +54,40 @@ module Camping
 end
 
 module Packing
-    pack Camping::Gear::CSRF
+  pack Camping::Gear::CSRF
+
+  before :Home do
+    @great = "This is great"
+  end
+
+  after :Work do
+    @body = "This is nice"
+  end
+
+  module Controllers
+    class Home < R '/'
+      def get
+        (@great == "This is great").to_s
+      end
+    end
+
+    class Work < R '/work'
+      def get
+        (@nice == "This is great").to_s
+      end
+    end
+  end
 end
 
 class Packing::Test < TestCase
 
   def test_gear_packed
     list = Packing::G
-    assert (list.length == 1), "Gear was not packed! Gear: #{list.length}"
+    assert (list.length == 2), "Gear was not packed! Gear: #{list.length}"
   end
 
   def test_right_gear_packed
-    csrf_gear = Packing::G[0].to_s
+    csrf_gear = Packing::G[1].to_s
     assert (csrf_gear == "Camping::Gear::CSRF"), "The correct Gear was not packed! Gear: #{csrf_gear}"
   end
 
@@ -83,6 +105,17 @@ class Packing::Test < TestCase
   def test_setup_callback
     secret = Packing.options[:secret_token]
     assert (secret == "top_secret_code"), "Gear setup callback failed: \"#{secret}\" should be \"top_secret_code\"."
+  end
+
+  # Maybe move the Camping Filters tests somewhere else later.
+  def test_before_filter
+    get '/'
+    assert_body "true", "Before filter did not work."
+  end
+
+  def test_after_filter
+    get '/work'
+    assert (body() == "This is nice"), "After filter did not work."
   end
 
 end
