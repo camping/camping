@@ -10,7 +10,7 @@ Save it. Then, open a command prompt in the same directory. You'll want to
 run:
 
 ```ruby
-$ camping nuts.rb
+$ camping
 ```
 
 And you should get a message which reads:
