@@ -586,7 +586,7 @@ module Camping
         r=@r
         Class.new {
           meta_def(:urls){u}
-          meta_def(:inherited){|x|r<<x}
+          meta_def(:inherited){|x|r<< x}
         }
       end
 
@@ -775,14 +775,20 @@ module Camping
     #     pack Camping::Gear::CSRF
     #   end
     #
-    # This feature is an experiment. Inspired by the way that Cuba allows
-    # plugins.
-    #
     # Why have plugins in the first place if we can just include and extend our
-    # modules and classes directly? To perform setup actions.
+    # modules and classes directly? To perform setup actions!
     #
-    # Sometimes you might have ClassMethods that you want to modify camping with,
-    # This gives us a way to do that.
+    # Sometimes you might have ClassMethods that you want to modify Camping with,
+    # This gives us a way to do that. In your gear:
+    #
+    #   module MyGear
+    #     module ClassMethods
+    #       # Define Class Methods here
+    #     end
+    #     def self.included(mod)
+    #       mod.extend(ClassMethods)
+    #     end
+    #   end
     #
     # Optionally a plugin may have a setup method and a ClassMethods module:
     #
@@ -798,14 +804,6 @@ module Camping
     def pack(*a, &b)
       G << g = a.shift
       include g
-      # extend g::ClassMethods if defined?(g::ClassMethods) # this can be
-      # performed by code like this instead:
-      #
-      #  def self.included(mod)
-      #    mod.extend(ClassMethods)
-      #  end
-      #
-      #
       g.setup(self, *a, &b) # if g.respond_to?(:setup) # Force all gear to have a setup function
     end
 
