@@ -39,7 +39,7 @@ module Filters
 
 	def service(*a)
 		run_filters(:before)
-		ret = super(*a)
+		super(*a)
 		run_filters(:after)
 		self
 	end
