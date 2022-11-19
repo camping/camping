@@ -96,7 +96,7 @@ And then either the simple postamble, or the complex postamble:
 
 ```ruby
 # Plug it in to CGI
-Rack::Handler::CGI.run(Blog)) if __FILE__ == $0
+Rackup::Handler::CGI.run(Blog)) if __FILE__ == $0
 ```
 
 Then upload it to your server, and change the file's permissions to have all the executable bits set. You should now be able to visit the file using your web browser (for example, http://example.com/blog.rb). In fact, you don't even need the .rb. the #!/usr/bin/ruby line lets your server know what kind of file it is. :)
