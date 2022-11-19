@@ -1,6 +1,7 @@
 require 'irb'
 require 'erb'
 require 'rack'
+require 'rackup'
 require 'camping/version'
 require 'camping/reloader'
 require 'camping/commands'
@@ -24,7 +25,7 @@ require 'camping/commands'
 #
 # And visit http://localhost:3301/ in your browser.
 module Camping
-  class Server < Rack::Server
+  class Server < Rackup::Server
     class Options
       if home = ENV['HOME'] # POSIX
         DB = File.join(home, '.camping.db')
@@ -101,15 +102,6 @@ module Camping
         if !app.options.has_key?(:dynamic_templates)
 		      app.options[:dynamic_templates] = true
 	      end
-
-        # This starts a database connection. But how?
-        # This assumes that we have a database gear packed into our app.
-        # If we do, then that gear will add an establish_connection method
-        # to our app. Which will get us started.
-        # We should probably replace this with a start command in the future.
-        # if app.respond_to? :establish_connection
-        #   app.establish_connection
-        # end
       end
     end
 
@@ -119,8 +111,7 @@ module Camping
 
     def default_options
       super.merge({
-        :Port => 3301#,
-        # :database => Options::DB
+        :Port => 3301
       })
     end
 
