@@ -62,6 +62,9 @@ module Camping
           opts.on("-c", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
 
+          opts.on("-e", "--env ENVIRONMENT",
+          "Sets the environment. (defaults: development)") { |v| options[:environment] = ENV['environment'] = v }
+
           server_list = ["thin", "webrick", "console"]
           opts.on("-s", "--server NAME",
           "Server to force (#{server_list.join(', ')})") { |v| options[:server] = v }
