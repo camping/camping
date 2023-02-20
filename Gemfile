@@ -5,6 +5,7 @@ gem 'rack'
 gem 'rack-session'
 gem 'rackup'
 gem 'mab'
+gem 'kdl' # for settings and default config stuff
 
 group :extras do
   gem 'tilt'
