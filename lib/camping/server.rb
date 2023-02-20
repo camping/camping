@@ -59,7 +59,7 @@ module Camping
           opts.on("-p", "--port NUM",
           "Port for web server (defaults to 3301)") { |v| options[:Port] = v }
 
-          opts.on("-C", "--console",
+          opts.on("-c", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
 
           server_list = ["thin", "webrick", "console"]
