@@ -27,27 +27,29 @@ require 'camping/commands'
 module Camping
   class Server < Rackup::Server
     class Options
-      if home = ENV['HOME'] # POSIX
-        DB = File.join(home, '.camping.db')
-        RC = File.join(home, '.campingrc')
-      elsif home = ENV['APPDATA'] # MSWIN
-        DB = File.join(home, 'Camping.db')
-        RC = File.join(home, 'Campingrc')
-      else
-        DB = nil
-        RC = nil
-      end
 
-      HOME = File.expand_path(home) + '/'
+      # Deprecated v3.0.0
+      # if home = ENV['HOME'] # POSIX
+      #   DB = File.join(home, '.camping.db')
+      #   RC = File.join(home, '.campingrc')
+      # elsif home = ENV['APPDATA'] # MSWIN
+      #   DB = File.join(home, 'Camping.db')
+      #   RC = File.join(home, 'Campingrc')
+      # else
+      #   DB = nil
+      #   RC = nil
+      # end
+      #
+      # HOME = File.expand_path(home) + '/'
 
       def parse!(args)
         args = args.dup
-
         options = {}
-
         opt_parser = OptionParser.new("", 24, '  ') do |opts|
-          opts.banner = "Usage: camping my-camping-app.rb"
-          opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
+          opts.banner = "Usage: camping Or: camping my-camping-app.rb"
+
+          # opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
+
           opts.separator ""
           opts.separator "Specific options:"
 
@@ -75,10 +77,7 @@ module Camping
           end
 
           # Another typical switch to print the version.
-          opts.on("-v", "--version", "Show version") do
-            puts Gem.loaded_specs['camping'].version
-            exit
-          end
+          opts.on("-v", "--version", "Show version") { options[:version] = true }
 
           # Show Routes
           opts.on("-r", "--routes", "Show Routes") { options[:routes] = true }
@@ -133,15 +132,13 @@ module Camping
       when "new"
         Camping::Commands.new_cmd(commands[1])
         exit
-      when "-v" || "--version"
-        puts "Camping v#{Camping::VERSION}"
-        exit
-      else
-        # puts parser
-        # exit
       end
 
-      # If routes option was chosen to short circut here
+      if options[:version] == true
+        puts "Camping v#{Camping::VERSION}"
+        exit
+      end
+
       if options[:routes] == true
         @reloader.reload!
         r = @reloader
