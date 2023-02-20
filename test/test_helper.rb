@@ -17,8 +17,59 @@ require 'rack/test'
 require "minitest/reporters"
 Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(:color => true)]
 
+
+module CommandLineCommands
+
+  def move_to_tmp
+    @original_dir = Dir.pwd
+    Dir.chdir "test"
+    Dir.mkdir("tmp") unless Dir.exist?("tmp")
+    Dir.chdir "tmp"
+  end
+
+  def leave_tmp
+    Dir.chdir @original_dir
+    `rm -rf test/tmp` if File.exist?('test/tmp')
+  end
+
+  def write(file, content)
+    raise "cannot write nil" unless file
+    file = tmp_file(file)
+    folder = File.dirname(file)
+    `mkdir -p #{folder}` unless File.exist?(folder)
+    File.open(file, 'w') { |f| f.write content }
+  end
+
+  def read(file)
+    File.read(tmp_file(file))
+  end
+
+  def tmp_file(file)
+    "#{file}"
+  end
+
+  def write_config
+    write 'config.kdl', <<-TXT
+// config.kdl
+database {
+  default adapter="sqlite3"  host="localhost" max_connections=5 timeout=5000
+  development
+  production adapter="postgres" database="kow"
+}
+hostname "crickets.com"
+friends "_why" "judofyr" "chunky bacon"
+TXT
+  end
+
+  def trash_config
+    `rm -rf config.kdl` if File.exist?('config.kdl')
+  end
+
+end
+
 class TestCase < MiniTest::Test
   include Rack::Test::Methods
+  include CommandLineCommands
 
   def self.inherited(mod)
     mod.app = Object.const_get(mod.to_s[/\w+/])
