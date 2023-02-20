@@ -9,9 +9,7 @@
 # nicely with piles of documentation everywhere. This documentation is entirely
 # generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
 # found in the extras directory of any camping distribution.
-require "uri"
-require "rack"
-require 'camping/gear'
+require "cam\ping/loads"
 
 $LOADED_FEATURES << "camping.rb"
 E ||= "content-type"
@@ -883,6 +881,7 @@ module Camping
       IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
       (b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
       a.set :_t,H[*b||[]]
+      C.configure(a)
     end
   end
 

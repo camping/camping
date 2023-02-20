@@ -1,4 +1,4 @@
-require"uri";require"rack";require"cam\ping/gear";E||="content-type";Z||="text/html"
+require "cam\ping/loads";E||="content-type";Z||="text/html"
 class Object;def meta_def m,&b;(class<<self;self
 end).send:define_method,m,&b end;end;module Camping;C=self;S=IO.read(__FILE__
 )rescue nil;P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;Apps=[];
@@ -59,7 +59,7 @@ meta_def(:call){|e|m.call(e)}end;def pack*a,&b;G<<g=a.shift;include g;g.setup(se
 def gear;G end;def options;O end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;Apps<<a=eval(S.gsub(/Camping/,m.to_s),g);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
-a.set :_t,H[*b||[]];end;end
+a.set :_t,H[*b||[]];C.configure(a)end;end
 module Views;include X,Helpers end;module Models;
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
 autoload:Template,'camping/template';pack Filters;C end
