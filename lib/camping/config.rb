@@ -114,18 +114,14 @@ module Camping
 
 			# parses then maps the kdl
 			configs = map_kdl(parse_kdl(config_file))
-
 			env = ENV['environment'] ||= "development"
 
-
 			configs.each do |key, setting|
-				merged_configs[key] = {}
-				if setting.has_key? 'default' && env
-					merged_configs[key] = setting['default'].merge(setting[env])
+				if setting.has_key? :default && env.to_sym
+					merged_configs[key] = setting[:default].merge(setting[env.to_sym])
 				else
 					merged_configs[key] = setting['default']
 				end
-
 			end
 
 			merged_configs
