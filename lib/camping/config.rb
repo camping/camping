@@ -78,7 +78,7 @@ module Camping
 				message = Kuddly.kdl_error_message(kdl_string, error.message, error)
 				m = error.message.match( /\((\d)+:(\d)\)/ )
 
-				line, column = m[1].to_i, m[2].to_i
+				line, column = m[1].to_i, m[2].to_i if m.respond_to? '[]'
 
 				warn("\nError parsing config: #{config_file}, on line: #{line}, at column: #{column}.", message, "#{error.message}", uplevel: 1) unless silence_warnings
 			end
