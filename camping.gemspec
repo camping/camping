@@ -21,9 +21,10 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.homepage = 'http://camping.rubyforge.org/'
   s.executables = ['camping']
   s.add_runtime_dependency('mab', '~> 0.0', '>=0.0.3')
-  s.add_runtime_dependency('rack', '~> 3.0', '>= 3.0.0')
-  s.add_runtime_dependency('rack-session', '~> 0.3', '>=0.3.0')
-  s.add_runtime_dependency('rackup', '~> 0.2', '>=0.2.2')
+  s.add_runtime_dependency('rack', '~> 3.0', '>= 3.0.4.1')
+  s.add_runtime_dependency('rack-session', '~> 2.0', '>=2.0.0')
+  s.add_runtime_dependency('rackup', '~> 2.0', '>=2.1.0')
+  s.add_runtime_dependency('kdl', '~> 1.0', '>=1.0.3')
   s.required_ruby_version = '>= 3.1.2'
 
   s.files = %w(COPYING README.md Rakefile) +
