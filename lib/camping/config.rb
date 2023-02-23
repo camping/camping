@@ -21,6 +21,39 @@ module Camping
 	# Namespace to hide all of the KDL Configure stuff.
 	module Kuddly
 
+		WARNINGS = []
+
+		def self.kdl_error_message(kdl_string="",error_message="", error=nil)
+			# parse error message to get line number and column:
+			m = error_message.match( /\((\d)+:(\d)\)/ )
+
+			if m == nil
+				warn "kdl_error_message was called on a nil error message?"
+				warn "message: #{error_message}"
+				warn "kdl_string: #{kdl_string}"
+				warn "current dir: #{Dir.pwd}"
+				warn "#{error}"
+				return
+			end
+
+			line = m[1].to_i
+			lines = kdl_string.split( "\n" )
+
+			em = "\n"
+			em << "#{line-4}: #{lines[line-4]}\n" if (line-4) > 0 && (line-4) < lines.count
+			em << "#{line-3}: #{lines[line-3]}\n" if (line-3) > 0 && (line-3) < lines.count
+			em << "#{line-2}: #{lines[line-2]}\n" if (line-2) > 0 && (line-2) < lines.count
+			em << "#{line-1}: #{lines[line-1]}\n" if (line-1) > 0 && (line-1) < lines.count
+			em << "#{line}: #{lines[line]}\n"     if   (line)
+			em << "#{line+1}: #{lines[line+1]}\n" if (line+1) > 0 && (line+1) < lines.count
+			em << "#{line+2}: #{lines[line+2]}\n" if (line+2) > 0 && (line+2) < lines.count
+			em << "#{line+3}: #{lines[line+3]}\n" if (line+3) > 0 && (line+3) < lines.count
+			em << "#{line+4}: #{lines[line+4]}\n" if (line+4) > 0 && (line+4) < lines.count
+			# em << "\n"
+			WARNINGS << em
+		end
+
+
 		# parses a kdl file into a kdl document Object.
 		# returns nil if it's false. Also assumes that the file is exists.
 		# an optional silence_warnings parameter is set to false. This is used for
@@ -42,7 +75,7 @@ module Camping
 			rescue => error
 				warn "#{error}"
 				# parse error message to get line number and column:
-				message = Van.kdl_error_message(kdl_string, error.message, error)
+				message = Kuddly.kdl_error_message(kdl_string, error.message, error)
 				m = error.message.match( /\((\d)+:(\d)\)/ )
 
 				line, column = m[1].to_i, m[2].to_i
