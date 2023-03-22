@@ -65,7 +65,7 @@ module Camping
           opts.on("-e", "--env ENVIRONMENT",
           "Sets the environment. (defaults: development)") { |v| options[:environment] = ENV['environment'] = v }
 
-          server_list = ["thin", "webrick", "console"]
+          server_list = ["thin", "webrick", "console", "puma", "tipi", "falcon"]
           opts.on("-s", "--server NAME",
           "Server to force (#{server_list.join(', ')})") { |v| options[:server] = v }
 
@@ -189,11 +189,8 @@ module Camping
     end
 
     # Ensure trailing slash lambda
-    T = -> (u) {
-      if u.last != "/"
-        u << "/"
-      end
-      return u
+    T ||= -> (u) {
+      u << "/" if u[-1] != "/"; u
     }
 
     # call(env) res
@@ -227,19 +224,20 @@ module Camping
     #   end
     #
     def call(env)
-      @reloader.reload
-      apps = @reloader.apps
+      puts "called"
+      @reloader.reload # if ENV['environment'] == 'development'
+      @reloader.apps
 
       # our switch statement iterates through possible app outcomes, no apps
       # loaded, one app loaded, or multiple apps loaded.
-      case apps.length
+      case @reloader.apps.length
       when 0
         [200, {'content-type' => 'text/html'}, ["I'm sorry but no apps were found."]]
       when 1
-        apps.values.first.call(env) # When we have one
+        @reloader.apps.values.first.call(env) # When we have one
       else
         # 2 and up get special treatment
-        apps.each do |name, app|
+        @reloader.apps.each do |name, app|
           app.routes.each do |r|
             if (path_matches?(env['PATH_INFO'], r))
               return app.call(env)
@@ -249,7 +247,7 @@ module Camping
         end
 
         # Just return the first app if we didn't find a match.
-        return apps.values.first.call(env)
+        return @reloader.apps.values.first.call(env)
       end
     end
 
