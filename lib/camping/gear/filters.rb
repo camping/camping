@@ -2,7 +2,7 @@
 module Filters
 	module ClassMethods
 		def filters
-			@filters ||= {:before => [], :after => []}
+			@_filters ||= {:before => [], :after => []}
 		end
 
 		def before(actions, &blk)
