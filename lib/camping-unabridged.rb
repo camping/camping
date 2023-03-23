@@ -1,14 +1,3 @@
-# == About camping.rb
-#
-# Camping comes with two versions of its source code.  The code contained in
-# lib/camping.rb is compressed, stripped of whitespace, using compact algorithms
-# to keep it tight.  The unspoken rule is that camping.rb should be flowed with
-# no more than 80 characters per line and must not exceed four kilobytes.
-#
-# On the other hand, lib/camping-unabridged.rb contains the same code, laid out
-# nicely with piles of documentation everywhere. This documentation is entirely
-# generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
-# found in the extras directory of any camping distribution.
 require "cam\ping/loads"
 
 $LOADED_FEATURES << "camping.rb"
@@ -279,7 +268,7 @@ module Camping
     #   true              # => Found template in Views
     #   instance of Tilt  # => Found template in a file
     def lookup(n)
-      T.fetch(n.to_sym) do |k|
+      T.fetch(n.to_sym) { |k|
         # Find a view defined in the Views module first
         t = Views.method_defined?(k) ||
           # Find inline templates (delimited by @@), and then put it in a new Template and return that.
@@ -302,7 +291,7 @@ module Camping
           Template.new(f, O[f[/\.(\w+)$/, 1].to_sym] || {})
 
         O[:dynamic_templates] ? t : T[k] = t
-      end
+      }
     end
 
     # Display a view, calling it by its method name +v+. If a <tt>layout</tt>
@@ -459,10 +448,10 @@ module Camping
 
     def n(h) # :nodoc:
       if Hash === h
-        h.inject(H[]) do |m, (k, v)|
+        h.inject(H[]) { |m, (k, v)|
           m[k] = n(v)
           m
-        end
+        }
       else
         h
       end
@@ -833,12 +822,15 @@ module Camping
     #		:file = String
     #		:line_number = Int
     #   :parent = Object
-    def _meta=(new_meta)
+    def _meta=(nm)
       begin
         if cam = Object.const_get("Cam\ping")
-          loc = cam::Location.new(new_meta[:file], new_meta[:line_number])
-          root = (new_meta[:parent] ? '/' + cam::🏕.to_snake(new_meta[:parent].name.dup) : '/' )
-          @_meta = cam::Metadata.new(name.to_s, new_meta[:parent], root, loc)
+          @_meta = cam::Metadata.new(
+            name.to_s,
+            nm[:parent],
+            (nm[:parent] ? '/' + cam::🏕.to_snake(nm[:parent].name.dup) : '/' ),
+            cam::Location.new(nm[:file],
+            nm[:line_number]))
         end
       end unless @_meta != nil
       @_meta
