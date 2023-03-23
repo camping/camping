@@ -99,7 +99,7 @@ number.
 ```ruby
 class PostN
     def get number
-         p "the parameter was: #{number}"
+        p "the parameter was: #{number}"
     end
 end
 ```

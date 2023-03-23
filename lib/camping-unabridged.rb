@@ -824,9 +824,29 @@ module Camping
       O[k] = v
     end
 
+    # Shortcut to get meta_data about this app
+    def _meta
+      @_meta || nil
+    end
+
+    # 	accepts a hash:
+    #		:file = String
+    #		:line_number = Int
+    #   :parent = Object
+    def _meta=(new_meta)
+      begin
+        if cam = Object.const_get("Cam\ping")
+          loc = cam::Location.new(new_meta[:file], new_meta[:line_number])
+          root = (new_meta[:parent] ? '/' + cam::🏕.to_snake(new_meta[:parent].name.dup) : '/' )
+          @_meta = cam::Metadata.new(name.to_s, new_meta[:parent], root, loc)
+        end
+      end unless @_meta != nil
+      @_meta
+    end
+
     # When you are running multiple applications, you may want to create
     # independent modules for each Camping application. Camping::goes
-    # defines a toplevel constant with the whole MVC rack inside:
+    # defines a top level constant with the whole MVC rack inside:
     #
     #   require 'camping'
     #   Camping.goes :Nuts
@@ -876,12 +896,26 @@ module Camping
     #   Hello <%= @world %>
     #
     def goes(m, g=TOPLEVEL_BINDING)
-      Apps << a = eval(S.gsub(/Camping/,m.to_s), g)
+
+      # setup caller data
+      sp = caller[0].split('`')[0].split(":")
+      fl, ln, pr = sp[0], sp[1].to_i, nil
+
+      # Create the app
+      Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, ln)
       caller[0]=~/:/
       IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
       (b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
       a.set :_t,H[*b||[]]
-      C.configure(a)
+
+      # setup parental data
+      a.set :_app_name, m.to_s
+      a.set :_parent_app, name
+      pr = name if options.has_key? :_app_name
+      a._meta = {file: fl, line_number: ln, parent: pr}
+
+      # configure the app?
+      C.configure(a) # getting rid of this for now.
     end
   end
 
