@@ -1,3 +1,14 @@
+# == About camping.rb
+#
+# Camping comes with two versions of its source code.  The code contained in
+# lib/camping.rb is compressed, stripped of whitespace, using compact algorithms
+# to keep it tight.  The unspoken rule is that camping.rb should be flowed with
+# no more than 80 characters per line and must not exceed four kilobytes.
+#
+# On the other hand, lib/camping-unabridged.rb contains the same code, laid out
+# nicely with piles of documentation everywhere. This documentation is entirely
+# generated from lib/camping-unabridged.rb using RDoc and our "flipbook" template
+# found in the extras directory of any camping distribution.
 require "cam\ping/loads"
 
 $LOADED_FEATURES << "camping.rb"
