@@ -1,5 +1,3 @@
-require 'listen'
-
 module Camping
   # == The Camping Reloader
   #
@@ -42,15 +40,6 @@ module Camping
       @requires = []
       @apps = {}
       @callback = blk
-
-      # begin watching for file changes
-      if ENV['environment'] == 'development'
-        listener = Listen.to(Dir.pwd) do |modified, added, removed|
-          puts "reloading..."
-          FileUtils.touch file
-        end
-        listener.start
-      end
 
     end
 
