@@ -160,6 +160,8 @@ module Camping
         IRB.start
         exit
       else
+        @reloader.reload!
+        r = @reloader
         name = server.name[/\w+$/]
         puts "** Starting #{name} on #{options[:Host]}:#{options[:Port]}"
         super
