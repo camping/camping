@@ -225,7 +225,6 @@ module Camping
     #
     def call(env)
       @reloader.reload if ENV['environment'] == 'development'
-      # @reloader.apps
 
       # our switch statement iterates through possible app outcomes, no apps
       # loaded, one app loaded, or multiple apps loaded.
