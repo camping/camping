@@ -25,6 +25,7 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.add_runtime_dependency('rack-session', '~> 2.0', '>=2.0.0')
   s.add_runtime_dependency('rackup', '~> 2.1.0')
   s.add_runtime_dependency('kdl', '~> 1.0', '>=1.0.3')
+  s.add_runtime_dependency('listen', '~> 3.8')
   s.required_ruby_version = '>= 3.1.2'
 
   s.files = %w(COPYING README.md Rakefile) +

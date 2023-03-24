@@ -1,3 +1,5 @@
+require 'listen'
+
 module Camping
   # == The Camping Reloader
   #
@@ -40,6 +42,16 @@ module Camping
       @requires = []
       @apps = {}
       @callback = blk
+
+      # begin watching for file changes
+      if ENV['environment'] == 'development'
+        listener = Listen.to(Dir.pwd) do |modified, added, removed|
+          puts "reloading..."
+          FileUtils.touch file
+        end
+        listener.start
+      end
+
     end
 
     def name
@@ -91,6 +103,10 @@ module Camping
       self
     end
 
+    # load_file
+    #
+    # Rack::Builder is mainly used to parse a config.ru file and to
+    # build a rack app with middleware from that.
     def load_file
       if @file =~ /\.ru$/
         @app = Rack::Builder.parse_file(@file)
