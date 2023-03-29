@@ -162,6 +162,7 @@ module Camping
       else
         @reloader.reload!
         r = @reloader
+        Camping.make_camp
         name = server.name[/\w+$/]
         puts "** Starting #{name} on #{options[:Host]}:#{options[:Port]}"
         super
@@ -226,7 +227,10 @@ module Camping
     #   end
     #
     def call(env)
-      @reloader.reload if ENV['environment'] == 'development'
+      if ENV['environment'] == 'development' do
+        @reloader.reload
+        Camping.make_camp
+      end
 
       # our switch statement iterates through possible app outcomes, no apps
       # loaded, one app loaded, or multiple apps loaded.

@@ -4,6 +4,9 @@
 module Camping
 	module Tools
 		class << self
+			# to_snake
+			# Accepts a string and snake Cases it.
+			# Also accepts symbols and coerces them into a string.
 			def to_snake(string)
 				string = string.to_s if string.class == Symbol
 				string.gsub(/::/, '/').
@@ -12,6 +15,22 @@ module Camping
 				tr("-", "_").
 				downcase
 			end
+
+			# Normalize Slashes
+			# normalizes the leading and trailing slashes of a string to only have a
+			# single trailing slash and no leading slashes.
+			def normalize_slashes(string)
+				f = string.dup
+				return "" if f == "" # Short circuit for blank prefixes.
+				f.chop!until f[-1] != "/"
+				f.slice!(0)until f[0] != "/"
+				f << "/"
+			end
+
+			alias nrms normalize_slashes
+
 		end
 	end
 end
+
+🏕 = Camping::Tools

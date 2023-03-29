@@ -53,6 +53,7 @@ module Camping
   Apps = [] # Our array of Apps
   SK = :camping #Key for r.session
   G = [] # Our array of Gear
+  RS = [] # Hash of Routes
 
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
@@ -283,7 +284,7 @@ module Camping
         # Find a view defined in the Views module first
         t = Views.method_defined?(k) ||
           # Find inline templates (delimited by @@), and then put it in a new Template and return that.
-          # `:_t` is the options key for inline templates. Inline templats are added in `Camping#goes`.
+          # `:_t` is the options key for inline templates. Inline templates are added in `Camping#goes`.
           (t = O[:_t].keys.grep(/^#{n}\./)[0]and Template[t].new{O[:_t][t]}) ||
 
           # Find templates in a views directory, and return the first view that matches the symbol provided.
@@ -447,6 +448,9 @@ module Camping
       r.to_a
     end
 
+    # initialize
+    # Turns a camping controller class into an object and sets up
+    # the environment with input, cookies, state, headers, etc...
     def initialize(env, m, p) #:nodoc:
       r = @request = Rack::Request.new(@env = env)
       @root, @input, @cookies, @state,
@@ -457,6 +461,9 @@ module Camping
       @cookies._p = self/"/"
     end
 
+    # n method
+    # accepts parameters and converts them to a hash.
+    # helper method for initialize
     def n(h) # :nodoc:
       if Hash === h
         h.inject(H[]) { |m, (k, v)|
@@ -549,13 +556,13 @@ module Camping
   # If you haven't set @body, it will use the return value of the method:
   #
   #   module Nuts::Controllers
-  #     class Index
+  #     class Index < Camper
   #       def get
   #         "This is the body"
   #       end
   #     end
   #
-  #     class Posts
+  #     class Posts < Camper
   #       def get
   #         @body = "Hello World!"
   #         "This is ignored"
@@ -564,6 +571,7 @@ module Camping
   #   end
   module Controllers
     @r = []
+    class Camper end # An empty controller class
     class << self
 
       # Add routes to a controller class by piling them into the R method.
@@ -580,9 +588,23 @@ module Camping
       #       end
       #     end
       #   end
+      #
+      # Routes may be inherited using the R command as well. In this case you'll
+      # pass the ancestor Controller as the first argument to R.
+      #
+      #   module Camping::Controllers
+      #     class Post < R Edit, '/edit/(\d+)', '/new'
+      #       def get(id)
+      #         if id   # edit
+      #         else    # new
+      #         end
+      #       end
+      #     end
+      #   end
+      #
       def R *u
-        r=@r
-        Class.new {
+        r,uf=@r,u.first
+        Class.new(((uf.is_a?(Class) && (uf.ancestors.include?(Camper)) || uf == Camper ) ? u.shift : Camper)) {
           meta_def(:urls){u}
           meta_def(:inherited){|x|r<< x}
         }
@@ -650,6 +672,20 @@ module Camping
           @r=[k]+@r if @r-[k]==@r
           k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", p)]}if !k.respond_to?:urls
         }
+
+        # begin
+        #   k = const_get(c)
+        #   k.send :include,C,X,Base,Helpers,Models
+        #   @r=[k]+@r if @r-[k]==@r
+        #   k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", p)]}if !k.respond_to?:urls
+        #   k.urls.each do |uu|
+        #     k.instance_methods(false).each do |meth|
+        #       r=Camping::Route.new(meth+"_"+k.name, uu, k, meth.to_sym)
+        #       Camping::RS << r if Camper::RS - [r] == Camper::RS
+        #     end
+        #   end
+        # end unless c.name == 'Camper'
+
       end
     end
 
@@ -659,6 +695,17 @@ module Camping
   X = Controllers
 
   class << self
+
+    # Create method to setup routes for Camping upon reload.
+    # Camping Routes are now a little more deliberate, We're building a routing
+    # tree in the root.
+    #
+    # The routing tree builds the routes for each controller, places the routes
+    # into
+    def make_camp
+      X.M prx
+      routes
+    end
 
     # Helper method for getting routes from the controllers.
     # helps Camping::Server map routes to multiple apps.
@@ -672,7 +719,6 @@ module Camping
     # url_prefix. If you're using something other than the built in server, you
     # will need to call routes to set up the routes properly.
     def routes
-      X.M prx
       (Apps.map(&:routes)<<X.v).flatten
     end
 
@@ -698,7 +744,7 @@ module Camping
     #
     # See: https://github.com/rack/rack/blob/main/SPEC.rdoc
     def call(e)
-      routes
+      make_camp if RS == []
       k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
       k.new(e,m,prx).service(*a).to_a
     rescue
@@ -724,9 +770,9 @@ module Camping
     #   #=> #<Blog::Controllers::Info @headers={'HTTP_HOST'=>'wagon'} ...>
     #
     def method_missing(m, c, *a)
-      routes
       h = Hash === a[-1] ? a.pop : {}
       e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
+      puts "method missing failure for controller: #{c} "
       k = X.const_get(c).new(e,m.to_s,prx)
       h.each { |i, v| k.send("#{i}=", v) }
       k.service(*a)

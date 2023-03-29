@@ -36,7 +36,7 @@ module Camping
     class Route
 
       def to_s
-        "#{http_method}: #{url}"
+        "#{http_method}: #{url} - #{replace_reg url}"
       end
 
       # pad the controller name to be the right length, if we can.
@@ -80,10 +80,10 @@ module Camping
       end
 
       def parse
-        @parent_app.routes
+        @parent_app.make_camp
         collected_routes = []
 
-        make_routes =  -> (a) {
+        make_routes = -> (a) {
           a::X.constants.map { |c|
             k = a::X.const_get(c)
             im = k.instance_methods(false).map!(&:to_s)

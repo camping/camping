@@ -46,12 +46,10 @@ def service *a;r=catch(:halt){send(@method,*a)};@body||=r;self end end
 module Controllers;@r=[];class<<self
 def R *u;r=@r;Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<< x}}end
 def v;@r.map(&:urls);end
-
 def D p,m,e;p='/'if
 !p||!p[0];(a=O[:_t].find{|n,_|n==p}) and return [I,:serve,*a]
 @r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1].map{|x|U.unescape x}]:
 [I, 'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end;
-
 A=->(c,u,p){d=p.dup;d.chop! if u=='';u.prepend("/"+d) if !["I","Index"].
 include? c.to_s
 if c.to_s=="Index";while d[-1]=="/";d.chop! end;u.prepend("/"+d)end;u}
