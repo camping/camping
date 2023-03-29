@@ -8,10 +8,10 @@ module Camping
 	# A struct representing a routing in Camping.
 	# name: {String} The name of the route. Matches it's class Name
 	# url: {String} The url that it matches.
-	# pattern: {String} The url pattern that it matches.
-	# proc: {Proc} A reference to the procedure that it is executed when this
+	# controller: {Object} The Controller that the URL Pattern is handled by.
+	# method: {Symbol} The method that is sent to the object when the route is called
 	#   route is matched.
-	Route = Struct.new(:name,:url,:pattern,:proc)
+	Route = Struct.new(:name,:url,:controller,:method)
 
 	# Metadata
 	# A struct containing an app's metadata.

@@ -15,11 +15,27 @@ module Routes::Controllers
   end
 
   class PageX
-      def get
-      end
+    def get
+    end
 
-      def post
-      end
+    def post
+    end
+  end
+
+  class Edit < R Camper
+    def get
+    end
+
+    def post
+    end
+  end
+
+  class Post < R Edit
+    def get
+    end
+
+    def post
+    end
   end
 
 end
@@ -33,9 +49,32 @@ class Routes::Test < TestCase
   def test_routes_helper
     collection = Camping::Commands.routes((Camping::Apps.select{|a| a.name == "Routes" }.first), true)
     routes = collection.routes.map(&:to_s)
-    assert_equal routes.count, 3, "Routes are not numbered correctly"
+    assert_equal routes.count, 5, "Routes are not numbered correctly"
     assert (routes.include? "get: /page/([^/]+)"), "Routes do not include: [get: /page/([^/]+)]"
     assert (routes.include? "post: /page/([^/]+)"), "Routes do not include: [post: /page/([^/]+)]"
     assert (routes.include? "get: /"), "Routes do not include: [get: /]"
   end
+
+  def the_app
+    Camping::Apps.select{|a| a.name == "Routes" }.first
+  end
+
+  def test_new_routes
+    app = the_app
+    assert (app::RS.length == 10), "Routes aint doing well."
+  end
+
+#   def test_controller_inheritance
+#     app = the_app
+#
+#     # app::Controllers.constants.each do |c|
+#     #   puts "#{c.name}" unless c.name == 'Camper' || c.name == 'I'
+#     # end
+#     collection = Camping::Commands.routes((Camping::Apps.select{|a| a.name == "Routes" }.first), true)
+#     routes = collection.routes.map(&:to_s)
+#
+#     puts ""
+#     puts routes
+#     assert_equal routes.count, 5, "Routes are not numbered correctly."
+#   end
 end
