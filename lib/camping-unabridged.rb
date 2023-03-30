@@ -535,14 +535,15 @@ module Camping
   #
   # == The request
   #
-  # The following variables aid in describing request:
+  # The following variables aid in describing a request:
   #
-  # * @env contains the environment as defined in http://rack.rubyforge.org/doc/SPEC.html
+  # * @env contains the environment as defined in https://github.com/rack/rack/blob/main/SPEC.rdoc
   # * @request is Rack::Request.new(@env)
   # * @root is the path where the app is mounted
   # * @cookies is a hash with the cookies sent by the client
   # * @state is a hash with the sessions (see Camping::Session)
   # * @method is the HTTP method in lowercase
+  # * @url_prefix is the set prefix of the route matched by your controller
   #
   # == The response
   #
@@ -672,20 +673,6 @@ module Camping
           @r=[k]+@r if @r-[k]==@r
           k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", p)]}if !k.respond_to?:urls
         }
-
-        # begin
-        #   k = const_get(c)
-        #   k.send :include,C,X,Base,Helpers,Models
-        #   @r=[k]+@r if @r-[k]==@r
-        #   k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", p)]}if !k.respond_to?:urls
-        #   k.urls.each do |uu|
-        #     k.instance_methods(false).each do |meth|
-        #       r=Camping::Route.new(meth+"_"+k.name, uu, k, meth.to_sym)
-        #       Camping::RS << r if Camper::RS - [r] == Camper::RS
-        #     end
-        #   end
-        # end unless c.name == 'Camper'
-
       end
     end
 
@@ -1039,6 +1026,7 @@ module Camping
 
   # Load default Gear
   pack Filters
+  pack FrankStyle
 
   C
 end

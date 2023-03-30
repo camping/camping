@@ -49,7 +49,7 @@ class Routes::Test < TestCase
   def test_routes_helper
     collection = Camping::Commands.routes((Camping::Apps.select{|a| a.name == "Routes" }.first), true)
     routes = collection.routes.map(&:to_s)
-    assert_equal routes.count, 5, "Routes are not numbered correctly"
+    assert_equal 5, routes.count, "Routes are not numbered correctly. #{routes}"
     assert (routes.include? "get: /page/([^/]+)"), "Routes do not include: [get: /page/([^/]+)]"
     assert (routes.include? "post: /page/([^/]+)"), "Routes do not include: [post: /page/([^/]+)]"
     assert (routes.include? "get: /"), "Routes do not include: [get: /]"
@@ -61,7 +61,7 @@ class Routes::Test < TestCase
 
   def test_new_routes
     app = the_app
-    assert (app::RS.length == 10), "Routes aint doing well."
+    assert (app::RS.length == 10), "Routes aint doing well. The RS array is empty."
   end
 
 #   def test_controller_inheritance
