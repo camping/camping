@@ -83,12 +83,12 @@ class Packing::Test < TestCase
 
   def test_gear_packed
     list = Packing::G
-    assert (list.length == 2), "Gear was not packed! Gear: #{list.length}"
+    assert (list.length == 3), "Proper number of Gear was not packed! Gear: #{list.length}"
   end
 
   def test_right_gear_packed
-    csrf_gear = Packing::G[1].to_s
-    assert (csrf_gear == "Camping::Gear::CSRF"), "The correct Gear was not packed! Gear: #{csrf_gear}"
+    csrf_gear = "Camping::Gear::CSRF"
+    assert Packing::G.map(&:to_s).include?(csrf_gear), "The correct Gear was not packed! Gear: #{csrf_gear}"
   end
 
   def test_instance_methods_packed
