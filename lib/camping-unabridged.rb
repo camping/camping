@@ -643,7 +643,7 @@ module Camping
       A = -> (c, u, p) {
         d = p.dup
         d.chop! if u == ''
-        u.prepend("/"+d) if !["I","Index"].include? c.to_s
+        u.prepend("/"+d) if !["I"].include? c.to_s
         if c.to_s == "Index"
           while d[-1] == "/"; d.chop! end
           u.prepend("/"+d)
@@ -713,17 +713,8 @@ module Camping
     # the prefix is processed to make sure that it's not all wonky. excessive
     # trailing and leading slashes are removed. A trailing slash is added.
     def prx
-      @_prx ||= PRF.(O[:url_prefix])
+      @_prx ||= CampTools.normalize_slashes(O[:url_prefix])
     end
-
-    #:nodoc:
-    PRF = -> (p) {
-      f = p.dup
-      return "" if f == "" # Short circuit for blank prefixes.
-      f.chop!until f[-1] != "/"
-      f.slice!(0)until f[0] != "/"
-      f << "/"
-    }
 
     # Ruby web servers use this method to enter the Camping realm. The +e+
     # argument is the environment variables hash as per the Rack specification.

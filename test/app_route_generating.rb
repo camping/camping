@@ -5,7 +5,7 @@ require 'camping/commands'
 Camping.goes :Routes
 
 module Routes::Controllers
-  class Index
+  class Index < R '/'
     def get
       R(Style)
     end
@@ -14,7 +14,7 @@ module Routes::Controllers
   class Style < R '/style\.css'
   end
 
-  class PageX
+  class PageX < R Camper
     def get
     end
 
@@ -50,9 +50,9 @@ class Routes::Test < TestCase
     collection = Camping::Commands.routes((Camping::Apps.select{|a| a.name == "Routes" }.first), true)
     routes = collection.routes.map(&:to_s)
     assert_equal 5, routes.count, "Routes are not numbered correctly. #{routes}"
-    assert (routes.include? "get: /page/([^/]+)"), "Routes do not include: [get: /page/([^/]+)]"
-    assert (routes.include? "post: /page/([^/]+)"), "Routes do not include: [post: /page/([^/]+)]"
-    assert (routes.include? "get: /"), "Routes do not include: [get: /]"
+    assert (routes.include? "get: /page/([^/]+)"), "Routes do not include: [get: /page/([^/]+) - /page/:string], #{routes}"
+    assert (routes.include? "post: /page/([^/]+)"), "Routes do not include: [post: /page/([^/]+) - /page/:string], #{routes}"
+    assert (routes.include? "get: / - /"), "Routes do not include: [get: / - /], #{routes}"
   end
 
   def the_app
