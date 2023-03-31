@@ -85,7 +85,7 @@ sp[0],sp[1].to_i,nil;Apps<< a=eval(S.gsub(/Camping/,m.to_s),g,fl,ln);caller[0]=~
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)
 ).shift rescue nil;a.set :_t,H[*b||[]]
 a.set :_meta, H[file: fl, line_number: ln, parent: self,
-root: (name != "Cam\ping" ? '/' + CampingTools.to_snake(name) : '/')];C.configure(a)end end
+root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')];C.configure(a)end end
 module Views;include X,Helpers end;module Models
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
 autoload:Template,'camping/template';pack Filters;pack FrankStyle;C end
