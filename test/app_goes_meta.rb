@@ -9,7 +9,7 @@ class Goesmeta::Test < TestCase
 		meta = value = Goesmeta._meta
 		value = "nil" if meta == nil
 		assert meta != nil, "meta data was not added. #{value}"
-		assert meta[:location][:file] == "/Users/kow/code/camping/camping/test/app_goes_meta.rb", "Wait a minute. This app Goesmeta, has a wonky creation location."
+		assert meta[:location][:file].include?("/camping/camping/test/app_goes_meta.rb"), "Wait a minute. This app Goesmeta, has a wonky creation location. #{meta[:location][:file]}"
 		assert meta[:location][:line_number] == 4, "App creation location line number is wrong. It's supposed to be 4."
 	end
 
