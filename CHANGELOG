@@ -1,3 +1,18 @@
+= 3.0
+=== TBA
+* Camping Now uses the latest versions of Rack under the hood.
+* New Routing Spec gives Sinatra like Routing helpers.
+* Inherit from other Controllers without carrying their urls.
+* You can now inherit from another Controller, AND set custom urls.
+* ActiveRecord now removed in favor of a more flexible database architecture.
+* Builtin Gear added for Filtering, and Sinatra style routing.
+* Added Camping Tools, small utilities that come with Camping.
+* Camping now has a new project generator. run `camping new` from your bash.
+* _meta data set in an App's options hash.
+* Session secrets are now much longer.
+* Camping settings can now be set in a kdl config doc.
+*
+
 = 2.3
 === 28th July, 2022
 * New routes command line helper command.
