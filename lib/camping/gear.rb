@@ -3,3 +3,4 @@
 
 require 'camping/gear/filters'
 require 'camping/gear/frank_style'
+require 'camping/gear/inspection'
