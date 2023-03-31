@@ -75,11 +75,6 @@ k.send"#{i}=",v};k.service(*a)end
 def use*a,&b;m=a.shift.new(method(:call),*a,&b);meta_def(:call){|e|m.call(e)}end
 def pack*a,&b;G<< g=a.shift;include g;g.setup(self,*a,&b)end
 def gear;G end;def options;O;end;def set k,v;O[k]=v end
-def _meta;@_meta||nil;end
-def _meta= nm;begin if cam=Object.const_get("Cam\ping");
-@_meta = cam::Metadata.new(name.to_s,nm[:parent],(nm[:parent]?'/'+cam::🏕
-.to_snake(nm[:parent].name.dup):'/'),cam::Location.new(nm[:file],
-nm[:line_number]))end end unless @_meta != nil;@_meta end
 def goes m,g=TOPLEVEL_BINDING;sp=caller[0].split('`')[0].split(":");fl,ln,pr=
 sp[0],sp[1].to_i,nil;Apps<< a=eval(S.gsub(/Camping/,m.to_s),g,fl,ln);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)
