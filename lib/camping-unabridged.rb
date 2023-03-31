@@ -578,16 +578,6 @@ module Camping
 
     class << self
 
-      # All Helper helps us inspect our Controllers from outside of the app.
-      # TODO: Move to CampTools for introspection.
-      def all
-        all = []
-        constants.map { |c|
-          all << c.name if !["I", "Camper"].include? c.to_s
-        }
-        all
-      end
-
       # Add routes to a controller class by piling them into the R method.
       #
       # The route is a regexp which will match the request path. Anything
@@ -1010,8 +1000,9 @@ module Camping
   autoload :Template, 'camping/template'
 
   # Load default Gear
-  pack Filters
-  pack FrankStyle
+  pack Gear::Inspection
+  pack Gear::Filters
+  pack Gear::FrankStyle
 
   C
 end

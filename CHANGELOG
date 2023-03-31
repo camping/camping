@@ -1,5 +1,5 @@
 = 3.0
-=== TBA
+=== TBD
 * Camping Now uses the latest versions of Rack under the hood.
 * New Routing Spec gives Sinatra like Routing helpers.
 * Inherit from other Controllers without carrying their urls.
@@ -11,7 +11,8 @@
 * _meta data set in an App's options hash.
 * Session secrets are now much longer.
 * Camping settings can now be set in a kdl config doc.
-*
+* Gems are now loaded from your Gemfile upon startup.
+* Add Inspection Camping Gear. Utilities for Camp inspection.
 
 = 2.3
 === 28th July, 2022

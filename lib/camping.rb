@@ -44,7 +44,6 @@ Cookies[r.cookies],H[r.session[SK]||{}],{E=>Z},m=~/r(\d+)/?$1.to_i: 200,m,p
 def n h;Hash===h ?h.inject(H[]){|m,(k,v)|m[k]=n(v);m}: h end
 def service *a;r=catch(:halt){send(@method,*a)};@body||=r;self end end
 module Controllers;@r=[];class Camper end;class<<self
-def all;all=[];constants.map{|c|all<< c.name if !["I","Camper"].include?(c.to_s)};all end
 def R *u;r,uf=@r,u.first;Class.new((uf.is_a?(Class)&&
 (uf.ancestors.include?(Camper))) ? u.shift : Camper) {
 meta_def(:urls){u};meta_def(:inherited){|x|r<< x} } end
@@ -83,4 +82,4 @@ a.set :_meta, H[file: fl, line_number: ln, parent: self,
 root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')];C.configure(a)end end
 module Views;include X,Helpers end;module Models
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
-autoload:Template,'camping/template';pack Filters;pack FrankStyle;C end
+autoload:Template,'camping/template';pack Gear::Inspection;pack Gear::Filters;pack Gear::FrankStyle;C end
