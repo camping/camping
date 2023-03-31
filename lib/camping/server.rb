@@ -227,7 +227,7 @@ module Camping
     #   end
     #
     def call(env)
-      if ENV['environment'] == 'development' do
+      if ENV['environment'] == 'development'
         @reloader.reload
         Camping.make_camp
       end
@@ -251,7 +251,7 @@ module Camping
         end
 
         # Just return the first app if we didn't find a match.
-        return @reloader.apps.values.first.call(env)
+        @reloader.apps.values.first.call(env)
       end
     end
 
