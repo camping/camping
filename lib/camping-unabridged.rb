@@ -579,7 +579,7 @@ module Camping
     class << self
 
       # All Helper helps us inspect our Controllers from outside of the app.
-      # TODO: Move to CampingTools for introspection.
+      # TODO: Move to CampTools for introspection.
       def all
         all = []
         constants.map { |c|
@@ -933,7 +933,7 @@ module Camping
       a.set :_t,H[*b||[]]
 
       # setup parental data
-      a.set :_meta, H[file: fl, line_number: ln, parent: self, root: (name != "Cam\ping" ? '/' + CampingTools.to_snake(name) : '/')]
+      a.set :_meta, H[file: fl, line_number: ln, parent: self, root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')]
 
       # configure the app?
       C.configure(a)
