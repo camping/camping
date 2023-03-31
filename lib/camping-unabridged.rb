@@ -860,29 +860,6 @@ module Camping
       O[k] = v
     end
 
-    # Shortcut to get meta_data about this app
-    def _meta
-      @_meta || nil
-    end
-
-    # 	accepts a hash:
-    #		:file = String
-    #		:line_number = Int
-    #   :parent = Object
-    def _meta=(nm)
-      begin
-        if cam = Object.const_get("Cam\ping")
-          @_meta = cam::Metadata.new(
-            name.to_s,
-            nm[:parent],
-            (nm[:parent] ? '/' + cam::🏕.to_snake(nm[:parent].name.dup) : '/' ),
-            cam::Location.new(nm[:file],
-            nm[:line_number]))
-        end
-      end unless @_meta != nil
-      @_meta
-    end
-
     # When you are running multiple applications, you may want to create
     # independent modules for each Camping application. Camping::goes
     # defines a top level constant with the whole MVC rack inside:
@@ -934,6 +911,14 @@ module Camping
     #   @@ index.erb
     #   Hello <%= @world %>
     #
+    # Also sets the apps Meta Data. Can be found at O[:_meta]
+    #
+    # @app:         {String} - The app in question
+    # @parent:      {String} -
+    # @root:        {String} -
+    # @line_number: {Int}    - The line number that the app was declared
+    # @file:        {String} - The file location for this
+    #
     def goes(m, g=TOPLEVEL_BINDING)
 
       # setup caller data
@@ -948,13 +933,10 @@ module Camping
       a.set :_t,H[*b||[]]
 
       # setup parental data
-      a.set :_app_name, m.to_s
-      a.set :_parent_app, name
-      pr = name if options.has_key? :_app_name
-      a._meta = {file: fl, line_number: ln, parent: pr}
+      a.set :_meta, H[file: fl, line_number: ln, parent: self, root: (name != "Cam\ping" ? '/' + CampingTools.to_snake(name) : '/')]
 
       # configure the app?
-      C.configure(a) # getting rid of this for now.
+      C.configure(a)
     end
   end
 
