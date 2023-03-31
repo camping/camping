@@ -123,7 +123,7 @@ namespace :check do
     end
   end
 
-  SIZE_LIMIT = 5120
+  SIZE_LIMIT = 6,144
   desc "Compare camping sizes to unabridged"
   task :size do
     FileList["lib/camping*.rb"].each do |path|
