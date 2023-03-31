@@ -43,29 +43,33 @@ Cookies[r.cookies],H[r.session[SK]||{}],{E=>Z},m=~/r(\d+)/?$1.to_i: 200,m,p
 @cookies._p=self/"/";end
 def n h;Hash===h ?h.inject(H[]){|m,(k,v)|m[k]=n(v);m}: h end
 def service *a;r=catch(:halt){send(@method,*a)};@body||=r;self end end
-module Controllers;@r=[];class<<self
-def R *u;r=@r;Class.new{meta_def(:urls){u};meta_def(:inherited){|x|r<< x}}end
+module Controllers;@r=[];class Camper end;class<<self
+def all;all=[];constants.map{|c|all<< c.name if !["I","Camper"].include?(c.to_s)};all end
+def R *u;r,uf=@r,u.first;Class.new((uf.is_a?(Class)&&
+(uf.ancestors.include?(Camper))) ? u.shift : Camper) {
+meta_def(:urls){u};meta_def(:inherited){|x|r<< x} } end
 def v;@r.map(&:urls);end
 def D p,m,e;p='/'if
 !p||!p[0];(a=O[:_t].find{|n,_|n==p}) and return [I,:serve,*a]
 @r.map{|k|k.urls.map{|x|return(k.method_defined? m)?[k,m,*$~[1..-1].map{|x|U.unescape x}]:
 [I, 'r501',m]if p=~/^#{x}\/?$/}};[I,'r404',p] end;
-A=->(c,u,p){d=p.dup;d.chop! if u=='';u.prepend("/"+d) if !["I","Index"].
+A=->(c,u,p){d=p.dup;d.chop! if u=='';u.prepend("/"+d) if !["I"].
 include? c.to_s
 if c.to_s=="Index";while d[-1]=="/";d.chop! end;u.prepend("/"+d)end;u}
 N=H.new{|_,x|x.downcase}.merge! "N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>''
 def M p;def M p;end
-constants.map{|c|k=const_get(c);k.send:include,C,X,Base,Helpers,Models
-@r=[k]+@r if @r-[k]==@r;k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/)
-.map(&N.method(:[]))*'/'}",p)]}if !k.respond_to?:urls}end
-end;I=R()end;X=Controllers
-class<<self;def routes;X.M prx;(Apps.map(&:routes)<<X.v).flatten end
-def prx;@_prx||=PRF.(O[:url_prefix])end
-PRF= ->(p){f=p.dup;return"" if f=="";f.chop!until f[-1]!="/"
-f.slice!(0)until f[0]!="/";f<< "/"}
-def call e;routes;k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
+constants.filter{|c|c.to_s!='Camper'}.map{|c|k=const_get(c);
+k.send:include,C,X,Base,Helpers,Models
+@r=[k]+@r if @r-[k]==@r;mu=false;ka=k.ancestors
+if (k.respond_to?(:urls) && ka[1].respond_to?(:urls)) && (k.urls == ka[1].urls)
+mu = true unless ka[1].name == nil end
+k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}",p)]} if (!k
+.respond_to?(:urls) || mu==true)};end end;I=R()end;X=Controllers
+class<<self;def make_camp;X.M prx end;def routes;(Apps.map(&:routes)<<X.v).flatten end
+def prx;@_prx||=CampTools.normalize_slashes(O[:url_prefix])end
+def call e;make_camp;k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
 downcase,e;k.new(e,m,prx).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
-def method_missing m,c,*a;routes;h=Hash===a[-1]?a.pop : {};e=H[Rack::MockRequest.
+def method_missing m,c,*a;h=Hash===a[-1]?a.pop : {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s,prx);h.each{|i,v|
 k.send"#{i}=",v};k.service(*a)end
 def use*a,&b;m=a.shift.new(method(:call),*a,&b);meta_def(:call){|e|m.call(e)}end
@@ -84,4 +88,4 @@ a.set :_app_name, m.to_s;a.set:_parent_app,name;pr=name if options.has_key?(
 :_app_name);a._meta={file:fl,line_number:ln,parent:pr};C.configure(a)end end
 module Views;include X,Helpers end;module Models
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
-autoload:Template,'camping/template';pack Filters;C end
+autoload:Template,'camping/template';pack Filters;pack FrankStyle;C end

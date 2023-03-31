@@ -14,7 +14,7 @@ module Routes::Controllers
   class Style < R '/style\.css'
   end
 
-  class PageX < R Camper
+  class PageX
     def get
     end
 
@@ -22,7 +22,7 @@ module Routes::Controllers
     end
   end
 
-  class Edit < R Camper
+  class Edit < Camper
     def get
     end
 
@@ -30,51 +30,60 @@ module Routes::Controllers
     end
   end
 
-  class Post < R Edit
+  class Post < R Edit, '/post', '/post/post'
     def get
     end
 
     def post
+    end
+  end
+
+  class Bump < Edit
+    def get
     end
   end
 
 end
 
 class Routes::Test < TestCase
+  def the_app
+    app = Camping::Apps.select{|a| a.name == "Routes" }.first
+    app.make_camp
+    app
+  end
+
   def test_backslash
     get '/'
     assert_body '/style.css'
   end
 
+  # Test that we can get the actual controllers that we want.
+  def test_controllers
+    controllers = the_app::X.all
+    assert controllers.count == 6, "how many controllers are there? #{controllers.count}"
+  end
+
+  def test_naked_controller
+    controllers = the_app::X.all
+    assert((controllers.include? "PageX" ), "PageX is not an included controller. #{controllers}")
+    controller = the_app::X.const_get :PageX
+    assert((controller.urls == ["/page/([^/]+)"]), "PageX Controller's Routes are not right. #{controller.urls}")
+  end
+
+  def test_inherited_controller_not_getting_its_parents_urls
+    controller = the_app::X.const_get :Post
+    assert_equal ["/post", "/post/post"], controller.urls, "Post Controller's urls are not right. #{controller.urls}"
+    second_controller = the_app::X.const_get :Bump
+    assert_equal ["/bump"], second_controller.urls, "Bump Controller's urls are not right. #{second_controller.urls}"
+  end
+
   def test_routes_helper
     collection = Camping::Commands.routes((Camping::Apps.select{|a| a.name == "Routes" }.first), true)
     routes = collection.routes.map(&:to_s)
-    assert_equal 5, routes.count, "Routes are not numbered correctly. #{routes}"
-    assert (routes.include? "get: /page/([^/]+)"), "Routes do not include: [get: /page/([^/]+) - /page/:string], #{routes}"
-    assert (routes.include? "post: /page/([^/]+)"), "Routes do not include: [post: /page/([^/]+) - /page/:string], #{routes}"
-    assert (routes.include? "get: / - /"), "Routes do not include: [get: / - /], #{routes}"
+    assert_equal 10, routes.count, "Routes are not numbered correctly. #{routes}"
+    assert (routes.include? "PageX: get: /page/([^/]+) - /page/:string"), "Routes do not include: [PageX: get: /page/([^/]+) - /page/:string], #{routes}"
+    assert (routes.include? "PageX: post: /page/([^/]+) - /page/:string"), "Routes do not include: [PageX: post: /page/([^/]+) - /page/:string], #{routes}"
+    assert (routes.include? "Index: get: / - /"), "Routes do not include: [Index: get: / - /], #{routes}"
   end
 
-  def the_app
-    Camping::Apps.select{|a| a.name == "Routes" }.first
-  end
-
-  def test_new_routes
-    app = the_app
-    assert (app::RS.length == 10), "Routes aint doing well. The RS array is empty."
-  end
-
-#   def test_controller_inheritance
-#     app = the_app
-#
-#     # app::Controllers.constants.each do |c|
-#     #   puts "#{c.name}" unless c.name == 'Camper' || c.name == 'I'
-#     # end
-#     collection = Camping::Commands.routes((Camping::Apps.select{|a| a.name == "Routes" }.first), true)
-#     routes = collection.routes.map(&:to_s)
-#
-#     puts ""
-#     puts routes
-#     assert_equal routes.count, 5, "Routes are not numbered correctly."
-#   end
 end
