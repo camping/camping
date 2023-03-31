@@ -53,7 +53,6 @@ module Camping
   Apps = [] # Our array of Apps
   SK = :camping #Key for r.session
   G = [] # Our array of Gear
-  RS = [] # Hash of Routes
 
   # An object-like Hash.
   # All Camping query string and cookie variables are loaded as this.
@@ -572,8 +571,22 @@ module Camping
   #   end
   module Controllers
     @r = []
-    class Camper end # An empty controller class
+
+    # An empty controller class that our other Classes inherit from.
+    # Camper is used by the R method internally.
+    class Camper end
+
     class << self
+
+      # All Helper helps us inspect our Controllers from outside of the app.
+      # TODO: Move to CampingTools for introspection.
+      def all
+        all = []
+        constants.map { |c|
+          all << c.name if !["I", "Camper"].include? c.to_s
+        }
+        all
+      end
 
       # Add routes to a controller class by piling them into the R method.
       #
@@ -605,7 +618,7 @@ module Camping
       #
       def R *u
         r,uf=@r,u.first
-        Class.new(((uf.is_a?(Class) && (uf.ancestors.include?(Camper)) || uf == Camper ) ? u.shift : Camper)) {
+        Class.new((uf.is_a?(Class) && (uf.ancestors.include?(Camper))) ? u.shift : Camper) {
           meta_def(:urls){u}
           meta_def(:inherited){|x|r<< x}
         }
@@ -667,11 +680,19 @@ module Camping
       def M(p)
         def M(p) #:nodoc:
         end
-        constants.map { |c|
+        # TODO: Refactor this to make it less convoluted around making urls.
+        constants.filter {|c| c.to_s != 'Camper'}.map { |c|
           k = const_get(c)
           k.send :include,C,X,Base,Helpers,Models
           @r=[k]+@r if @r-[k]==@r
-          k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", p)]}if !k.respond_to?:urls
+          mu = false # Should we make urls?
+          ka = k.ancestors
+          # This complicated code checks the ancestor chain of a controller to see it has it's own urls,
+          # or if it's urls are from one of it's ancestors. ancestor URLs need to be discarded.
+          if (k.respond_to?(:urls) && ka[1].respond_to?(:urls)) && (k.urls == ka[1].urls)
+            mu = true unless ka[1].name == nil
+          end
+          k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}", p)]} if (!k.respond_to?(:urls) || mu == true)
         }
       end
     end
@@ -684,14 +705,8 @@ module Camping
   class << self
 
     # Create method to setup routes for Camping upon reload.
-    # Camping Routes are now a little more deliberate, We're building a routing
-    # tree in the root.
-    #
-    # The routing tree builds the routes for each controller, places the routes
-    # into
     def make_camp
       X.M prx
-      routes
     end
 
     # Helper method for getting routes from the controllers.
@@ -702,14 +717,11 @@ module Camping
     #   Camping.routes
     #   Nuts.routes
     #
-    # Also sets up the Camping Controllers and Routes by calling M with our
-    # url_prefix. If you're using something other than the built in server, you
-    # will need to call routes to set up the routes properly.
     def routes
       (Apps.map(&:routes)<<X.v).flatten
     end
 
-    # prx is an internal method used to return the current app's url_prefix.
+    # An internal method used to return the current app's url_prefix.
     # the prefix is processed to make sure that it's not all wonky. excessive
     # trailing and leading slashes are removed. A trailing slash is added.
     def prx
@@ -722,7 +734,7 @@ module Camping
     #
     # See: https://github.com/rack/rack/blob/main/SPEC.rdoc
     def call(e)
-      make_camp if RS == []
+      make_camp # TODO: Find a better, more consistent place for setting everything up.
       k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
       k.new(e,m,prx).service(*a).to_a
     rescue
@@ -750,7 +762,7 @@ module Camping
     def method_missing(m, c, *a)
       h = Hash === a[-1] ? a.pop : {}
       e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
-      puts "method missing failure for controller: #{c} "
+      # puts "method missing failure for controller: #{c} "
       k = X.const_get(c).new(e,m.to_s,prx)
       h.each { |i, v| k.send("#{i}=", v) }
       k.service(*a)

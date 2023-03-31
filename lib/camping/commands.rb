@@ -16,14 +16,17 @@ module Camping
       # Displays formatted routes from a route collection
       # Assumes that Route structs are stored in :routes.
       def display
-        current_app, current_method = "", ""
+        current_app, current_controller, current_method = "", "", ""
         puts "App      VERB     Route"
         routes.each { |r|
           if current_app != r.app.to_s
             current_app = r.app.to_s
-            current_method = ""
             puts "-----------------------------------"
             puts r.app_header
+          end
+          if current_controller != r.controller.to_s
+            current_controller = r.controller.to_s
+            puts r.controller_header
           end
           puts r.padded_message true
         }
@@ -36,7 +39,7 @@ module Camping
     class Route
 
       def to_s
-        "#{http_method}: #{url} - #{replace_reg url}"
+        "#{controller}: #{http_method}: #{url} - #{replace_reg url}"
       end
 
       # pad the controller name to be the right length, if we can.
@@ -80,11 +83,12 @@ module Camping
       end
 
       def parse
-        @parent_app.make_camp
+        routes = @parent_app.make_camp
         collected_routes = []
 
         make_routes = -> (a) {
-          a::X.constants.map { |c|
+
+          a::X.all.map {|c|
             k = a::X.const_get(c)
             im = k.instance_methods(false).map!(&:to_s)
             methods = im & ["get", "post", "put", "patch", "delete"]
