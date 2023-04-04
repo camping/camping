@@ -82,4 +82,4 @@ a.set :_meta, H[file: fl, line_number: ln, parent: self,
 root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')];C.configure(a)end end
 module Views;include X,Helpers end;module Models
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
-autoload:Template,'camping/template';pack Gear::Inspection;pack Gear::Filters;pack Gear::FrankStyle;C end
+autoload:Template,'camping/template';pack Gear::Inspection;pack Gear::Filters;pack Gear::Nancy;C end
