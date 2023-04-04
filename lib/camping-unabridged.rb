@@ -918,6 +918,8 @@ module Camping
 
       # Create the app
       Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, ln)
+      # ensure that S is the same as the original S when you Camping.goes on sub apps.
+      a::S.gsub!(/.*/,S)
       caller[0]=~/:/
       IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
       (b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
