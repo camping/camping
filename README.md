@@ -2,14 +2,21 @@
 
 # Camping, a Microframework
 
-Camping is a web framework which consistently stays at less than 5kB of code.
+Camping is a micro web framework which stays as small as possible.
 You can probably view the complete source code on a single page. But, you
-know, it's so small that, if you think about it, what can it really do?
+know, it's so small that, if you think about it, what can it really do? Apparently
+It can do a lot. It's pretty swell.
 
 The idea here is to store a complete fledgling web application in a single
 file like many small CGIs. But to organize it as a Model-View-Controller
-application like Rails does. You can then easily move it to Rails once you've
-got it going.
+application. And with time, you can move your Models, Views, and Controllers into
+other files as your app grows.
+
+Camping supports multiple *apps*, capsuled code that runs together. Each app can
+have independent models, routes, and controllers.
+
+Pack your gear when you go Camping! With a simple plugin system, Camping is easily
+extensible.
 
 ## A Camping Skeleton
 
@@ -64,7 +71,7 @@ Once that's sorted out, open up a Terminal or Command Line and enter:
 gem install camping
 ```
 
-Even better, install the Camping Omnibus, a full package of recommended libs:
+~~Even better, install the Camping Omnibus, a full package of recommended libs:~~ Camping Omnibus will return for summer vacation.
 
 ```
 gem install camping-omnibus

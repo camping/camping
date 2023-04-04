@@ -83,6 +83,9 @@ class TestCase < MiniTest::Test
   def body() last_response.body end
   def app()  self.class.app     end
 
+  # adding this because sometimes the response is wonky???
+  def response_body() last_response.to_a end
+
   def assert_reverse
     begin
       yield

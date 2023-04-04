@@ -614,7 +614,7 @@ module Camping
         }
       end
 
-      # A Helper method to map and return the actual routes of our controller
+      # A Helper method to map and return the actual routes of our controllers
       def v
         @r.map(&:urls)
       end
@@ -697,6 +697,7 @@ module Camping
     # Create method to setup routes for Camping upon reload.
     def make_camp
       X.M prx
+      Apps.map(&:make_camp)
     end
 
     # Helper method for getting routes from the controllers.
@@ -752,7 +753,7 @@ module Camping
     def method_missing(m, c, *a)
       h = Hash === a[-1] ? a.pop : {}
       e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
-      # puts "method missing failure for controller: #{c} "
+      # puts "method missing failure for controller: #{c}, method: #{m} "
       k = X.const_get(c).new(e,m.to_s,prx)
       h.each { |i, v| k.send("#{i}=", v) }
       k.service(*a)
