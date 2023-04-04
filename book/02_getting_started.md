@@ -1,8 +1,9 @@
 # Getting Started
 
-Start a new text file called nuts.rb. Here's what you put inside:
+Start a new text file called camp.rb. Here's what you put inside:
 
 ```ruby
+require 'camping'
 Camping.goes :Nuts
 ```
 
@@ -39,7 +40,7 @@ So, you've got Camping installed and it's running. Keep it running. You can
 edit files and The Camping Server will reload automatically. When you need to
 stop the server, press Control-C.
 
-Let's show something. At the bottom of nuts.rb add:
+Let's show something. At the bottom of camp.rb add:
 
 ```ruby
 module Nuts::Controllers
