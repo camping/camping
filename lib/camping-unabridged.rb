@@ -1003,7 +1003,7 @@ module Camping
   # Load default Gear
   pack Gear::Inspection
   pack Gear::Filters
-  pack Gear::FrankStyle
+  pack Gear::Nancy
 
   C
 end

@@ -50,9 +50,9 @@ module Frank
 end
 
 
-Camping.goes :Nancy
+Camping.goes :Bill
 
-module Nancy::Controllers
+module Bill::Controllers
 	class Friends
 		def get
 			"It looks like you have lots of friends."
@@ -61,7 +61,7 @@ module Nancy::Controllers
 end
 
 module Frank
-	get '/friends', &Nancy
+	get '/friends', &Bill
 end
 
 
@@ -112,9 +112,7 @@ class Frank::Test < TestCase
 
 	def test_to_proc_works_for_apps
 		get '/friends/'
-		# puts last_response.to_a
-		# assert_equal "It looks like you have lots of friends.", response_body, "Well this is a bummer. Nancy is left out, and not called. #{response_body}"
-		assert_body "It looks like you have lots of friends.", "Well this is a bummer. Nancy is left out, and not called."
+		assert_body "It looks like you have lots of friends.", "Well this is a bummer. Frank is left out, and not called."
 	end
 
 end
