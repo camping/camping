@@ -49,6 +49,22 @@ module Frank
 
 end
 
+
+Camping.goes :Nancy
+
+module Nancy::Controllers
+	class Friends
+		def get
+			"It looks like you have lots of friends."
+		end
+	end
+end
+
+module Frank
+	get '/friends', &Nancy
+end
+
+
 class Frank::Test < TestCase
 
 	def the_app
@@ -65,7 +81,7 @@ class Frank::Test < TestCase
 
 	def test_number_of_controllers
 		controllers = the_controllers
-		assert (controllers.count == 10), "There are not the right number of controllers: #{controllers.count}."
+		assert (controllers.count == 11), "There are not the right number of controllers: #{controllers.count}."
 	end
 
 	def test_controller_names
@@ -88,6 +104,17 @@ class Frank::Test < TestCase
 	def test_get_works_for_controllers
 		get '/accounts/'
 		assert_body "Get Some Accounts", "Body is not what we expect."
+	end
+
+	def test_blocks_take_arguments
+
+	end
+
+	def test_to_proc_works_for_apps
+		get '/friends/'
+		# puts last_response.to_a
+		# assert_equal "It looks like you have lots of friends.", response_body, "Well this is a bummer. Nancy is left out, and not called. #{response_body}"
+		assert_body "It looks like you have lots of friends.", "Well this is a bummer. Nancy is left out, and not called."
 	end
 
 end

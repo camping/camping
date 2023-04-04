@@ -64,7 +64,7 @@ if (k.respond_to?(:urls) && ka[1].respond_to?(:urls)) && (k.urls == ka[1].urls)
 mu = true unless ka[1].name == nil end
 k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}",p)]} if (!k
 .respond_to?(:urls) || mu==true)};end end;I=R()end;X=Controllers
-class<<self;def make_camp;X.M prx end;def routes;(Apps.map(&:routes)<<X.v).flatten end
+class<<self;def make_camp;X.M prx;Apps.map(&:make_camp) end;def routes;(Apps.map(&:routes)<<X.v).flatten end
 def prx;@_prx||=CampTools.normalize_slashes(O[:url_prefix])end
 def call e;make_camp;k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
 downcase,e;k.new(e,m,prx).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end

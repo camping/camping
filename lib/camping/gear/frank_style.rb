@@ -68,7 +68,7 @@ module Gear
 
 			begin
 				m.module_eval(%Q[
-				module X
+				module Controllers
 					class #{cname} < R #{rs}
 					end
 				end
@@ -81,7 +81,22 @@ module Gear
 				end
 			end
 
-			m::X.const_get("#{cname}").define_method(meth, &block)
+			m::X.const_get("#{cname}").send(:define_method, meth) { |*args|
+				res = block[@env]
+
+				if res.class == Array
+					# if we're forwarding a response
+					status = res[0]
+					body = res[2].flatten.first
+					headers = res[1]
+				else
+					# if we have a great string that's returned instead.
+					status = 200
+					body = res
+					headers = {"content-type": "text/html"}
+				end
+				r(status, body, headers)
+			}
 
 			return nil
 		end
@@ -96,6 +111,32 @@ module Gear
 			def patch(*routes, &block)   FrankStyle.make_camping_route('patch', routes, self, &block) end
 			def link(*routes, &block)    FrankStyle.make_camping_route('link', routes, self, &block) end
 			def unlink(*routes, &block)  FrankStyle.make_camping_route('unlink', routes, self, &block) end
+
+
+			# Turns this App into a proc to be consumed by one of the block based route generators
+			# An easy way to forward requests to an app.
+			# a references self, that's then captured by the proc, which is a closure.
+			# because it's a closure, and because it captures self, we can then call
+			# this proc anywhere we want.
+			#
+			# the syntax: `a[e]` is an implicit call to the `#call` method. the brackets
+			# are syntatic sugar to get this to work. The following code is equivalient:
+			#
+			#	 e = []
+			#  a.call(e)
+			#  a.(e)
+			#  a[e]
+			#
+			# This code is defined in the FrankStyle Camping Gear. Specifically in it's
+			# ClassMethods module. ClassMethods is then extended onto our Camping app,
+			# Giving it the appearance of being a method of the module.
+			def to_proc
+				a=self
+				proc{|e|
+					a.call(e)
+				}
+			end
+
 		end
 
 		def self.included(mod)
@@ -108,14 +149,14 @@ module Gear
 	end
 end
 
-class Object #:nodoc:
-	def get(*routes, &block)     FrankStyle.make_camping_route('get', routes, nil, &block) end
-	def put(*routes, &block)     FrankStyle.make_camping_route('put', routes, nil, &block) end
-	def post(*routes, &block)    FrankStyle.make_camping_route('post', routes, nil, &block) end
-	def delete(*routes, &block)  FrankStyle.make_camping_route('delete', routes, nil, &block) end
-	def head(*routes, &block)    FrankStyle.make_camping_route('head', routes, nil, &block) end
-	# def options(*routes, &block) FrankStyle.make_camping_route('options', routes, nil, &block) end
-	def patch(*routes, &block)   FrankStyle.make_camping_route('patch', routes, nil, &block) end
-	def link(*routes, &block)    FrankStyle.make_camping_route('link', routes, nil, &block) end
-	def unlink(*routes, &block)  FrankStyle.make_camping_route('unlink', routes, nil, &block) end
-end
+# class Object #:nodoc:
+# 	def get(*routes, &block)     FrankStyle.make_camping_route('get', routes, nil, &block) end
+# 	def put(*routes, &block)     FrankStyle.make_camping_route('put', routes, nil, &block) end
+# 	def post(*routes, &block)    FrankStyle.make_camping_route('post', routes, nil, &block) end
+# 	def delete(*routes, &block)  FrankStyle.make_camping_route('delete', routes, nil, &block) end
+# 	def head(*routes, &block)    FrankStyle.make_camping_route('head', routes, nil, &block) end
+# 	# def options(*routes, &block) FrankStyle.make_camping_route('options', routes, nil, &block) end
+# 	def patch(*routes, &block)   FrankStyle.make_camping_route('patch', routes, nil, &block) end
+# 	def link(*routes, &block)    FrankStyle.make_camping_route('link', routes, nil, &block) end
+# 	def unlink(*routes, &block)  FrankStyle.make_camping_route('unlink', routes, nil, &block) end
+# end
