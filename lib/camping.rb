@@ -12,7 +12,7 @@ end
 module Helpers;def R c,*g;p,h=
 /\(.+?\)/,g.grep(Hash);g-=h;raise"bad route"if !u=c.urls.find{|x|break x if
 x.scan(p).size==g.size&&/^#{x}\/?$/=~(x=g.inject(x){|x,a|x.sub p,U.escape((a.
-to_param rescue a))}.gsub(/\\(.)/){$1})};h.any?? u+"?"+U.build_query(h[0]) : u
+to_param rescue a))}.gsub(CampTools.regex_1){$1})};h.any?? u+"?"+U.build_query(h[0]) : u
 end;def /(p) p[0]==?/ ?(@root+@url_prefix.dup.prepend("/").chop+p) : p end
 def URL c='/',*a;c=R(c,*a)if c.respond_to?(
 :urls);c=self/c;c=@request.url[/.{8,}?(?=\/|$)/]+c if c[0]==?/;URI c end
@@ -75,12 +75,12 @@ def use*a,&b;m=a.shift.new(method(:call),*a,&b);meta_def(:call){|e|m.call(e)}end
 def pack*a,&b;G<< g=a.shift;include g;g.setup(self,*a,&b)end
 def gear;G end;def options;O;end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;sp=caller[0].split('`')[0].split(":");fl,ln,pr=
-sp[0],sp[1].to_i,nil;Apps<< a=eval(S.gsub(/Camping/,m.to_s),g,fl,ln);
-a::S.gsub!(/.*/,S);caller[0]=~/:/
+sp[0],sp[1].to_i,nil;s=S.gsub(/Camping/,m.to_s);Apps<< a=eval(s,g,fl,ln);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)
 ).shift rescue nil;a.set :_t,H[*b||[]]
 a.set :_meta, H[file: fl, line_number: ln, parent: self,
 root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')];C.configure(a)end end
 module Views;include X,Helpers end;module Models
 Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
-autoload:Template,'camping/template';pack Gear::Inspection;pack Gear::Filters;pack Gear::Nancy;C end
+autoload:Template,'camping/template';pack Gear::Inspection;pack Gear::Filters
+pack Gear::Nancy;pack Gear::Kuddly;C end

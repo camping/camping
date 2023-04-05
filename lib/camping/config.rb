@@ -2,11 +2,15 @@
 # lib/camping/config
 # load and parse settings.
 
+# DEPRECATED
+
 begin
 	require 'kdl'
 rescue LoadError => e
 	raise "kdl could not be loaded (is it installed?): #{e.message}"
 end
+
+module CampingConfig
 
 module Camping
 	class << self

@@ -210,7 +210,7 @@ module Camping
       raise "bad route" if !u = c.urls.find{|x|
         break x if x.scan(p).size == g.size &&
           /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
-            x.sub p,U.escape((a.to_param rescue a))}.gsub(/\\(.)/){$1})
+            x.sub p,U.escape((a.to_param rescue a))}.gsub(CampTools.regex_1){$1})
       }
       h.any?? u+"?"+U.build_query(h[0]) : u
     end
@@ -917,9 +917,8 @@ module Camping
       fl, ln, pr = sp[0], sp[1].to_i, nil
 
       # Create the app
-      Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, ln)
-      # ensure that S is the same as the original S when you Camping.goes on sub apps.
-      a::S.gsub!(/.*/,S)
+      Apps << a = eval(s = S.gsub(/Camping/,m.to_s), g, fl, ln)
+
       caller[0]=~/:/
       IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
       (b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)).shift rescue nil
@@ -1006,6 +1005,7 @@ module Camping
   pack Gear::Inspection
   pack Gear::Filters
   pack Gear::Nancy
+  pack Gear::Kuddly
 
   C
 end
