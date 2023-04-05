@@ -10,7 +10,7 @@ rescue LoadError => e
 	raise "kdl could not be loaded (is it installed?): #{e.message}"
 end
 
-module CampingConfig
+# module CampingConfig
 
 module Camping
 	class << self
