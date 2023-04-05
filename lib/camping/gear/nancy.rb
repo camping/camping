@@ -1,8 +1,8 @@
 module Gear
 
-	# Frank
+	# Nancy
 	#
-	# Frank is Camping gear that adds Sinatra style routing shortcuts to the Object
+	# Nancy is Camping gear that adds Sinatra style routing shortcuts to the Object
 	# namespace and to camping controllers themselves:
 	#
 	#    get '/' {
@@ -124,7 +124,7 @@ module Gear
 			# because it's a closure, and because it captures self, we can then call
 			# this proc anywhere we want.
 			#
-			# the syntax: `a[e]` is an implicit call to the `#call` method. the brackets
+			# The syntax: `a[e]` is an implicit call to the `#call` method. the brackets
 			# are syntatic sugar to get this to work. The following code is equivalent:
 			#
 			#	 e = [] # given e is a rack array.
@@ -136,12 +136,13 @@ module Gear
 			# ClassMethods module. ClassMethods is then extended onto our Camping app,
 			# Giving it the appearance of being a method of the module. In our cases
 			# Our modules are our Apps.
-			def to_proc
-				a=self
-				proc{|e|
-					a.call(e)
-				}
-			end
+			# The code:
+			#
+			#   def to_proc = method(:call).to_proc
+			#
+			# First gets a `Method` object from the app, then converts it to a proc.
+			# In our case we just want call, so this makes the whole api pretty simple.
+			def to_proc = method(:call).to_proc
 
 		end
 

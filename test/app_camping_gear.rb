@@ -83,7 +83,7 @@ class Packing::Test < TestCase
 
   def test_gear_packed
     list = Packing::G
-    assert (list.length == 4), "Proper number of Gear was not packed! Gear: #{list.length}"
+    assert (list.length == 5), "Proper number of Gear was not packed! Gear: #{list.length}"
   end
 
   def test_right_gear_packed

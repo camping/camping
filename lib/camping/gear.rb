@@ -4,3 +4,4 @@
 require 'camping/gear/filters'
 require 'camping/gear/nancy'
 require 'camping/gear/inspection'
+require 'camping/gear/kuddly'

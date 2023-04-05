@@ -29,6 +29,10 @@ module Camping
 
       alias norms normalize_slashes
 
+      def regex_1
+        /\\(.)/
+      end
+
     end
   end
 end
