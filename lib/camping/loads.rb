@@ -10,4 +10,4 @@ require 'bundler/setup'
 # internal stuff
 require "camping/tools"
 require "camping/gear"
-require "camping/config"
+# require "camping/config"

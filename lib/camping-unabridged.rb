@@ -917,7 +917,7 @@ module Camping
       fl, ln, pr = sp[0], sp[1].to_i, nil
 
       # Create the app
-      Apps << a = eval(s = S.gsub(/Camping/,m.to_s), g, fl, ln)
+      Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, ln)
 
       caller[0]=~/:/
       IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
