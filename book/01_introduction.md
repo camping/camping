@@ -1,7 +1,7 @@
 # Introduction
 
-Camping is a small web framework, less than 4k, a little white blood cell in
-the vein of Rails. This little book will start with a tutorial which takes
+Camping is a small, micro web framework, less than 5k, a little white blood cell in
+the vein of Ruby. This little book will start with a tutorial which takes
 about fifteen minutes - by the end you should have a little Camping site up.
 The following chapters will eventually go deeper into how Camping, HTTP and
 Rack work.

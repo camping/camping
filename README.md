@@ -16,7 +16,7 @@ Camping supports multiple *apps*, capsuled code that runs together. Each app can
 have independent models, routes, and controllers.
 
 Pack your gear when you go Camping! With a simple plugin system, Camping is easily
-extensible.
+extensible. Add all sorts of useful and silly things.
 
 ## A Camping Skeleton
 
@@ -51,7 +51,7 @@ module Blog::Views
         self << yield
       end
     end
-  end
+  end8`
 
   def index
     @posts.each do |post|
