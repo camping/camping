@@ -8,6 +8,9 @@ require 'rubygems'
 require 'bundler/setup'
 
 # internal stuff
-require "camping/tools"
-require "camping/gear"
-# require "camping/config"
+require 'camping/tools'
+require 'camping/gear/filters'
+require 'camping/gear/nancy'
+require 'camping/gear/inspection'
+require 'camping/gear/kuddly'
+
