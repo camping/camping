@@ -88,9 +88,6 @@ module Gear
 					end
 				end
 
-
-				puts "cname: #{cname}, meth: #{meth}, arity: #{block.arity}"
-
 				# This is an interesting block. At times we'll pass an App to a route
 				# which will implicitly call it's `to_proc` method. In those cases, it's
 				# that block that is set as the block here, and it returns a Rack response.

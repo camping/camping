@@ -128,7 +128,7 @@ module Blog
       STYLE = File.read(__FILE__).gsub(/.*__END__/m, '')
 
       def get
-        @headers['Content-Type'] = 'text/css; charset=utf-8'
+        @headers['content-type'] = 'text/css; charset=utf-8'
         STYLE
       end
     end

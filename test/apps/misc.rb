@@ -12,7 +12,7 @@ module Misc
     end
     class Xsendfile
       def get
-        @headers["X-Sendfile"] = File.expand_path(__FILE__)
+        @headers["x-sendfile"] = File.expand_path(__FILE__)
         "You shouldn't get this text"
       end
     end
