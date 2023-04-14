@@ -15,6 +15,40 @@ module Gear
 
 		class << self
 
+
+			# normalizes the routes provided to the controller, then returns some variables
+			# used in make_camping_route
+			def normalize_routes(routes)
+				s = ""
+				rs = ""
+				routes.each do |r|
+					if r == '/'
+						r = 'Index'
+					end
+					rs += "'#{r}'" + ","
+					r.split("/").each(&:capitalize!).each{|t|
+						s << t.gsub(/[^a-z0-9A-Z ]/, '')
+					}
+					# s << r
+				end
+				rs.chop!
+
+				symbol = s.to_sym
+				{s: s, rs: rs, symbol: symbol}
+			end
+
+			# ensures an app exists for the controllers.
+			def ensure_app(app)
+				if Camping::Apps.count == 0
+					# In the case of a naked sinatra style invokation
+					Camping.goes :Frank
+					m = Camping::Apps.first
+				else
+					m = app
+				end
+				m
+			end
+
 			# Make a camping route provided with a method type, a route, an optional app, and
 			# a required block:
 			#
@@ -26,32 +60,15 @@ module Gear
 			# The route to that App. If you don't have any apps yet, then an app named Frank
 			# will be made for you.
 			def make_camping_route(method, routes, app=nil, &block)
-				meth = method.to_s
 
 				inf = caller.first.split(":")
 				file_name, line_number = inf[0], inf[1]
 
-				s = ""
-				rs = ""
-				routes.each do |r|
-					if r == '/'
-						r = 'Index'
-					end
-					rs += "'#{r}'" + ","
-					r.split("/").each(&:capitalize!).each{|t|s<< t}
-					# s << r
-				end
-				rs.chop!
+				meth = method.to_s
 
-				symbol = s.to_sym
+				self.normalize_routes(routes) => {s:, rs:, symbol:}
 
-				if Camping::Apps.count == 0
-					# In the case of a naked sinatra style invokation
-					Camping.goes :Frank
-					m = Camping::Apps.first
-				else
-					m = app
-				end
+				m = self.ensure_app app
 
 				# Controller name
 				cname = "#{meth.capitalize}#{symbol.to_s}"
@@ -65,11 +82,14 @@ module Gear
 					], file_name, line_number.to_i)
 				rescue => error
 					if error.message.include? "superclass mismatch for class"
-						raise "You've probably tried to define the same route twice using the sinatra method. ['#{route}']"
+						raise "You've probably tried to define the same route twice using the sinatra method. ['#{rs}']"
 					else
 						raise error
 					end
 				end
+
+
+				puts "cname: #{cname}, meth: #{meth}, arity: #{block.arity}"
 
 				# This is an interesting block. At times we'll pass an App to a route
 				# which will implicitly call it's `to_proc` method. In those cases, it's
@@ -77,22 +97,24 @@ module Gear
 				# If we have a rack response instead of string, then we need to extract
 				# the response then reassign the values. the r method  is a great helper
 				# for that.
-				m::X.const_get("#{cname}").send(:define_method, meth) { |*args|
-					res = block[@env]
-
-					if res.class == Array
-						# if we're forwarding a response
+				constantine = m::X.const_get("#{cname}")
+				if block.arity == -1
+					constantine.send(:define_method, meth) { |*args|
+						block[*args]
+					}
+				elsif block.arity == 1
+					constantine.send(:define_method, meth) {
+						res = block[@env] # if we're forwarding a response
 						status = res[0]
-						body = res[2].flatten.first
 						headers = res[1]
-					else
-						# if we have a great string that's returned instead.
-						status = 200
-						body = res
-						headers = {"content-type": "text/html"}
-					end
-					r(status, body, headers)
-				}
+						body = res[2].flatten.first
+						r(status, body, headers)
+					}
+				else # assuming arity is 0
+					constantine.send(:define_method, meth) {
+						block[]
+					}
+				end
 
 				return nil
 			end
@@ -142,6 +164,7 @@ module Gear
 			#
 			# First gets a `Method` object from the app, then converts it to a proc.
 			# In our case we just want call, so this makes the whole api pretty simple.
+			# def to_proc = method(:call).to_proc
 			def to_proc = method(:call).to_proc
 
 		end
