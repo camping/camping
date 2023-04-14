@@ -15,6 +15,10 @@ module Frank
 		"Get Some Accounts"
 	end
 
+	get '/account/(\d+)' do |*a|
+		"Get Some Account numbered #{a.first}"
+	end
+
 	post "/accounts/new" do
 		"Try my hardest."
 	end
@@ -49,7 +53,6 @@ module Frank
 
 end
 
-
 Camping.goes :Bill
 
 module Bill::Controllers
@@ -63,7 +66,6 @@ end
 module Frank
 	get '/friends', &Bill
 end
-
 
 class Frank::Test < TestCase
 
@@ -81,13 +83,14 @@ class Frank::Test < TestCase
 
 	def test_number_of_controllers
 		controllers = the_controllers
-		assert (controllers.count == 11), "There are not the right number of controllers: #{controllers.count}."
+		assert (controllers.count == 12), "There are not the right number of controllers: #{controllers.count}."
 	end
 
 	def test_controller_names
 		controllers = the_controllers
 		assert controllers.include?(:GetIndex), "Not Found: :GetIndex. Controllers: #{controllers}."
 		assert controllers.include?(:GetAccounts), "Not Found: :GetAccounts. Controllers: #{controllers}."
+		assert controllers.include?(:GetAccountd), "Not Found: :GetAccount. Controllers: #{controllers}."
 		assert controllers.include?(:PostAccountsNew), "Not Found: :PostAccountsNew. Controllers: #{controllers}."
 		assert controllers.include?(:GetHomeAbout), "Not Found: :GetHomeAbout. Controllers: #{controllers}."
 		assert controllers.include?(:PutItAllOutThere), "Not Found: :PutItAllOutThere. Controllers: #{controllers}."
@@ -107,12 +110,18 @@ class Frank::Test < TestCase
 	end
 
 	def test_blocks_take_arguments
-
+		get '/account/15'
+		assert_body "Get Some Account numbered 15", "Body is not what we expect."
 	end
 
 	def test_to_proc_works_for_apps
 		get '/friends/'
 		assert_body "It looks like you have lots of friends.", "Well this is a bummer. Frank is left out, and not called."
+	end
+
+	# TODO: Test that we are returning proper headers, that are not symbols, When Nancying.
+	def test_that_header_keys_aint_symbols
+
 	end
 
 end
