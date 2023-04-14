@@ -20,15 +20,15 @@ class FileSource::Test < TestCase
   def test_file
     get '/style.css'
     assert_body "* { margin: 0; padding: 0 }"
-    assert_equal "text/css", last_response.headers['Content-Type']
+    assert_equal "text/css", last_response.headers['content-type']
 
     get '/test.foo'
     assert_body "Hello"
-    assert_equal "text/html", last_response.headers['Content-Type']
+    assert_equal "text/html", last_response.headers['content-type']
 
     get '/test'
     assert_body "No extension"
-    assert_equal "text/html", last_response.headers['Content-Type']
+    assert_equal "text/html", last_response.headers['content-type']
   end
 end
 

@@ -51,7 +51,7 @@ module Camping
   U = Rack::Utils
   # O = { url_prefix: "" } # Our Hash of Options. Moved below H
   Apps = [] # Our array of Apps
-  SK = :camping #Key for r.session
+  SK = "camping" #Key for r.session
   G = [] # Our array of Gear
 
   # An object-like Hash.

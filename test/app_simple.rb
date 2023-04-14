@@ -59,7 +59,7 @@ class Simple::Test < TestCase
   def test_index
     get '/'
     assert_body "Hello World!"
-    assert_equal "text/html", last_response.headers['Content-Type']
+    assert_equal "text/html", last_response.headers['content-type']
 
     post '/'
     assert_body "Hello Post!"

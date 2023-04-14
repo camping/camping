@@ -275,10 +275,10 @@ module Camping
       def call(env)
         status, headers, body = @app.call(env)
 
-        if key = headers.keys.grep(/X-Sendfile/i).first
+        if key = headers.keys.grep(/c-sendfile/i).first
           filename = headers[key]
           content = open(filename,'rb') { | io | io.read}
-          headers['Content-Length'] = size(content).to_s
+          headers['content-length'] = size(content).to_s
           body = [content]
         end
 

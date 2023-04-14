@@ -1,10 +1,12 @@
 require 'test_helper'
 require 'camping'
 require 'camping/commands'
+require 'rack'
 
 # nuke all the apps
 
 Camping.goes :Frank
+Frank.use Rack::Lint
 
 module Frank
 	get "/" do
