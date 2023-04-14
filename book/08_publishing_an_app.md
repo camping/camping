@@ -18,7 +18,7 @@ require 'camping/server'
 
 Camping::Server.start({
   :script => 'blog.rb',
-  :Port => '80'
+  :port => '80'
 })
 ```
 

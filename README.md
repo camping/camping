@@ -5,7 +5,7 @@
 Camping is a micro web framework which stays as small as possible.
 You can probably view the complete source code on a single page. But, you
 know, it's so small that, if you think about it, what can it really do? Apparently
-It can do a lot. It's pretty swell.
+it can do a lot. It's pretty swell.
 
 The idea here is to store a complete fledgling web application in a single
 file like many small CGIs. But to organize it as a Model-View-Controller
@@ -51,7 +51,7 @@ module Blog::Views
         self << yield
       end
     end
-  end8`
+  end
 
   def index
     @posts.each do |post|

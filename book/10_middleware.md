@@ -25,7 +25,7 @@ The `#initialize` method must store a reference to an `app` object that is passe
 
 Now, when I first saw this I was confused, why do we immediately call `Call` on the app? Each Rack app receives an array to represent the environment, and then returns that same array at the end. It's just passing along the status, headers, and body of our request/response object. There could be a lot of middleware all chained along. In fact, the `app` provided in the initialize method probably isn't the app at all, but some other middleware. Calling the app with the `env` data, then making our own decisions on the `status`, `headers`, and `body`, is how we actually chain the middleware together.
 
-calling @app sets up each middleware in the middleware chain. It's like taking a break in the middle of washing the dishes, to take out the trash. If you have a lot of middleware it's like:
+Calling @app sets up each middleware in the middleware chain. It's like taking a break in the middle of washing the dishes, to take out the trash. If you have a lot of middleware it's like:
 * start washing dishes.
 * start taking out trash.
 * start sweeping the floor.

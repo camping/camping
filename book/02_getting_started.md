@@ -32,7 +32,7 @@ Camping Problem!
 ```
 
 No problem with that. The Camping Server is running, but it doesn't know what
-to show. Let's tell him.
+to show. Let's tell them.
 
 ## Hello clock
 

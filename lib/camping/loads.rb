@@ -1,5 +1,4 @@
-# loads.rb
-# just loads things into camping.rb
+# Loads things into camping.rb
 
 # external dependencies
 require "uri"
@@ -7,7 +6,7 @@ require "rack"
 require 'rubygems'
 require 'bundler/setup'
 
-# internal stuff
+# internal dependencies
 require 'camping/tools'
 require 'camping/gear/filters'
 require 'camping/gear/nancy'
