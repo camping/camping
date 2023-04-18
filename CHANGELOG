@@ -1,3 +1,7 @@
+= 3.0.2
+=== 18th March, 2023
+* App names supplied to the camping new command are now CamelCased.
+
 = 3.0.1
 === 18th March, 2023
 * Fixed error with Camping new that would generate a faulty camp.rb.
