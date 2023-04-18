@@ -15,7 +15,6 @@ module Gear
 
 		class << self
 
-
 			# normalizes the routes provided to the controller, then returns some variables
 			# used in make_camping_route
 			def normalize_routes(routes)
