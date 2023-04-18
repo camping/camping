@@ -29,7 +29,9 @@ module Camping
 
       alias norms normalize_slashes
 
-      def regex_1
+      # A Regex to descape escaped characters.
+      # used to correct URLs that are escpaed using Rack Util's escape function.
+      def descape
         /\\(.)/
       end
 
