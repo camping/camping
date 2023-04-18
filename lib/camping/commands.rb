@@ -121,8 +121,7 @@ module Camping
 
       # write a file
       def write(file, content)
-        raise "cannot write nil" unless file
-        # file = tmp_file(file)
+        raise "Cannot write to nil file." unless file
         folder = File.dirname(file)
         `mkdir -p #{folder}` unless File.exist?(folder)
         File.open(file, 'w') { |f| f.write content }
@@ -201,18 +200,6 @@ GIT
         write '.ruby-version', <<-RUBY
 #{RUBY_VERSION}
 RUBY
-      end
-
-      # writes a rakefile
-      def make_special_rakefile
-        write 'Rakefile', <<-TXT
-begin
-  require "cairn"
-  StandaloneMigrations::Tasks.load_tasks
-rescue LoadError => e
-  puts "gem install cairn to get db:migrate:* tasks! (Error: \#{e})"
-end
-TXT
       end
 
       # writes a rakefile
@@ -376,7 +363,6 @@ RUBY
       # generate a new camping app in a directory named after it:
       Generators::make_camp_file(app_name)
       Generators::make_gitignore()
-      # make_special_rakefile()
       Generators::make_rakefile()
       Generators::make_ruby_version()
       Generators::make_configkdl()
