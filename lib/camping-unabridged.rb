@@ -49,7 +49,6 @@ module Camping
   S = IO.read(__FILE__) rescue nil
   P = "<h1>Cam\ping Problem!</h1><h2>%s</h2>"
   U = Rack::Utils
-  # O = { url_prefix: "" } # Our Hash of Options. Moved below H
   Apps = [] # Our array of Apps
   SK = "camping" #Key for r.session
   G = [] # Our array of Gear
@@ -210,7 +209,7 @@ module Camping
       raise "bad route" if !u = c.urls.find{|x|
         break x if x.scan(p).size == g.size &&
           /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
-            x.sub p,U.escape((a.to_param rescue a))}.gsub(CampTools.regex_1){$1})
+            x.sub p,U.escape((a.to_param rescue a))}.gsub(CampTools.descape){$1})
       }
       h.any?? u+"?"+U.build_query(h[0]) : u
     end
@@ -777,7 +776,7 @@ module Camping
     # a single argument to their initialize methods, which is an app. Optionally
     # settings and a block are supplied.
     #
-    # So a new app is made, and it's settings are supplied, then immediately
+    # So a new app is made, and its settings are supplied, then immediately
     # sent to the new middleware we just added. But the cool part is where we
     # call meta_def. meta_def takes a symbol and a block, and defines a class
     # method into the current context. Our current context is our camping app.

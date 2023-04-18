@@ -46,9 +46,11 @@ class MyMiddleware
   end
   # ... call and stuff ...
 end
+```
 
-# execute implicitely passed blocks with yield:
+Execute implicitly passed blocks with yield:
 
+```ruby
 class MyOtherMiddleware
   def initialize(app, *a) # &block can be omitted, because it's implicitly passed
     @app = app

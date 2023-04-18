@@ -1,5 +1,5 @@
 = 3.0
-=== 11th March, 2023
+=== 18th March, 2023
 * Camping Now uses the latest versions of Rack and Rackup under the hood.
 * New Routing Spec gives Sinatra like Routing helpers.
 * Inherit from other Controllers without carrying their urls.
