@@ -11,6 +11,25 @@ module Camping
       downcase
     end
 
+    # transform app_name to camel Case
+    def self.to_camel_case(string)
+      cammelled = ""
+      to_snake_case(string).split("_").each do |seq|
+        cammelled << seq.capitalize
+      end
+      cammelled
+    end
+
+    # Helper method that generates an app name from command line input.
+    def self.app_name_from_input(app_name)
+      app_name = :Camp if app_name == nil
+      app_name = app_name.to_sym if app_name.class == String
+      snake_app_name = to_snake_case(app_name)
+      camel_app_name = to_camel_case(snake_app_name)
+
+      {app_name: camel_app_name.to_sym, snake_name: snake_app_name, camel_name: camel_app_name}
+    end
+
     RouteCollection = Struct.new(:routes)
     class RouteCollection
       # Displays formatted routes from a route collection
@@ -350,18 +369,17 @@ RUBY
     end
 
     def self.new_cmd(app_name=:Camp)
-      app_name = :Camp if app_name == nil
-      app_name = app_name.to_sym if app_name.class == String
 
-      snake_app_name = Camping::CommandsHelpers.to_snake_case(app_name).capitalize
+      # Normalize the app_name
+      Camping::CommandsHelpers.app_name_from_input(app_name) => {app_name:, snake_name:, camel_name:}
 
       # make a directory then move there.
       # _original_dir = Dir.pwd
-      Dir.mkdir("#{snake_app_name}") unless Dir.exist?("#{snake_app_name}")
-      Dir.chdir("#{snake_app_name}")
+      Dir.mkdir("#{snake_name}") unless Dir.exist?("#{snake_name}")
+      Dir.chdir("#{snake_name}")
 
       # generate a new camping app in a directory named after it:
-      Generators::make_camp_file(app_name)
+      Generators::make_camp_file(camel_name)
       Generators::make_gitignore()
       Generators::make_rakefile()
       Generators::make_ruby_version()
