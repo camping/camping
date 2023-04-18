@@ -174,7 +174,7 @@ module #{app_name}
     end
 
     def index
-      h2 'Let\'s go Camping'
+      h2 "Let's go Camping"
     end
 
   end
@@ -353,7 +353,7 @@ RUBY
       app_name = :Camp if app_name == nil
       app_name = app_name.to_sym if app_name.class == String
 
-      snake_app_name = Camping::CommandsHelpers.to_snake_case(app_name)
+      snake_app_name = Camping::CommandsHelpers.to_snake_case(app_name).capitalize
 
       # make a directory then move there.
       # _original_dir = Dir.pwd
