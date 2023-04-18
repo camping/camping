@@ -1,3 +1,8 @@
+= 3.0.1
+=== 18th March, 2023
+* Fixed error with Camping new that would generate a faulty camp.rb.
+* App names supplied to the camping new command are now capitlized.
+
 = 3.0
 === 18th March, 2023
 * Camping Now uses the latest versions of Rack and Rackup under the hood.

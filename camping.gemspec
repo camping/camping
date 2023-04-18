@@ -2,7 +2,7 @@
 # camping_spec
 
 NAME = "camping"
-BRANCH = "3.0.0"
+BRANCH = "3.0.1"
 GIT = ENV['GIT'] || "git"
 REV = `#{GIT} rev-list HEAD`.strip.split.length
 VERS = ENV['VERSION'] || BRANCH
