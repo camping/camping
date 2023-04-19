@@ -44,8 +44,8 @@ class Sessions::Test < TestCase
     app.set :secret, "whateverloser"
     begin
       app.include Camping::Session
-    rescue InsecureSecret => e
-      message = "You're Session Secret is too short. Minimum length is 64."
+    rescue InsecureSecretError => e
+      message = "Your Session Secret is too short. Minimum length is 64."
       assert_equal(e.message, message, "You're session secret wasn't long enough.")
     end
 
@@ -54,11 +54,11 @@ class Sessions::Test < TestCase
     begin
       app.set :secret, "whateverloserwhateverloserwhateverloserwhateverloserwhateverloser"
       app.include Camping::Session
-    rescue InsecureSecret => e
+    rescue InsecureSecretError => e
       message = e
     end
 
-    assert_equal(e, message, "You're session secret wasn't long enough.")
+    assert_equal(e, message, "Your session secret wasn't long enough.")
   end
 end
 
