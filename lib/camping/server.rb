@@ -43,7 +43,7 @@ module Camping
           "Host for web server to bind to (default is all IPs)") { |v| options[:Host] = v }
 
           opts.on("-p", "--port NUM",
-          "Port for web server (defaults to 3301)") { |v| options[:Port] = v }
+          "Port for web server (defaults to 3301)") { |v| options[:port] = v }
 
           opts.on("-c", "--console",
           "Run in console mode with IRB") { options[:server] = "console" }
@@ -99,7 +99,7 @@ module Camping
 
     def default_options
       super.merge({
-        :Port => 3301
+        :port => 3301
       })
     end
 
@@ -150,7 +150,7 @@ module Camping
         r = @reloader
         Camping.make_camp
         name = server.name[/\w+$/]
-        puts "** Starting #{name} on #{options[:Host]}:#{options[:Port]}"
+        puts "** Starting #{name} on #{options[:Host]}:#{options[:port]}"
         super
       end
     end
