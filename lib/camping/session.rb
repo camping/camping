@@ -1,9 +1,5 @@
 require 'rack/session'
-<<<<<<< HEAD
-class InsecureSecret < Exception #:nodoc: all
-=======
 class InsecureSecretError < Exception #:nodoc: all
->>>>>>> camping-3
 end
 module Camping
   # == Getting Started
