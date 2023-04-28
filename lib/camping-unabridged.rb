@@ -17,7 +17,7 @@ Z ||= "text/html"
 
 class Object #:nodoc:
   def meta_def(m,&b) #:nodoc:
-    (class<<self;self end).send(:define_method,m,&b)
+    (class<<self;self end).define_method(m,&b)
   end
 end
 
