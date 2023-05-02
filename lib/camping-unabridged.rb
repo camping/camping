@@ -81,7 +81,7 @@ module Camping
     #   => :macadamian
     #
     def method_missing(m,*a)
-        m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super
+      m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m.to_s]:super
     end
     undef id, type if ?? == 63
   end
@@ -672,7 +672,7 @@ module Camping
         # TODO: Refactor this to make it less convoluted around making urls.
         constants.filter {|c| c.to_s != 'Camper'}.map { |c|
           k = const_get(c)
-          k.send :include,C,X,Base,Helpers,Models
+          k.include(C,X,Base,Helpers,Models)
           @r=[k]+@r if @r-[k]==@r
           mu = false # Should we make urls?
           ka = k.ancestors
@@ -994,7 +994,7 @@ module Camping
   #
   # Models cannot be referred from Views at this time.
   module Models
-    Helpers.send(:include, X, self)
+    Helpers.include(X, self)
   end
 
   autoload :Mab, 'camping/mab'
