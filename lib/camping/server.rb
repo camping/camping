@@ -3,7 +3,7 @@ require 'erb'
 require 'rack'
 require 'rackup'
 require 'camping/version'
-require 'camping/reloader'
+require 'camping/loader'
 require 'camping/commands'
 
 # == The Camping Server (for development)
@@ -128,9 +128,10 @@ module Camping
         exit
       end
 
+      @reloader.reload!
+      r = @reloader
+
       if options[:routes] == true
-        @reloader.reload!
-        r = @reloader
         eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
         ARGV.clear
         Camping::Commands.routes
@@ -139,16 +140,11 @@ module Camping
 
       if options[:server] == "console"
         puts "** Starting console"
-        @reloader.reload!
-        r = @reloader
         eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
         ARGV.clear
         IRB.start
         exit
       else
-        @reloader.reload!
-        r = @reloader
-        Camping.make_camp
         name = server.name[/\w+$/]
         puts "** Starting #{name} on #{options[:Host]}:#{options[:Port]}"
         super
@@ -215,7 +211,6 @@ module Camping
     def call(env)
       if ENV['environment'] == 'development'
         @reloader.reload
-        Camping.make_camp
       end
 
       # our switch statement iterates through possible app outcomes, no apps

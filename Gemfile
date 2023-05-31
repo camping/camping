@@ -6,6 +6,7 @@ gem 'rack-session'
 gem 'rackup'
 gem 'mab'
 gem 'kdl' # for settings and default config stuff
+gem 'zeitwerk' # for autoloading
 
 group :extras do
   gem 'tilt'
@@ -22,4 +23,3 @@ group :test do
   gem 'rack-test'
   gem 'ruby_parser'
 end
-

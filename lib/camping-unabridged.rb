@@ -724,7 +724,6 @@ module Camping
     #
     # See: https://github.com/rack/rack/blob/main/SPEC.rdoc
     def call(e)
-      make_camp # TODO: Find a better, more consistent place for setting everything up.
       k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
       k.new(e,m,prx).service(*a).to_a
     rescue
@@ -752,8 +751,9 @@ module Camping
     def method_missing(m, c, *a)
       h = Hash === a[-1] ? a.pop : {}
       e = H[Rack::MockRequest.env_for('',h.delete(:env)||{})]
-      # puts "method missing failure for controller: #{c}, method: #{m} "
       k = X.const_get(c).new(e,m.to_s,prx)
+   #  rescue => error # : wrong number of arguments
+			# Campguide::make_sense error.message
       h.each { |i, v| k.send("#{i}=", v) }
       k.service(*a)
     end
@@ -914,6 +914,7 @@ module Camping
       # setup caller data
       sp = caller[0].split('`')[0].split(":")
       fl, ln, pr = sp[0], sp[1].to_i, nil
+      ln = 0
 
       # Create the app
       Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, ln)

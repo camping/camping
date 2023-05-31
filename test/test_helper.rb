@@ -80,6 +80,11 @@ class TestCase < MiniTest::Test
     attr_accessor :app
   end
 
+  def setup
+    super
+    Camping.make_camp
+  end
+
   def body() last_response.body end
   def app()  self.class.app     end
 
