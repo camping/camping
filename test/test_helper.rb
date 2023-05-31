@@ -27,6 +27,12 @@ module CommandLineCommands
     Dir.chdir "tmp"
   end
 
+  # fills a tmp directory with some sample stuff
+  def make_summer_camp
+  	Dir.mkdir("apps") unless Dir.exist?("apps")
+    Dir.mkdir("lib") unless Dir.exist?("lib")
+  end
+
   def leave_tmp
     Dir.chdir @original_dir
     `rm -rf test/tmp` if File.exist?('test/tmp')

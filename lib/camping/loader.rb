@@ -1,4 +1,5 @@
 require 'zeitwerk'
+require 'listen'
 
 module Camping
   # == The Camping Reloader
@@ -44,6 +45,20 @@ module Camping
       @requires = []
       @apps = {}
       @callback = blk
+      # @root_directory = __dir__
+
+      # setup Zeit for this reloader
+      # setup_zeit
+
+      dir = Dir.pwd
+
+      # setup recursive listener on the apps and lib directories from the source script.
+      @listener = Listen.to("#{dir}/apps", "#{dir}/lib",) do |modified, added, removed|
+	      puts(modified: modified, added: added, removed: removed)
+				# @mtime = Time.now
+				reload!
+      end
+      @listener.start
     end
 
     def name
@@ -60,7 +75,6 @@ module Camping
     def load_apps(old_apps)
       all_requires = $LOADED_FEATURES.dup
       all_apps = Camping::Apps.dup
-
 
       load_file
      	reload_directory('apps')
@@ -152,13 +166,18 @@ module Camping
 
     # sets up Zeit autoloading for the script locations.
     def setup_zeit
+
+	    # puts "setting up the zeit loader: #{__dir__}"
+	    # puts "setting up the zeit loader: #{Dir.getwd}"
+	    # exit
+
 	    # loader = Camping::Reloader.loader
-	    loader.push_dir("#{__dir__}/apps")
-	    loader.push_dir("#{__dir__}/lib")
+	    Zeit.push_dir("#{__dir__}/apps")
+	    Zeit.push_dir("#{__dir__}/lib")
 	    if ENV['environment'] == 'development'
-	      loader.enable_reloading unless ENV['environment'] == 'production'
+	      Zeit.enable_reloading unless ENV['environment'] == 'production'
 	    end
-	    loader.setup
+	    Zeit.setup
     end
 
     # Splits the descendent files and folders found in a given directory for eager loading and recursion.
