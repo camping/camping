@@ -7,6 +7,7 @@ gem 'rackup'
 gem 'mab'
 gem 'kdl' # for settings and default config stuff
 gem 'zeitwerk' # for autoloading
+gem 'listen' # for reloader
 
 group :extras do
   gem 'tilt'

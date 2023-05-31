@@ -30,12 +30,15 @@ class TestLoader < TestCase
   def file; BASE + '.rb' end
 
   def setup
+	  move_to_tmp
+		make_summer_camp
     $counter = 0
     super
   end
 
-
-  # we don't use mtime to test loading anymore...'
+  def teardown
+	  leave_tmp
+  end
 
   def test_counter
     assert_equal 1, $counter
