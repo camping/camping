@@ -1,3 +1,5 @@
+require 'zeitwerk'
+
 module Camping
   # == The Camping Reloader
   #
@@ -34,13 +36,14 @@ module Camping
   class Reloader
     attr_reader :file
 
-    def initialize(file, &blk)
+   	Zeit = Zeitwerk::Loader.new
+
+    def initialize(file='camp.rb', &blk)
       @file = file
       @mtime = Time.at(0)
       @requires = []
       @apps = {}
       @callback = blk
-
     end
 
     def name
@@ -58,7 +61,8 @@ module Camping
       all_requires = $LOADED_FEATURES.dup
       all_apps = Camping::Apps.dup
 
-      load_file
+      # load_file
+      reload
     ensure
       @requires = []
       dirs = []
@@ -121,12 +125,17 @@ module Camping
     # Reloads the file if needed.  No harm is done by calling this multiple
     # times, so feel free call just to be sure.
     def reload
-      return if @mtime >= mtime rescue nil
-      reload!
+    	# puts "reload called"
+    	# load "#{@file}" # replace camp.rb with the provided script.
+      load_file
+     	reload_directory('apps')
+      Camping.make_camp
     end
 
     def reload!
-      load_apps(remove_apps)
+      # load_apps(remove_apps)
+      reload
+      Camping.make_camp
     end
 
     # Checks if both scripts watches the same file.
@@ -143,6 +152,35 @@ module Camping
     end
 
     private
+
+    # sets up Zeit autoloading for the script locations.
+    def setup_zeit
+	    # loader = Camping::Reloader.loader
+	    loader.push_dir("#{__dir__}/apps")
+	    loader.push_dir("#{__dir__}/lib")
+	    if ENV['environment'] == 'development'
+	      loader.enable_reloading unless ENV['environment'] == 'production'
+	    end
+	    loader.setup
+    end
+
+    # Splits the descendent files and folders found in a given directory for eager loading and recursion.
+    def folders_and_files_in(directory)
+      directory = directory + "/*" # unless directory
+      [Dir.glob(directory).select {|f| !File.directory? f },
+      Dir.glob(directory).select {|f| File.directory? f }]
+    end
+
+    # Reloads a directory recursively. loading more shallow files before deeper files.
+    def reload_directory(directory)
+      files, folders = folders_and_files_in(directory)
+      files.each {|file|
+        load file
+      }
+      folders.each {|folder|
+        reload_directory folder
+      }
+    end
 
     def mtime
       @requires.map do |(path, full)|
@@ -161,4 +199,8 @@ module Camping
       end
     end
   end
+
+  # give simple loader for the Loader as we rename it.
+  Loader = Reloader
+
 end

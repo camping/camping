@@ -66,7 +66,7 @@ k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*'/'}",p)]
 .respond_to?(:urls) || mu==true)};end end;I=R()end;X=Controllers
 class<<self;def make_camp;X.M prx;Apps.map(&:make_camp) end;def routes;(Apps.map(&:routes)<<X.v).flatten end
 def prx;@_prx||=CampTools.normalize_slashes(O[:url_prefix])end
-def call e;make_camp;k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
+def call e;k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
 downcase,e;k.new(e,m,prx).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
 def method_missing m,c,*a;h=Hash===a[-1]?a.pop : {};e=H[Rack::MockRequest.
 env_for('',h.delete(:env)||{})];k=X.const_get(c).new(e,m.to_s,prx);h.each{|i,v|
