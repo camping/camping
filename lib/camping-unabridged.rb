@@ -914,7 +914,7 @@ module Camping
       # setup caller data
       sp = caller[0].split('`')[0].split(":")
       fl, ln, pr = sp[0], sp[1].to_i, nil
-      ln = 0
+      # ln = 0
 
       # Create the app
       Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, ln)
