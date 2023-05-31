@@ -61,8 +61,10 @@ module Camping
       all_requires = $LOADED_FEATURES.dup
       all_apps = Camping::Apps.dup
 
-      # load_file
-      reload
+
+      load_file
+     	reload_directory('apps')
+      Camping.make_camp
     ensure
       @requires = []
       dirs = []
@@ -125,17 +127,12 @@ module Camping
     # Reloads the file if needed.  No harm is done by calling this multiple
     # times, so feel free call just to be sure.
     def reload
-    	# puts "reload called"
-    	# load "#{@file}" # replace camp.rb with the provided script.
-      load_file
-     	reload_directory('apps')
-      Camping.make_camp
+      return if @mtime >= mtime rescue nil
+      reload!
     end
 
     def reload!
-      # load_apps(remove_apps)
-      reload
-      Camping.make_camp
+      load_apps(remove_apps)
     end
 
     # Checks if both scripts watches the same file.
