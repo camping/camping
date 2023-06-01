@@ -27,15 +27,27 @@ module CommandLineCommands
     Dir.chdir "tmp"
   end
 
-  # fills a tmp directory with some sample stuff
-  def make_summer_camp
-  	Dir.mkdir("apps") unless Dir.exist?("apps")
-    Dir.mkdir("lib") unless Dir.exist?("lib")
-  end
-
   def leave_tmp
     Dir.chdir @original_dir
     `rm -rf test/tmp` if File.exist?('test/tmp')
+  end
+
+  # reloader helpers:
+  # move_to_apps
+  # moves to the apps directory in /test
+  def move_to_apps
+    @original_dir = Dir.pwd
+    Dir.chdir "test"
+    Dir.chdir "apps"
+   	Dir.mkdir("apps") unless Dir.exist?("apps")
+    Dir.mkdir("lib") unless Dir.exist?("lib")
+  end
+
+  # deletes the temporary directories found in the /apps directory for reloader testing.
+  def leave_apps
+	  Dir.chdir @original_dir
+	  `rm -rf test/apps/apps` if File.exist?('test/apps/apps')
+	  `rm -rf test/apps/lib` if File.exist?('test/apps/lib')
   end
 
   def write(file, content)
