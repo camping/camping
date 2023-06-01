@@ -34,28 +34,26 @@ module Camping
   # Blog and Wiki, but they will update themselves if yourapp.rb changes.
   #
   # You can also give Reloader more than one script.
-  class Reloader
+  class Loader
     attr_reader :file
 
    	Zeit = Zeitwerk::Loader.new
 
-    def initialize(file='camp.rb', &blk)
+    def initialize(file=nil, &blk)
       @file = file
       @mtime = Time.at(0)
       @requires = []
       @apps = {}
       @callback = blk
-      # @root_directory = __dir__
+      @root = Dir.pwd
+      @file = @root + '/camp.rb' if @file == nil
 
       # setup Zeit for this reloader
       # setup_zeit
 
-      dir = Dir.pwd
-
       # setup recursive listener on the apps and lib directories from the source script.
-      @listener = Listen.to("#{dir}/apps", "#{dir}/lib",) do |modified, added, removed|
-	      puts(modified: modified, added: added, removed: removed)
-				# @mtime = Time.now
+      @listener = Listen.to("#{@root}/apps", "#{@root}/lib", "#{@root}") do |modified, added, removed|
+				@mtime = Time.now
 				reload!
       end
       @listener.start
@@ -70,47 +68,89 @@ module Camping
       end
     end
 
-    # Loads the apps available in this script.  Use <tt>apps</tt> to get
-    # the loaded apps.
-    def load_apps(old_apps)
-      all_requires = $LOADED_FEATURES.dup
-      all_apps = Camping::Apps.dup
+    # remove_constants called inside this.
+    def load_everything(old_constants)
+	    all_requires = $LOADED_FEATURES.dup
+	    all_apps = Camping::Apps.dup
 
-      load_file
-     	reload_directory('apps')
-      Camping.make_camp
+	    load_file
+	   	reload_directory("#{@root}/apps")
+	   	reload_directory("#{@root}/lib")
+	    Camping.make_camp
     ensure
-      @requires = []
-      dirs = []
-      new_apps = Camping::Apps - all_apps
+	    @requires = []
+	    new_apps = Camping::Apps - all_apps
 
       @apps = new_apps.inject({}) do |hash, app|
         if file = app.options[:__FILE__]
           full = File.expand_path(file)
           @requires << [file, full]
-          dirs << full.sub(/\.[^.]+$/, '')
         end
 
         key = app.name.to_sym
         hash[key] = app
 
-        if !old_apps.include?(key)
-          @callback.call(app) if @callback
-          app.create if app.respond_to?(:create)
-        end
+   			apps.each do |app|
+					@callback.call(app) if @callback
+					app.create if app.respond_to?(:create)
+				end
 
         hash
       end
 
       ($LOADED_FEATURES - all_requires).each do |req|
         full = full_path(req)
-        @requires << [req, full] if dirs.any? { |x| full.index(x) == 0 }
+        @requires << [req, full] # if dirs.any? { |x| full.index(x) == 0 }
       end
 
-      @mtime = mtime
+		  @mtime = mtime
 
       self
+
     end
+
+    # Loads the apps available in this script.  Use <tt>apps</tt> to get
+    # the loaded apps.
+    # def load_apps(old_apps)
+    #   all_requires = $LOADED_FEATURES.dup
+    #   all_apps = Camping::Apps.dup
+
+    #   load_file
+    #  	reload_directory("#{@root}/apps")
+    #  	reload_directory("#{@root}/lib")
+    #   Camping.make_camp
+    # ensure
+    #   @requires = []
+    #   dirs = []
+    #   new_apps = Camping::Apps - all_apps
+
+    #   @apps = new_apps.inject({}) do |hash, app|
+    #     if file = app.options[:__FILE__]
+    #       full = File.expand_path(file)
+    #       @requires << [file, full]
+    #       dirs << full.sub(/\.[^.]+$/, '')
+    #     end
+
+    #     key = app.name.to_sym
+    #     hash[key] = app
+
+    #     if !old_apps.include?(key)
+    #       @callback.call(app) if @callback
+    #       app.create if app.respond_to?(:create)
+    #     end
+
+    #     hash
+    #   end
+
+    #   ($LOADED_FEATURES - all_requires).each do |req|
+    #     full = full_path(req)
+    #     @requires << [req, full] if dirs.any? { |x| full.index(x) == 0 }
+    #   end
+
+    #   @mtime = mtime
+
+    #   self
+    # end
 
     # load_file
     #
@@ -122,13 +162,15 @@ module Camping
       else
         load(@file)
       end
+      @requires << [@file, File.expand_path(@file)]
     end
 
-    # Removes all the apps defined in this script.
-    def remove_apps
-      @requires.each do |(path, full)|
-        $LOADED_FEATURES.delete(path)
-      end
+    # removes all constants recursively included using this script as a root.
+    # so everything in /apps, and /lib in relation from this script.
+    def remove_constants
+    	@requires.each do |(path, full)|
+     		$LOADED_FEATURES.delete(path)
+     	end
 
       @apps.each do |name, app|
         Camping::Apps.delete(app)
@@ -136,7 +178,22 @@ module Camping
       end.dup
     ensure
       @apps.clear
+      @requires.clear
     end
+
+    # Removes all the apps defined in this script.
+    # def remove_apps
+    #   @requires.each do |(path, full)|
+    #     $LOADED_FEATURES.delete(path)
+    #   end
+
+    #   @apps.each do |name, app|
+    #     Camping::Apps.delete(app)
+    #     Object.send :remove_const, name
+    #   end.dup
+    # ensure
+    #   @apps.clear
+    # end
 
     # Reloads the file if needed.  No harm is done by calling this multiple
     # times, so feel free call just to be sure.
@@ -146,7 +203,7 @@ module Camping
     end
 
     def reload!
-      load_apps(remove_apps)
+      load_everything(remove_constants)
     end
 
     # Checks if both scripts watches the same file.
@@ -166,12 +223,6 @@ module Camping
 
     # sets up Zeit autoloading for the script locations.
     def setup_zeit
-
-	    # puts "setting up the zeit loader: #{__dir__}"
-	    # puts "setting up the zeit loader: #{Dir.getwd}"
-	    # exit
-
-	    # loader = Camping::Reloader.loader
 	    Zeit.push_dir("#{__dir__}/apps")
 	    Zeit.push_dir("#{__dir__}/lib")
 	    if ENV['environment'] == 'development'
@@ -191,6 +242,7 @@ module Camping
     def reload_directory(directory)
       files, folders = folders_and_files_in(directory)
       files.each {|file|
+				@requires << [file, File.expand_path(file)]
         load file
       }
       folders.each {|folder|
@@ -215,8 +267,4 @@ module Camping
       end
     end
   end
-
-  # give simple loader for the Loader as we rename it.
-  Loader = Reloader
-
 end
