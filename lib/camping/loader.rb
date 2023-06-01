@@ -49,7 +49,7 @@ module Camping
       @file = @root + '/camp.rb' if @file == nil
 
       # setup Zeit for this reloader
-      # setup_zeit
+      setup_zeit
 
       # setup recursive listener on the apps and lib directories from the source script.
       @listener = Listen.to("#{@root}/apps", "#{@root}/lib", "#{@root}") do |modified, added, removed|
@@ -166,8 +166,8 @@ module Camping
 
     # sets up Zeit autoloading for the script locations.
     def setup_zeit
-	    Zeit.push_dir("#{__dir__}/apps")
-	    Zeit.push_dir("#{__dir__}/lib")
+	    Zeit.push_dir("#{@root}/apps")
+	    Zeit.push_dir("#{@root}/lib")
 	    if ENV['environment'] == 'development'
 	      Zeit.enable_reloading unless ENV['environment'] == 'production'
 	    end
