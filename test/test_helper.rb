@@ -35,19 +35,20 @@ module CommandLineCommands
   # reloader helpers:
   # move_to_apps
   # moves to the apps directory in /test
-  def move_to_apps
+  def move_to_reloader
     @original_dir = Dir.pwd
     Dir.chdir "test"
     Dir.chdir "apps"
+    Dir.chdir "reloader"
    	Dir.mkdir("apps") unless Dir.exist?("apps")
     Dir.mkdir("lib") unless Dir.exist?("lib")
   end
 
   # deletes the temporary directories found in the /apps directory for reloader testing.
-  def leave_apps
+  def leave_reloader
 	  Dir.chdir @original_dir
-	  `rm -rf test/apps/apps` if File.exist?('test/apps/apps')
-	  `rm -rf test/apps/lib` if File.exist?('test/apps/lib')
+	  `rm -rf test/apps/reloader/apps` if File.exist?('test/apps/reloader/apps')
+	  `rm -rf test/apps/reloader/lib` if File.exist?('test/apps/reloader/lib')
   end
 
   def write(file, content)

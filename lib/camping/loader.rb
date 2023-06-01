@@ -37,8 +37,6 @@ module Camping
   class Loader
     attr_reader :file
 
-   	Zeit = Zeitwerk::Loader.new
-
     def initialize(file=nil, &blk)
       @file = file
       @mtime = Time.at(0)
@@ -47,9 +45,10 @@ module Camping
       @callback = blk
       @root = Dir.pwd
       @file = @root + '/camp.rb' if @file == nil
+      loader = Zeitwerk::Loader.new
 
       # setup Zeit for this reloader
-      setup_zeit
+      # setup_zeit(loader)
 
       # setup recursive listener on the apps and lib directories from the source script.
       @listener = Listen.to("#{@root}/apps", "#{@root}/lib", "#{@root}") do |modified, added, removed|
@@ -165,13 +164,13 @@ module Camping
     private
 
     # sets up Zeit autoloading for the script locations.
-    def setup_zeit
-	    Zeit.push_dir("#{@root}/apps")
-	    Zeit.push_dir("#{@root}/lib")
+    def setup_zeit(loader)
+	    loader.push_dir("#{@root}/apps") if Dir.exist?("#{@root}/apps")
+	    loader.push_dir("#{@root}/lib") if Dir.exist?("#{@root}/lib")
 	    if ENV['environment'] == 'development'
-	      Zeit.enable_reloading unless ENV['environment'] == 'production'
+	      loader.enable_reloading unless ENV['environment'] == 'production'
 	    end
-	    Zeit.setup
+	    loader.setup
     end
 
     # Splits the descendent files and folders found in a given directory for eager loading and recursion.
