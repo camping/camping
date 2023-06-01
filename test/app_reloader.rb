@@ -4,6 +4,7 @@ require 'camping/loader'
 
 $counter = 0
 
+# for Reloading stuff
 module TestCaseLoader
   def loader
     @loader ||= Camping::Loader.new(file)
@@ -23,20 +24,20 @@ module TestCaseLoader
   end
 end
 
+
 class TestLoader < TestCase
   include TestCaseLoader
-  BASE = File.expand_path('../apps/reloader', __FILE__)
-
+  BASE = File.expand_path('../apps/reloader/reloader', __FILE__)
   def file; BASE + '.rb' end
 
   def setup
     $counter = 0
-    move_to_apps
+    move_to_reloader
     super
   end
 
   def teardown
-    leave_apps
+    leave_reloader
     super
   end
 
@@ -63,7 +64,7 @@ class TestLoader < TestCase
     loader.reload
     assert_equal 2, $counter
 
-    FileUtils.touch(BASE + '/reload_me.rb')
+    FileUtils.touch(BASE + 'reload_me.rb')
     sleep 1
     loader.reload
     assert_equal 3, $counter
