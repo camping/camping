@@ -37,6 +37,8 @@ module Camping
   class Loader
     attr_reader :file
 
+    Zeit = Zeitwerk::Loader.new
+
     def initialize(file=nil, &blk)
       @file = file
       @mtime = Time.at(0)
@@ -45,10 +47,9 @@ module Camping
       @callback = blk
       @root = Dir.pwd
       @file = @root + '/camp.rb' if @file == nil
-      loader = Zeitwerk::Loader.new
 
       # setup Zeit for this reloader
-      # setup_zeit(loader)
+      setup_zeit(Zeit)
 
       # setup recursive listener on the apps and lib directories from the source script.
       @listener = Listen.to("#{@root}/apps", "#{@root}/lib", "#{@root}") do |modified, added, removed|
