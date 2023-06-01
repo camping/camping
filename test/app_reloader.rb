@@ -30,14 +30,14 @@ class TestLoader < TestCase
   def file; BASE + '.rb' end
 
   def setup
-	  $counter = 0
-	  move_to_apps
+    $counter = 0
+    move_to_apps
     super
   end
 
   def teardown
-	  leave_apps
-		super
+    leave_apps
+    super
   end
 
   def test_counter
@@ -70,7 +70,7 @@ class TestLoader < TestCase
   end
 end
 
-# These don't work anymore but everything else does?'
+# # These don't work anymore but everything else does?'
 # class TestConfigRu < TestLoader
 #   BASE = File.expand_path('../apps/reloader', __FILE__)
 #   def file; BASE + '/config.ru' end
