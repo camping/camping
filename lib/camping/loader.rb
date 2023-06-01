@@ -53,8 +53,8 @@ module Camping
 
       # setup recursive listener on the apps and lib directories from the source script.
       @listener = Listen.to("#{@root}/apps", "#{@root}/lib", "#{@root}") do |modified, added, removed|
-				@mtime = Time.now
-				reload!
+        @mtime = Time.now
+        reload!
       end
       @listener.start
     end
@@ -70,16 +70,16 @@ module Camping
 
     # remove_constants called inside this.
     def load_everything(old_constants)
-	    all_requires = $LOADED_FEATURES.dup
-	    all_apps = Camping::Apps.dup
+      all_requires = $LOADED_FEATURES.dup
+      all_apps = Camping::Apps.dup
 
-	    load_file
-	   	reload_directory("#{@root}/apps")
-	   	reload_directory("#{@root}/lib")
-	    Camping.make_camp
+      load_file
+      reload_directory("#{@root}/apps")
+      reload_directory("#{@root}/lib")
+      Camping.make_camp
     ensure
-	    @requires = []
-	    new_apps = Camping::Apps - all_apps
+      @requires = []
+      new_apps = Camping::Apps - all_apps
 
       @apps = new_apps.inject({}) do |hash, app|
         if file = app.options[:__FILE__]
@@ -90,10 +90,10 @@ module Camping
         key = app.name.to_sym
         hash[key] = app
 
-   			apps.each do |app|
-					@callback.call(app) if @callback
-					app.create if app.respond_to?(:create)
-				end
+        apps.each do |app|
+          @callback.call(app) if @callback
+          app.create if app.respond_to?(:create)
+        end
 
         hash
       end
@@ -103,54 +103,11 @@ module Camping
         @requires << [req, full] # if dirs.any? { |x| full.index(x) == 0 }
       end
 
-		  @mtime = mtime
+      @mtime = mtime
 
       self
 
     end
-
-    # Loads the apps available in this script.  Use <tt>apps</tt> to get
-    # the loaded apps.
-    # def load_apps(old_apps)
-    #   all_requires = $LOADED_FEATURES.dup
-    #   all_apps = Camping::Apps.dup
-
-    #   load_file
-    #  	reload_directory("#{@root}/apps")
-    #  	reload_directory("#{@root}/lib")
-    #   Camping.make_camp
-    # ensure
-    #   @requires = []
-    #   dirs = []
-    #   new_apps = Camping::Apps - all_apps
-
-    #   @apps = new_apps.inject({}) do |hash, app|
-    #     if file = app.options[:__FILE__]
-    #       full = File.expand_path(file)
-    #       @requires << [file, full]
-    #       dirs << full.sub(/\.[^.]+$/, '')
-    #     end
-
-    #     key = app.name.to_sym
-    #     hash[key] = app
-
-    #     if !old_apps.include?(key)
-    #       @callback.call(app) if @callback
-    #       app.create if app.respond_to?(:create)
-    #     end
-
-    #     hash
-    #   end
-
-    #   ($LOADED_FEATURES - all_requires).each do |req|
-    #     full = full_path(req)
-    #     @requires << [req, full] if dirs.any? { |x| full.index(x) == 0 }
-    #   end
-
-    #   @mtime = mtime
-
-    #   self
-    # end
 
     # load_file
     #
@@ -180,20 +137,6 @@ module Camping
       @apps.clear
       @requires.clear
     end
-
-    # Removes all the apps defined in this script.
-    # def remove_apps
-    #   @requires.each do |(path, full)|
-    #     $LOADED_FEATURES.delete(path)
-    #   end
-
-    #   @apps.each do |name, app|
-    #     Camping::Apps.delete(app)
-    #     Object.send :remove_const, name
-    #   end.dup
-    # ensure
-    #   @apps.clear
-    # end
 
     # Reloads the file if needed.  No harm is done by calling this multiple
     # times, so feel free call just to be sure.
@@ -242,7 +185,7 @@ module Camping
     def reload_directory(directory)
       files, folders = folders_and_files_in(directory)
       files.each {|file|
-				@requires << [file, File.expand_path(file)]
+        @requires << [file, File.expand_path(file)]
         load file
       }
       folders.each {|folder|
