@@ -1,1 +1,4 @@
-app_loader.rb
+require 'test_helper'
+require 'camping'
+
+Camping.goes :Loader
