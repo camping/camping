@@ -27,8 +27,8 @@ end
 
 class TestLoader < TestCase
   include TestCaseLoader
-  BASE = File.expand_path('../apps/reloader/reloader', __FILE__)
-  def file; BASE + '.rb' end
+  BASE = File.expand_path('../apps/reloader', __FILE__)
+  def file; BASE + '/reloader.rb' end
 
   def setup
     $counter = 0
@@ -53,7 +53,7 @@ class TestLoader < TestCase
   end
 
   def test_that_touch_was_touched
-    FileUtils.touch(BASE + '.rb')
+    FileUtils.touch(BASE + '/reloader.rb')
     assert_equal 1, $counter
   end
 
@@ -61,12 +61,12 @@ class TestLoader < TestCase
     loader.reload
     assert_equal 1, $counter
 
-    FileUtils.touch(BASE + '.rb')
+    FileUtils.touch(BASE + '/reloader.rb')
     sleep 0.2
     loader.reload
     assert_equal 2, $counter
 
-    FileUtils.touch(BASE + 'reload_me.rb')
+    FileUtils.touch(BASE + '/reload_me.rb')
     sleep 0.2
     loader.reload
     assert_equal 3, $counter
