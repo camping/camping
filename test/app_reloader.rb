@@ -24,7 +24,6 @@ module TestCaseLoader
   end
 end
 
-
 class TestLoader < TestCase
   include TestCaseLoader
   BASE = File.expand_path('../apps/reloader', __FILE__)
@@ -62,12 +61,10 @@ class TestLoader < TestCase
     assert_equal 1, $counter
 
     FileUtils.touch(BASE + '/reloader.rb')
-    sleep 0.2
     loader.reload
     assert_equal 2, $counter
 
     FileUtils.touch(BASE + '/reload_me.rb')
-    sleep 0.2
     loader.reload
     assert_equal 3, $counter
   end
