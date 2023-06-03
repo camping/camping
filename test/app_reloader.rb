@@ -34,9 +34,11 @@ class TestLoader < TestCase
     $counter = 0
     move_to_reloader
     super
+    loader.start unless loader.processing_events?
   end
 
   def teardown
+    loader.stop
     leave_reloader
     super
   end
@@ -60,23 +62,23 @@ class TestLoader < TestCase
     assert_equal 1, $counter
 
     FileUtils.touch(BASE + '.rb')
-    sleep 1
+    sleep 0.2
     loader.reload
     assert_equal 2, $counter
 
     FileUtils.touch(BASE + 'reload_me.rb')
-    sleep 1
+    sleep 0.2
     loader.reload
     assert_equal 3, $counter
   end
 end
 
-# # These don't work anymore but everything else does?'
-# class TestConfigRu < TestLoader
-#   BASE = File.expand_path('../apps/reloader', __FILE__)
-#   def file; BASE + '/config.ru' end
+# These don't work anymore but everything else does?'
+class TestConfigRu < TestLoader
+  BASE = File.expand_path('../apps/reloader', __FILE__)
+  def file; BASE + '/config.ru' end
 
-#   def test_name
-#     assert_equal Reloader, loader.apps[:reloader]
-#   end
-# end
+  def test_name
+    assert_equal Reloader, loader.apps[:reloader]
+  end
+end
