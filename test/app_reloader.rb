@@ -73,7 +73,6 @@ class TestLoader < TestCase
   end
 end
 
-# These don't work anymore but everything else does?'
 class TestConfigRu < TestLoader
   BASE = File.expand_path('../apps/reloader', __FILE__)
   def file; BASE + '/config.ru' end
