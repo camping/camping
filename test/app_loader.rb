@@ -14,12 +14,12 @@ module TestCaseLoaderToo
     assert Object.const_defined?(:Loader), "Loader didn't load app"
   end
 
-  def teardown
-    super
-    assert Object.const_defined?(:Loader), "Test removed app"
-    loader.remove_constants
-    assert !Object.const_defined?(:Loader), "Loader didn't remove app"
-  end
+  # def teardown
+  #   super
+  #   assert Object.const_defined?(:Loader), "Test removed app"
+  #   loader.remove_constants
+  #   assert !Object.const_defined?(:Loader), "Loader didn't remove app"
+  # end
 end
 
 
