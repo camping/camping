@@ -33,6 +33,8 @@ class TestLoading < TestCase
     Dir.chdir "test"
     Dir.chdir "apps"
     Dir.chdir "loader"
+   	Dir.mkdir("apps") unless Dir.exist?("apps")
+    Dir.mkdir("lib") unless Dir.exist?("lib")
   end
 
   # deletes the temporary directories found in the /apps directory for reloader testing.
