@@ -77,7 +77,7 @@ module Camping
     end
 
     # remove_constants called inside this.
-    def load_everything(old_constants)
+    def load_everything()
       all_requires = $LOADED_FEATURES.dup
       all_apps = Camping::Apps.dup
 
@@ -155,7 +155,8 @@ module Camping
 
     # Force a reload.
     def reload!
-      load_everything(remove_constants)
+      remove_constants
+      load_everything
     end
 
     # Checks if both scripts watches the same file.
