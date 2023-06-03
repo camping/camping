@@ -36,8 +36,7 @@ module Camping
   # You can also give Reloader more than one script.
   class Loader
     attr_reader :file
-
-    Zeit = Zeitwerk::Loader.new
+    Loaders = []
 
     def initialize(file=nil, &blk)
       @file = file
@@ -47,17 +46,26 @@ module Camping
       @callback = blk
       @root = Dir.pwd
       @file = @root + '/camp.rb' if @file == nil
+      @zeit = Zeitwerk::Loader.new
+      Loaders << @zeit
 
       # setup Zeit for this reloader
-      setup_zeit(Zeit)
+      setup_zeit(@zeit)
 
       # setup recursive listener on the apps and lib directories from the source script.
       @listener = Listen.to("#{@root}/apps", "#{@root}/lib", "#{@root}") do |modified, added, removed|
         @mtime = Time.now
         reload!
       end
-      @listener.start
+      start
     end
+
+    # pass through methods to the Listener.
+    # for testing purposes.
+    def processing_events?;@listener.processing? end
+    def stop;@listener.stop end
+    def pause;@listener.pause end
+    def start;@listener.start end
 
     def name
       @name ||= begin
@@ -145,6 +153,7 @@ module Camping
       reload!
     end
 
+    # Force a reload.
     def reload!
       load_everything(remove_constants)
     end
@@ -166,12 +175,23 @@ module Camping
 
     # sets up Zeit autoloading for the script locations.
     def setup_zeit(loader)
-	    loader.push_dir("#{@root}/apps") if Dir.exist?("#{@root}/apps")
-	    loader.push_dir("#{@root}/lib") if Dir.exist?("#{@root}/lib")
-	    if ENV['environment'] == 'development'
-	      loader.enable_reloading unless ENV['environment'] == 'production'
-	    end
+      loader.push_dir("#{@root}/apps") if can_add_directory "#{@root}/apps"
+      loader.push_dir("#{@root}/lib") if can_add_directory "#{@root}/lib"
+	    loader.enable_reloading if ENV['environment'] == 'development'
 	    loader.setup
+    end
+
+    # verifies that we can add a directory to the loader.
+    # used for testing to prevent multiple loaders from watching the same directory.
+    def can_add_directory(directory)
+      if Dir.exist?("#{@root}/apps")
+        Loaders.each do |loader|
+          return false if loader.dirs.include? directory
+        end
+        true
+      else
+        false
+      end
     end
 
     # Splits the descendent files and folders found in a given directory for eager loading and recursion.
