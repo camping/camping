@@ -2,7 +2,7 @@ module Donuts
   module Controllers
     class Index
       def get
-        "To do things, i need help, friends!!! how are ? Are you goood? What else is new?"
+        "We've got lots of donuts!"
       end
     end
 
