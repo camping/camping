@@ -1,3 +1,15 @@
+= 3.1.0
+=== ?? June, 2023
+* Rewrote Camping's Reloader/Loader to work with the new nested /apps directory.
+* Reopening and redefining controllers, views, and helpers is possible by placing them in the /apps directory.
+* Added Zeitwerk autoloading, watched directories are /apps and /lib.
+* Reloader now calls make camp upon each request in development mode.
+* Reloader also now listens for changes in the /apps and /lib directory and eager reloads as needed.
+* /apps and /lib are now eager loaded.
+* Camping new command now adds a test_helper.
+* Started work on CampGuide, an exception handler that provides context aware resolutions to common Camping Problems.
+
+
 = 3.0.2
 === 18th March, 2023
 * App names supplied to the camping new command are now CamelCased.
