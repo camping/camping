@@ -237,9 +237,79 @@ task :test => 'test:all'
 namespace 'test' do
   Rake::TestTask.new('all') do |t|
     t.libs << 'test'
-    t.test_files = FileList['test/nuts_*.rb']
+    t.test_files = FileList['test/test_*.rb']
   end
 end
+TXT
+      end
+
+      # writes a test_helper
+      def make_test_helper
+        write 'test/test_helper.r', <<-TXT
+# Test Helper
+$:.unshift File.dirname(__FILE__) + '/../'
+
+begin
+  require 'rubygems'
+rescue LoadError
+end
+
+require 'minitest/autorun'
+require 'rack/test'
+require 'minitest/reporters'
+require 'minitest/hooks'
+Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(:color => true)]
+
+# Default TestCase with some helpers.
+# The same stuff we use for Camping itself.
+class TestCase < MiniTest::Test
+  include Rack::Test::Methods
+  include Minitest::Hooks
+
+  def self.inherited(mod)
+    mod.app = Object.const_get(mod.to_s[/\w+/])
+    super
+  end
+
+  class << self
+    attr_accessor :app
+  end
+
+  def setup
+    super
+    Camping.make_camp
+  end
+
+  def body() last_response.body end
+  def app()  self.class.app     end
+
+  def response_body() last_response.to_a end
+
+  def assert_reverse
+    begin
+      yield
+    rescue Exception
+    else
+      assert false, "Block didn't fail"
+    end
+  end
+
+  def assert_body(str, message="")
+    case str
+    when Regexp
+      assert_match(str, last_response.body.strip, message)
+    else
+      assert_equal(str.to_s, last_response.body.strip, message)
+    end
+  end
+
+  def assert_status(code, message="")
+    assert_equal(code, last_response.status, message)
+  end
+
+  def test_silly; end
+end
+
 TXT
       end
 
@@ -274,6 +344,7 @@ group :test do
   gem 'minitest', '~> 5.0'
   gem 'minitest-reporters'
   gem 'rack-test'
+  gem 'minitest-hooks'
 end
 
 GEM
@@ -286,6 +357,8 @@ GEM
 Camping is really fun and I hope you enjoy it.
 
 Start camping by running: `camping` in the root directory.
+
+To start Camping in development mode run: `camping -e development
 
 READ
       end
@@ -360,47 +433,55 @@ RUBY
   end
 
   class Commands
+    class << self
 
-    # A helper method to spit out Routes for an application
-    def self.routes(theApp = Camping, silent = false)
-      routes = Camping::CommandsHelpers::RoutesParser.parse theApp
-      routes.display unless silent == true
-      return routes
+      # A helper method to spit out Routes for an application
+      def routes(theApp = Camping, silent = false)
+        routes = Camping::CommandsHelpers::RoutesParser.parse theApp
+        routes.display unless silent == true
+        return routes
+      end
+
+      def new_cmd(app_name=:Camp)
+
+        # Normalize the app_name
+        Camping::CommandsHelpers.app_name_from_input(app_name) => {app_name:, snake_name:, camel_name:}
+
+        # make a directory then move there.
+        # _original_dir = Dir.pwd
+        Dir.mkdir("#{snake_name}") unless Dir.exist?("#{snake_name}")
+        Dir.chdir("#{snake_name}")
+
+        # generate a new camping app in a directory named after it:
+        Generators::make_camp_file(camel_name)
+        Generators::make_gitignore()
+        Generators::make_rakefile()
+        Generators::make_ruby_version()
+        Generators::make_configkdl()
+        Generators::make_gemfile()
+        Generators::make_readme()
+        Generators::make_public_folder()
+        Generators::make_test_folder()
+        Generators::make_test_helper()
+
+        # optionally add omnibus support
+          # add src/ folder
+          # add lib/ folder
+          # add views/ folder
+
+        # optionally add a local database too, through guidebook
+          # add db/ folder
+          # add db/migrate folder
+          # add db/config.kdl
+          # append migrations stuff to Rakefile.
+          `ls`
+      end
+
+      # TODO: Create this generator
+      # generates the apps folder from apps found in camp.rb or config.ru
+      # def generate_apps_folder
+      # end
+
     end
-
-    def self.new_cmd(app_name=:Camp)
-
-      # Normalize the app_name
-      Camping::CommandsHelpers.app_name_from_input(app_name) => {app_name:, snake_name:, camel_name:}
-
-      # make a directory then move there.
-      # _original_dir = Dir.pwd
-      Dir.mkdir("#{snake_name}") unless Dir.exist?("#{snake_name}")
-      Dir.chdir("#{snake_name}")
-
-      # generate a new camping app in a directory named after it:
-      Generators::make_camp_file(camel_name)
-      Generators::make_gitignore()
-      Generators::make_rakefile()
-      Generators::make_ruby_version()
-      Generators::make_configkdl()
-      Generators::make_gemfile()
-      Generators::make_readme()
-      Generators::make_public_folder()
-      Generators::make_test_folder()
-
-      # optionally add omnibus support
-        # add src/ folder
-        # add lib/ folder
-        # add views/ folder
-
-      # optionally add a local database too, through guidebook
-        # add db/ folder
-        # add db/migrate folder
-        # add db/config.kdl
-        # append migrations stuff to Rakefile.
-        `ls`
-    end
-
   end
 end

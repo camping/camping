@@ -40,4 +40,43 @@ class Generator::Test < TestCase
 
   end
 
+  # Generates expected directory Structure
+  #
+  # Camping has an expected directory structure:
+  #
+  #   .gitignore
+  #   .ruby-version
+  #   Gemfile
+  #   Rakefile
+  #   camp.rb
+  #   config.kdl
+  #   src/
+  #   lib/
+  #   public/
+  #   test/
+  #   apps/
+  #
+  # This test checks to make certain that the generator command creates this
+  # directory structure.
+  def test_app_generates_directory_structure
+    move_to_tmp
+    Camping::Commands.new_cmd
+
+    res, ignored = [Dir.glob('*').select {|f| !File.directory? f },
+    Dir.glob('*').select {|f| File.directory? f }], Dir.glob(".*")
+
+    assert res[0].include?('Gemfile'), "mising Gemfile"
+    assert res[0].include?('README.md'), "missing README.md"
+    assert res[0].include?('Rakefile'), "missing Rakefile"
+    assert res[0].include?('camp.rb'), "missing camp.rb"
+    assert res[0].include?('config.kdl'), "missing config.kdl"
+    assert res[1].include?('public'), "missing public folder."
+    assert res[1].include?('test'), "missing test folder."
+
+    assert ignored.include?('.gitignore'), ".gitignore is missing."
+    assert ignored.include?('.ruby-version'), ".ruby-version is missing."
+
+    leave_tmp
+  end
+
 end

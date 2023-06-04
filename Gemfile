@@ -6,8 +6,8 @@ gem 'rack-session'
 gem 'rackup'
 gem 'mab'
 gem 'kdl' # for settings and default config stuff
-gem 'zeitwerk' # for autoloading
-gem 'listen' # for reloader
+gem 'zeitwerk' # for Loader
+gem 'listen' # for Loader
 
 group :extras do
   gem 'tilt'
