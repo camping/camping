@@ -70,6 +70,12 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList['test/app_*.rb', 'test/gear/gear_*.rb']
 end
 
+## Reloader Tests
+Rake::TestTask.new(:reloader) do |t|
+  t.libs << "test"
+  t.test_files = FileList['test/reload_*.rb']
+end
+
 ## Diff
 desc "Compare camping and camping-unabridged"
 task :diff do
@@ -97,7 +103,7 @@ end
 error = false
 
 ## Check
-task :check => ["test", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
+task :check => ["test", "reloader", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
 namespace :check do
 
   desc "Check source code validity"

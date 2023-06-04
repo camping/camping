@@ -23,4 +23,5 @@ group :test do
   gem 'minitest-reporters'
   gem 'rack-test'
   gem 'ruby_parser'
+  gem 'minitest-hooks'
 end

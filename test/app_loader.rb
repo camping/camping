@@ -8,47 +8,32 @@ module TestCaseLoaderToo
     @loader ||= Camping::Loader.new(file)
   end
 
-  def setup
+  def before_all
     super
+    move_to_loader
     loader.reload!
     assert Object.const_defined?(:Loader), "Loader didn't load app"
   end
 
-  def teardown
-    super
+  def after_all
     assert Object.const_defined?(:Loader), "Test removed app"
     loader.remove_constants
     assert !Object.const_defined?(:Loader), "Loader didn't remove app"
+    leave_loader
+    super
   end
 end
-
 
 class TestLoading < TestCase
   include TestCaseLoaderToo
   BASE = File.expand_path('../apps/loader/camp', __FILE__)
   def file; BASE + '.rb' end
 
-  def move_to_loader
-    @original_dir = Dir.pwd
-    Dir.chdir "test"
-    Dir.chdir "apps"
-    Dir.chdir "loader"
-   	Dir.mkdir("apps") unless Dir.exist?("apps")
-    Dir.mkdir("lib") unless Dir.exist?("lib")
-  end
-
-  # deletes the temporary directories found in the /apps directory for reloader testing.
-  def leave_loader
-	  Dir.chdir @original_dir
-  end
-
   def setup
-    move_to_loader
     super
   end
 
   def teardown
-    leave_loader
     super
   end
 
