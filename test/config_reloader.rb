@@ -30,11 +30,11 @@ module TestCaseLoader
 
 end
 
-class TestLoader < TestCase
+class TestConfigRu < TestCase
   include TestCaseLoader
 
   BASE = File.expand_path('../apps/reloader', __FILE__)
-  def file; BASE + '/reloader.rb' end
+  def file; BASE + '/config.ru' end
 
   def setup
     super
@@ -69,13 +69,9 @@ class TestLoader < TestCase
     loader.reload
     assert_equal 3, $counter
   end
+
+  def test_name
+    assert_equal Reloader, loader.apps[:reloader]
+  end
+
 end
-
-# class TestConfigRu < TestLoader
-#   BASE = File.expand_path('../apps/reloader', __FILE__)
-#   def file; BASE + '/config.ru' end
-
-#   def test_name
-#     assert_equal Reloader, loader.apps[:reloader]
-#   end
-# end

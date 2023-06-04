@@ -5,16 +5,14 @@ module Config end
 
 class Config::Test < TestCase
 
-  def setup
+  def before_all
     write_config()
     Camping.goes :Config
     @options = Camping::Apps.select{|a| a.name == "Config" }.first.options
-    super
   end
 
-  def teardown
+  def after_all
     trash_config()
-    super
   end
 
   def test_config
