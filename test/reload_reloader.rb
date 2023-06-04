@@ -10,18 +10,23 @@ module TestCaseLoader
     @loader ||= Camping::Loader.new(file)
   end
 
-  def setup
+  def before_all
     super
+    move_to_reloader
     loader.reload!
     assert Object.const_defined?(:Reloader), "Reloader didn't load app"
+    # puts "before_all called"
   end
 
-  def teardown
-    super
+  def after_all
+    # puts "after_all called"
     assert Object.const_defined?(:Reloader), "Test removed app"
     loader.remove_constants
     assert !Object.const_defined?(:Reloader), "Loader didn't remove app"
+    leave_reloader
+    super
   end
+
 end
 
 class TestLoader < TestCase
@@ -30,16 +35,10 @@ class TestLoader < TestCase
   def file; BASE + '/reloader.rb' end
 
   def setup
+    super
     $counter = 0
-    move_to_reloader
-    super
-    loader.start unless loader.processing_events?
-  end
-
-  def teardown
-    loader.stop
-    leave_reloader
-    super
+    loader.reload!
+    # puts "setup called"
   end
 
   def test_counter

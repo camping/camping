@@ -14,7 +14,8 @@ end
 
 require 'minitest/autorun'
 require 'rack/test'
-require "minitest/reporters"
+require 'minitest/reporters'
+require 'minitest/hooks'
 Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(:color => true)]
 
 
@@ -49,6 +50,21 @@ module CommandLineCommands
 	  Dir.chdir @original_dir
 	  `rm -rf test/apps/reloader/apps` if File.exist?('test/apps/reloader/apps')
 	  `rm -rf test/apps/reloader/lib` if File.exist?('test/apps/reloader/lib')
+  end
+
+  # Moves to the loader directory
+  def move_to_loader
+    @original_dir = Dir.pwd
+    Dir.chdir "test"
+    Dir.chdir "apps"
+    Dir.chdir "loader"
+   	Dir.mkdir("apps") unless Dir.exist?("apps")
+    Dir.mkdir("lib") unless Dir.exist?("lib")
+  end
+
+  # deletes the temporary directories found in the /apps directory for reloader testing.
+  def leave_loader
+	  Dir.chdir @original_dir
   end
 
   def write(file, content)
@@ -89,6 +105,7 @@ end
 class TestCase < MiniTest::Test
   include Rack::Test::Methods
   include CommandLineCommands
+  include Minitest::Hooks
 
   def self.inherited(mod)
     mod.app = Object.const_get(mod.to_s[/\w+/])
