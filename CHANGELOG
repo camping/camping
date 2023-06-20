@@ -9,7 +9,6 @@
 * Camping new command now adds a test_helper.
 * Started work on CampGuide, an exception handler that provides context aware resolutions to common Camping Problems.
 
-
 = 3.0.2
 === 18th March, 2023
 * App names supplied to the camping new command are now CamelCased.
