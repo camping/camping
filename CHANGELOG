@@ -1,5 +1,5 @@
 = 3.1.0
-=== ?? June, 2023
+=== 22 June, 2023
 * Rewrote Camping's Reloader/Loader to work with the new nested /apps directory.
 * Reopening and redefining controllers, views, and helpers is possible by placing them in the /apps directory.
 * Added Zeitwerk autoloading, watched directories are /apps and /lib.

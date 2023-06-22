@@ -1,5 +1,5 @@
 module Camping
-  VERSION = "3.0.2"
+  VERSION = "3.1.0"
   def self.version
     VERSION
   end
