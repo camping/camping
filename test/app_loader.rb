@@ -33,16 +33,18 @@ class Donuts::Test < TestCase
     assert loader.apps.include?(:Loader), "Loader not found: #{loader.apps}"
   end
 
-
   def test_output
+    # Checks that the view is overwritten successfully more than once.
     get '/'
     assert_body "chunky bacon", "Response is wrong in the loader."
     assert_equal "text/html", last_response.headers['content-type']
 
+    # Checks that the view is not overwritten, because it's not reopened.
     get '/post'
     assert_body "_why", "Response is wrong in the loader."
     assert_equal "text/html", last_response.headers['content-type']
 
+    # Checks that a downstream view is loaded properly.
     get '/people'
     assert_body "People are great am I right?", "Response is wrong in the loader."
     assert_equal "text/html", last_response.headers['content-type']

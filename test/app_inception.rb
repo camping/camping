@@ -2,6 +2,13 @@ require 'test_helper'
 require 'camping'
 require 'camping/commands'
 
+# The idea behind the inception stuff is that you can inherit settings
+# templates, etc... from a Camping app and just... extend it.
+# This is a tabled, but not abandoned idea. It became a little difficult
+# to inherit all of these things, along with views, Models, etc... that's
+# associated with a camping app. Getting this to work would mean a big
+# rewrite of Camping's core, which is a no no.
+
 Camping.goes :Inception
 # Inception.goes :Leonardo
 # Leonardo.goes :Donatello
