@@ -64,27 +64,38 @@ end
 ## Installation
 
 Interested yet?  Luckily it's quite easy to install Camping.  We'll be using
-a tool called RubyGems, so if you don't have that installed yet, go grab it!
-Once that's sorted out, open up a Terminal or Command Line and enter:
+a tool called RubyGems, and Bundler, so if you don't have that installed
+yet, go grab it! Once that's sorted out, open up a Terminal or Command
+Line and enter:
 
 ```
 gem install camping
 ```
 
+Also make certain to have Bundler installed:
+
+```
+gem install bundler
+```
+
 ~~Even better, install the Camping Omnibus, a full package of recommended libs:~~ Camping Omnibus will return for summer vacation.
 
-```
-gem install camping-omnibus
-```
-
-If not, you should be aware of that Camping itself only depends on
-[Rack](https://github.com/rack/rack), and if you're going to use the views you also
-need to install **[markaby](https://github.com/markaby/markaby)**, and if you're going to use the database you need
-**activerecord** as well.
+Now make a new directory filled with your camp essentials using the `camping new` command:
 
 ```
-gem install markaby
-gem install activerecord
+camping new Donuts # You can replace Donuts with whatever but CamelCased.
+```
+
+Move to your new directory, then use bundler to install all of your camp's dependencies:
+
+```
+cd donuts; bundle install
+```
+
+You can now run camping using the `camping` command. We recommend running camping in development mode locally. Make certain to prefix the camping command with `bundle exec` to run your app with the gems you've installed just for your camp:
+
+```
+bundle exec camping -e development
 ```
 
 ## Learning
