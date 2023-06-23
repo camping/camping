@@ -1,3 +1,8 @@
+= 3.1.1
+=== 23 June, 2023
+* Fix an error that caused the loader not to load because we renamed it Loader from Relaoder.
+* Add new dependencies to gemspec.
+
 = 3.1.0
 === 22 June, 2023
 * Rewrote Camping's Reloader/Loader to work with the new nested /apps directory.

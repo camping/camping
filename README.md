@@ -118,6 +118,10 @@ like chatting with us, you should join [#camping @ irc.freenode.net](http://java
 
 Tests should be run using bundler and rake: `bundle exec rake`.
 
+## Minting Releases
+
+We use Ruby Gems to distribute versions of Camping.
+
 ## Authors
 
 Camping was originally crafted by [why the lucky stiff](http://en.wikipedia.org/wiki/Why_the_lucky_stiff),

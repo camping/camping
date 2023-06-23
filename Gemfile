@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 source 'https://rubygems.org'
 
 gem 'rake'
@@ -5,9 +6,9 @@ gem 'rack'
 gem 'rack-session'
 gem 'rackup'
 gem 'mab'
-gem 'kdl' # for settings and default config stuff
-gem 'zeitwerk' # for Loader
-gem 'listen' # for Loader
+gem 'kdl'
+gem 'zeitwerk'
+gem 'listen'
 
 group :extras do
   gem 'tilt'
