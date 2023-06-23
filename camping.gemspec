@@ -2,7 +2,7 @@
 # camping_spec
 
 NAME = "camping"
-BRANCH = "3.1.0"
+BRANCH = "3.1.1"
 GIT = ENV['GIT'] || "git"
 REV = `#{GIT} rev-list HEAD`.strip.split.length
 VERS = ENV['VERSION'] || BRANCH
@@ -25,6 +25,8 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.add_runtime_dependency('rack-session', '~> 2.0', '>=2.0.0')
   s.add_runtime_dependency('rackup', '~> 2.1.0')
   s.add_runtime_dependency('kdl', '~> 1.0', '>=1.0.3')
+  s.add_runtime_dependency('zeitwerk', '~> 2.6.8', '>=2.6.8')
+  s.add_runtime_dependency('listen', '~> 3.8.0', '>=3.8.0')
   s.required_ruby_version = '>= 3.1.2'
 
   s.files = %w(COPYING README.md Rakefile) +

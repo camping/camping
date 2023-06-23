@@ -231,4 +231,7 @@ module Camping
       end
     end
   end
+
+  Reloader = Loader
+
 end
