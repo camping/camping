@@ -52,8 +52,12 @@ module Camping
       # setup Zeit for this reloader
       setup_zeit(@zeit)
 
+      dirs = [@root]
+      dirs << "#{@root}/apps" if Dir.exist? "#{@root}/apps"
+      dirs << "#{@root}/lib" if Dir.exist? "#{@root}/lib"
+
       # setup recursive listener on the apps and lib directories from the source script.
-      @listener = Listen.to("#{@root}/apps", "#{@root}/lib", "#{@root}") do |modified, added, removed|
+      @listener = Listen.to(*dirs) do |modified, added, removed|
         @mtime = Time.now
         reload!
       end
