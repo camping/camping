@@ -87,7 +87,7 @@ module CommandLineCommands
     write 'config.kdl', <<-TXT
 // config.kdl
 database {
-  default adapter="sqlite3"  host="localhost" max_connections=5 timeout=5000
+  default adapter="sqlite3" host="localhost" max_connections=5 timeout=5000
   development
   production adapter="postgres" database="kow"
 }

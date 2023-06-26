@@ -316,10 +316,8 @@ TXT
       # write a config.kdl
       def make_configkdl
         write 'config.kdl', <<-KDL
-# config.kdl
-hostname {
-  default "localhost"
-}
+// config.kdl
+hostname "localhost"
 KDL
       end
 

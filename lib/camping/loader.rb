@@ -200,6 +200,7 @@ module Camping
     end
 
     # Splits the descendent files and folders found in a given directory for eager loading and recursion.
+    # If the given directory doesn't exist or is empty, then nothing is returned.
     def folders_and_files_in(directory)
       directory = directory + "/*" # unless directory
       [Dir.glob(directory).select {|f| !File.directory? f },
@@ -207,6 +208,7 @@ module Camping
     end
 
     # Reloads a directory recursively. loading more shallow files before deeper files.
+    # If the given directory doesn't exist or is empty, then nothing happens.
     def reload_directory(directory)
       files, folders = folders_and_files_in(directory)
       files.each {|file|
