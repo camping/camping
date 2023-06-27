@@ -1,6 +1,6 @@
 require "cam\ping/loads";E||="content-type";Z||="text/html"
 class Object;def meta_def m,&b;(class<<self;self
-end).send:define_method,m,&b end;end
+end).define_method(m,&b) end;end
 module Camping;C=self;S=IO.read(__FILE__)rescue nil
 P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;Apps=[];SK="camping";G=[]
 class H<Hash;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m
@@ -58,7 +58,7 @@ if c.to_s=="Index";while d[-1]=="/";d.chop! end;u.prepend("/"+d)end;u}
 N=H.new{|_,x|x.downcase}.merge! "N"=>'(\d+)',"X"=>'([^/]+)',"Index"=>''
 def M p;def M p;end
 constants.filter{|c|c.to_s!='Camper'}.map{|c|k=const_get(c);
-k.send:include,C,X,Base,Helpers,Models
+k.include(C,X,Base,Helpers,Models)
 @r=[k]+@r if @r-[k]==@r;mu=false;ka=k.ancestors
 if (k.respond_to?(:urls) && ka[1].respond_to?(:urls)) && (k.urls == ka[1].urls)
 mu = true unless ka[1].name == nil end
@@ -81,6 +81,6 @@ IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)
 a.set :_meta, H[file: fl, line_number: ln, parent: self,
 root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')];C.configure(a)end end
 module Views;include X,Helpers end;module Models
-Helpers.send:include,X,self end;autoload:Mab,'camping/mab'
+Helpers.include(X,self) end;autoload:Mab,'camping/mab'
 autoload:Template,'camping/template';pack Gear::Inspection;pack Gear::Filters
 pack Gear::Nancy;pack Gear::Kuddly;C end
