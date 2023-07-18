@@ -791,6 +791,7 @@ module Camping
     def use(*a, &b)
       m = a.shift.new(method(:call), *a, &b)
       meta_def(:call) { |e| m.call(e) }
+      m
     end
 
     # Add gear to your app:
