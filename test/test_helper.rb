@@ -145,6 +145,15 @@ class TestCase < MiniTest::Test
     end
   end
 
+  def assert_log(str, message="")
+    case str
+    when Regexp
+      assert_match(str, last_response.errors.strip, message)
+    else
+      assert_equal(str.to_s, last_response.errors.strip, message)
+    end
+  end
+
   def assert_status(code, message="")
     assert_equal(code, last_response.status, message)
   end
