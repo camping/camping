@@ -1,7 +1,6 @@
 require 'rack'
 require 'rack/utils'
 require 'rack/common_logger'
-require 'Logger'
 
 module Gear
   module Firewatch
@@ -30,11 +29,15 @@ module Gear
 
   # Inherit from Rack Logger to get things started.
   class Logger # < Rack::CommonLogger
+
+    Utils = Rack::Utils
+
     def initialize(app, level = ::Logger::INFO)
       @app, @level = app, level
     end
 
     def call(env)
+      began_at = Utils.clock_time
       # sets up a new logger using rack.errors as the error stream
       logger = ::Logger.new(env['rack.errors'])
       logger.level = @level
@@ -55,7 +58,7 @@ end
 module Camping
 
   # We make our own logger named firewatch.
-  class Firewatch < ::Logger
+  class Firewatch
 
     class << self
 
