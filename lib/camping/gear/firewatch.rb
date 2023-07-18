@@ -11,26 +11,13 @@ module Gear
     class << self
 
       def included(mod)
-        # mod.extend(ClassMethods)
-        mod.const_get(:Helpers).include(HelperMethods)
+        mod::Helpers.include(HelperMethods)
       end
 
       # required for compliance reasons
-      def setup(app, *a, &block)
-        # logger_middleware = app.use(::Gear::Logger)
-        # app.options.logger = Camping::Firewatch.book
-        # @logger = app.options.logger = logger_middleware.logger
-      end
+      def setup(app, *a, &block) end
 
     end
-
-    # module ClassMethods
-    #   # Put syntactic Camping Logging Sugar here.
-    #   def log
-    #     # either grabs the rack.logger or makes a new logger and returns it.
-    #     @env['rack.logger'] ||= ::Logger.new(env['rack.errors'])
-    #   end
-    # end
 
     module HelperMethods
       def log

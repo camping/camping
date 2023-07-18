@@ -13,17 +13,9 @@ module Loggy::Controllers
       log.debug("Created Logger")
       log.info("Program Started")
       log.warn("Nothing to do!")
-      render :index
+      'Hello Friends'
     end
   end
-
-end
-
-module Loggy::Views
-  def index
-    h1 "Welcome!"
-  end
-
 end
 
 class Loggy::Test < TestCase
