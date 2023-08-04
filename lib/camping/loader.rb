@@ -138,7 +138,7 @@ module Camping
     # so everything in /apps, and /lib in relation from this script.
     def remove_constants
     	@requires.each do |(path, full)|
-     		$LOADED_FEATURES.delete(path)
+     		$LOADED_FEATURES.delete(path) unless path.match? "concurrent-ruby"
      	end
 
       @apps.each do |name, app|
