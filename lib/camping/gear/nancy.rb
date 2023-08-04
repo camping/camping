@@ -73,12 +73,11 @@ module Gear
 				cname = "#{meth.capitalize}#{symbol.to_s}"
 
 				begin
-					m.module_eval(%Q[
-					module Controllers
-						class #{cname} < R #{rs}
-						end
-					end
-					], file_name, line_number.to_i)
+
+					# Find out which eval script to use.
+					eval_script = m.name.include?("Controllers") ? controller_script(name: cname,routes: rs) : module_script(name: cname,routes: rs)
+
+					m.module_eval(eval_script, file_name, line_number.to_i)
 				rescue => error
 					if error.message.include? "superclass mismatch for class"
 						raise "You've probably tried to define the same route twice using the sinatra method. ['#{rs}']"
@@ -93,7 +92,8 @@ module Gear
 				# If we have a rack response instead of string, then we need to extract
 				# the response then reassign the values. the r method  is a great helper
 				# for that.
-				constantine = m::X.const_get("#{cname}")
+				constantine = m.name.include?("Controllers") ? m.const_get("#{cname}") : m::X.const_get("#{cname}")
+
 				if block.arity == -1
 					constantine.send(:define_method, meth) { |*args|
 						block[*args]
@@ -115,8 +115,27 @@ module Gear
 				return nil
 			end
 
+			# returns a formatted string for making a controller class in the App module
+			def module_script(name:, routes:)
+				%Q[
+				module Controllers
+					class #{name} < R #{routes}
+					end
+				end
+				]
+			end
+
+			# returns a formatted string for making a controller class in the Controllers module
+			def controller_script(name:, routes:)
+				%Q[
+					class #{name} < R #{routes}
+					end
+				]
+			end
+
 			def included(mod)
 				mod.extend(ClassMethods)
+				mod::Controllers.extend(ClassMethods)
 			end
 
 			# required for compliance reasons
