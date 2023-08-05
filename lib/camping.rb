@@ -75,7 +75,7 @@ def use*a,&b;m=a.shift.new(method(:call),*a,&b);meta_def(:call){|e|m.call(e)};m;
 def pack*a,&b;G<< g=a.shift;include g;g.setup(self,*a,&b)end
 def gear;G end;def options;O;end;def set k,v;O[k]=v end
 def goes m,g=TOPLEVEL_BINDING;sp=caller[0].split('`')[0].split(":");fl,ln,pr=
-sp[0],sp[1].to_i,nil;Apps<< a=eval(S.gsub(/Camping/,m.to_s),g,fl,ln);caller[0]=~/:/
+sp[0]+' <Cam\ping App> ',sp[1].to_i,nil;Apps<< a=eval(S.gsub(/Camping/,m.to_s),g,fl,1);caller[0]=~/:/
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)
 ).shift rescue nil;a.set :_t,H[*b||[]]
 a.set :_meta, H[file: fl, line_number: ln, parent: self,

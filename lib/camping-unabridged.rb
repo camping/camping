@@ -914,11 +914,10 @@ module Camping
 
       # setup caller data
       sp = caller[0].split('`')[0].split(":")
-      fl, ln, pr = sp[0], sp[1].to_i, nil
-      # ln = 0
+      fl, ln, pr = sp[0]+' <Cam\ping App> ' , sp[1].to_i, nil
 
       # Create the app
-      Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, ln)
+      Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, 1)
 
       caller[0]=~/:/
       IO.read(a.set:__FILE__,$`)=~/^__END__/ &&
