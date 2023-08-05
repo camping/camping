@@ -56,7 +56,7 @@ module Frank
 	# Test Controllers too
 	module Controllers
 		get "/even_more" do
-			"Hello Friends"
+			"I need even more."
 		end
 	end
 
@@ -112,6 +112,11 @@ class Frank::Test < TestCase
 		assert controllers.include?(:UnlinkGameOver), "Not Found: :UnlinkGameOver. Controllers: #{controllers}."
 	end
 
+	def test_index_controller_works
+		get '/'
+		assert_body "Hello Friends", "Body is not what we expect."
+	end
+
 	def test_get_works_for_controllers
 		get '/accounts/'
 		assert_body "Get Some Accounts", "Body is not what we expect."
@@ -129,7 +134,7 @@ class Frank::Test < TestCase
 
 	def test_that_using_nancy_in_a_controller_works
 		get '/even_more'
-		assert_body 'Hello Friends'
+		assert_body 'I need even more.'
 	end
 
 	# TODO: Test that we are returning proper headers, that are not symbols, When Nancying.

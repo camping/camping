@@ -21,14 +21,13 @@ module Gear
 				s = ""
 				rs = ""
 				routes.each do |r|
+					rs += "'#{r}'" + ","
 					if r == '/'
 						r = 'Index'
 					end
-					rs += "'#{r}'" + ","
 					r.split("/").each(&:capitalize!).each{|t|
 						s << t.gsub(/[^a-z0-9A-Z ]/, '')
 					}
-					# s << r
 				end
 				rs.chop!
 
