@@ -9,6 +9,7 @@ gem 'mab'
 gem 'kdl'
 gem 'zeitwerk'
 gem 'listen'
+gem 'dry-logger'
 
 group :extras do
   gem 'tilt'

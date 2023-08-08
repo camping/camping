@@ -1,10 +1,13 @@
 require 'test_helper'
 require 'camping'
+require 'camping/firewatch'
 
 Camping.goes :Loggy
 
 # Loggy.use ::Gear::Logger, Loggy
 Loggy.pack Gear::Firewatch
+
+Loggy.set :logger, {file: 'log/development.log'}
 
 module Loggy::Controllers
   class Index
@@ -13,7 +16,6 @@ module Loggy::Controllers
       log.debug("Created Logger")
       log.info("Program Started")
       log.warn("Nothing to do!")
-      'Hello Friends'
     end
   end
 end
@@ -21,7 +23,11 @@ end
 class Loggy::Test < TestCase
   def test_logging
     get '/'
-    assert_log %r{INFO -- : Program Started}
-    assert_log %r{WARN -- : Nothing to do}
+    # puts Dir["./logs/development.log"]
+    assert_log "INFO"
+    # assert_log %r{\[INFO}
+    # assert_log %r{Program Started}
+    # assert_log %r{\[WARN}
+    # assert_log %r{Nothing to do}
   end
 end

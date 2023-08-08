@@ -47,9 +47,28 @@ module CommandLineCommands
 
   # deletes the temporary directories found in the /apps directory for reloader testing.
   def leave_reloader
-	  Dir.chdir @original_dir
-	  `rm -rf test/apps/reloader/apps` if File.exist?('test/apps/reloader/apps')
-	  `rm -rf test/apps/reloader/lib` if File.exist?('test/apps/reloader/lib')
+    Dir.chdir @original_dir
+    `rm -rf test/apps/reloader/apps` if File.exist?('test/apps/reloader/apps')
+    `rm -rf test/apps/reloader/lib` if File.exist?('test/apps/reloader/lib')
+  end
+
+  # move_to_app
+  # Moves to an app directory,
+  # @app_name: String,
+  def move_to_app(app_name = "")
+    @original_dir = Dir.pwd
+    Dir.chdir "test"
+    Dir.chdir "apps"
+    Dir.chdir directory
+    Dir.mkdir("apps") unless Dir.exist?("apps")
+    Dir.mkdir("lib") unless Dir.exist?("lib")
+  end
+
+  def leave_app(app_name = "", purge_directorys = [])
+    Dir.chdir @original_dir
+    purge_directorys.each do |dir|
+      `rm -rf test/apps/#{app_name}/#{dir}` if File.exist?('test/apps/#{app_name}/#{dir}')
+    end
   end
 
   # Moves to the loader directory
@@ -146,12 +165,8 @@ class TestCase < MiniTest::Test
   end
 
   def assert_log(str, message="")
-    case str
-    when Regexp
-      assert_match(str, last_response.errors.strip, message)
-    else
-      assert_equal(str.to_s, last_response.errors.strip, message)
-    end
+    logs = File.read Dir["./**/logs/development.log"].first
+    assert(logs.to_s.match?(str), message)
   end
 
   def assert_status(code, message="")

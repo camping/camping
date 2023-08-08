@@ -3,6 +3,7 @@ require 'erb'
 require 'rack'
 require 'rackup'
 require 'camping/version'
+require 'camping/firewatch'
 require 'camping/loader'
 require 'camping/commands'
 
@@ -93,6 +94,10 @@ module Camping
       end
     end
 
+    def loader
+      @reloader || nil
+    end
+
     def opt_parser
       Options.new
     end
@@ -103,18 +108,25 @@ module Camping
       })
     end
 
+    # redefine logging middleware
+    class << self
+      def logging_middleware
+        @logger ||= Camping::Firewatch.logger
+      end
+    end
+
     def middleware
       h = super
       h["development"] << [XSendfile]
       h
     end
 
-    def start
+    # Starts the Camping Server. Camping server inherits from Rack::Server so
+    # referencing their documentation would be a good idea.
+    # @file: String, file location for a camp.rb file.
+    def start(file = nil)
 
-      commands = []
-      ARGV.each do |cmd|
-        commands << cmd
-      end
+      commands = ARGV
 
       # Parse commands
       case commands[0]
@@ -130,6 +142,8 @@ module Camping
 
       @reloader.reload!
       r = @reloader
+
+      logger = r.apps.first.options[:logger]
 
       if options[:routes] == true
         eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
