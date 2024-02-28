@@ -22,7 +22,7 @@ GEM
       ruby-progressbar
     parser (3.2.2.0)
       ast (~> 2.4.1)
-    rack (3.0.7)
+    rack (3.0.9.1)
     rack-session (2.0.0)
       rack (>= 3.0.0)
     rack-test (2.1.0)
