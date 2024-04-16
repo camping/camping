@@ -18,6 +18,7 @@ end
 group :development do
   gem 'parser'
   gem 'unparser'
+  gem 'racc'
 end
 
 group :test do
