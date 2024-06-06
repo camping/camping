@@ -1,6 +1,7 @@
 = 3.2.0
-== ?? July, 2023
+== 05 June, 2024
 * Add default logging middleware to Camping.
+* Some Bugfixes for Nancy.
 
 = 3.1.3
 === 24 June, 2023

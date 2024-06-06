@@ -2,7 +2,7 @@
 # camping_spec
 
 NAME = "camping"
-BRANCH = "3.1.3"
+BRANCH = "3.2.0"
 GIT = ENV['GIT'] || "git"
 REV = `#{GIT} rev-list HEAD`.strip.split.length
 VERS = ENV['VERSION'] || BRANCH
@@ -15,10 +15,10 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.platform = Gem::Platform::RUBY
   # s.extra_rdoc_files = FileList["README.md", "CHANGELOG", "COPYING", "book/*"].to_a
   s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping.rb']
-  s.summary = "micro mighty websites for anyone"
+  s.summary = "miniature rails for anyone"
   s.author = "why the lucky stiff"
   s.email = 'why@ruby-lang.org'
-  s.homepage = 'http://camping.rubyforge.org/'
+  s.homepage = 'http://rubycamping.org/'
   s.executables = ['camping']
   s.add_runtime_dependency('mab', '~> 0.0', '>=0.0.3')
   s.add_runtime_dependency('rack', '~> 3.0', '>= 3.0.4.1')
