@@ -18,7 +18,7 @@ with the render sentence. The views do not use class.
 module Nust::Views
 
    def post_number
-      p "you asked the post number @postn"
+      p "you asked the post number @post"
    end
 
 end

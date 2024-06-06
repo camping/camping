@@ -9,6 +9,7 @@ gem 'mab'
 gem 'kdl'
 gem 'zeitwerk'
 gem 'listen'
+gem 'dry-logger'
 
 group :extras do
   gem 'tilt'
@@ -17,6 +18,7 @@ end
 group :development do
   gem 'parser'
   gem 'unparser'
+  gem 'racc'
 end
 
 group :test do

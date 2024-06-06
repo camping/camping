@@ -1,0 +1,15 @@
+/* typography.css */
+
+/* modifiers */
+
+  /* text-alignment */
+  .ta-l { text-align: left; }
+  .ta-c { text-align: center; }
+  .ta-r { text-align: right; }
+
+  /* font-weight */
+  .fw-400 { font-weight: 400; }
+  .fw-500 { font-weight: 500; }
+  .fw-600 { font-weight: 600; }
+  .fw-700 { font-weight: 700; }
+  .fw-800 { font-weight: 800; }

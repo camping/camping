@@ -53,6 +53,13 @@ module Frank
 		"start over?"
 	end
 
+	# Test Controllers too
+	module Controllers
+		get "/even_more" do
+			"I need even more."
+		end
+	end
+
 end
 
 Camping.goes :Bill
@@ -85,7 +92,7 @@ class Frank::Test < TestCase
 
 	def test_number_of_controllers
 		controllers = the_controllers
-		assert (controllers.count == 12), "There are not the right number of controllers: #{controllers.count}."
+		assert (controllers.count == 13), "There are not the right number of controllers: #{controllers.count}."
 	end
 
 	def test_controller_names
@@ -103,7 +110,11 @@ class Frank::Test < TestCase
 		assert controllers.include?(:PatchThisBoat), "Not Found: :PatchThisBoat. Controllers: #{controllers}."
 		assert controllers.include?(:LinkToThePast), "Not Found: :LinkToThePast. Controllers: #{controllers}."
 		assert controllers.include?(:UnlinkGameOver), "Not Found: :UnlinkGameOver. Controllers: #{controllers}."
+	end
 
+	def test_index_controller_works
+		get '/'
+		assert_body "Hello Friends", "Body is not what we expect."
 	end
 
 	def test_get_works_for_controllers
@@ -119,6 +130,11 @@ class Frank::Test < TestCase
 	def test_to_proc_works_for_apps
 		get '/friends/'
 		assert_body "It looks like you have lots of friends.", "Well this is a bummer. Frank is left out, and not called."
+	end
+
+	def test_that_using_nancy_in_a_controller_works
+		get '/even_more'
+		assert_body 'I need even more.'
 	end
 
 	# TODO: Test that we are returning proper headers, that are not symbols, When Nancying.

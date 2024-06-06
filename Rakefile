@@ -29,8 +29,18 @@ CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log', '.*.pt']
 
 task :default => :check
 
-## RDoc
+# New Docs
 
+## context for the docs sections: we're going to move to using Rdoc and yard.
+## With some extras. The Docs folder will probably go away.
+
+## New docs directly serve a website like a boss.
+desc "Serves the docs locally"
+task :serve do
+  sh "ruby -run -e httpd docs -p 8000"
+end
+
+## RDoc
 begin
   gem 'rdoc', '~>3.9.0'
 rescue LoadError

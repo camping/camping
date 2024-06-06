@@ -12,7 +12,7 @@ The End.
 
 # Actual philosophy
 
-Why The Lucky Stiff is no longer around, so those of us who contributed early on to Camping have since become its caretakers. We continue to push the framework foward, to be more compact, to be faster, easier, more fun. These are our guiding principals:
+Why The Lucky Stiff is no longer around, so those of us who contributed early on to Camping have since become its caretakers. We continue to push the framework forward, to be more compact, to be faster, easier, more fun. These are our guiding principals:
 
 - Camping is for everyone. It sure is great to turn an idea in to a single ruby file which creates a website. It's also great to organise an app in to several files sometimes. You can plug bits together all in a row, and grow your evil monkey in to an entire army of evil circus animals!
 - Camping isn't for making money. You can make money using camping. Nobody will stop you. But we don't have any buzzwords to offer, we won't make your unit tests easier, nor help you do market research. Our main contributors certainly aren't using camping in large scale deployments, and while camping is blazingly fast, we have no idea how well it would work if you ran it on lots of servers!

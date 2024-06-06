@@ -1,0 +1,18 @@
+@import url("pico.css");
+
+
+
+/* Variables */
+:root {
+
+  /* Spacing */
+  --camp-spacing: 0.25rem; /* 4px */
+
+  --cs-xs:  calc(var(--camp-spacing) * 1); /* 4px */
+  --cs-s:  calc(var(--camp-spacing) * 2); /* 8px */
+  --cs-m:  calc(var(--camp-spacing) * 4); /* 16px */
+  --cs-l:  calc(var(--camp-spacing) * 8); /* 32px */
+  --cs-xl:  calc(var(--camp-spacing) * 16); /* 64px */
+  --cs-xxl: calc(var(--camp-spacing) * 32); /* 128px */
+
+}

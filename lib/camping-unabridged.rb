@@ -703,9 +703,8 @@ module Camping
     # helps Camping::Server map routes to multiple apps.
     # Usage:
     #
-    #   Nuts.routes
+    #   Nuts.routes # returns routes for Nuts
     #   Camping.routes
-    #   Nuts.routes
     #
     def routes
       (Apps.map(&:routes)<<X.v).flatten
@@ -714,6 +713,7 @@ module Camping
     # An internal method used to return the current app's url_prefix.
     # the prefix is processed to make sure that it's not all wonky. excessive
     # trailing and leading slashes are removed. A trailing slash is added.
+    # @return [String] A reference to the URL response
     def prx
       @_prx ||= CampTools.normalize_slashes(O[:url_prefix])
     end
@@ -723,6 +723,8 @@ module Camping
     # Array with [status, headers, body] is expected at the output.
     #
     # See: https://github.com/rack/rack/blob/main/SPEC.rdoc
+    # @param [Array] A rack response
+    # @return [Array] A rack response
     def call(e)
       k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].downcase,e
       k.new(e,m,prx).service(*a).to_a
@@ -791,6 +793,7 @@ module Camping
     def use(*a, &b)
       m = a.shift.new(method(:call), *a, &b)
       meta_def(:call) { |e| m.call(e) }
+      m
     end
 
     # Add gear to your app:
@@ -913,11 +916,10 @@ module Camping
 
       # setup caller data
       sp = caller[0].split('`')[0].split(":")
-      fl, ln, pr = sp[0], sp[1].to_i, nil
-      # ln = 0
+      fl, ln, pr = sp[0]+' <Cam\ping App> ' , sp[1].to_i, nil
 
       # Create the app
-      Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, ln)
+      Apps << a = eval(S.gsub(/Camping/,m.to_s), g, fl, 1)
 
       caller[0]=~/:/
       IO.read(a.set:__FILE__,$`)=~/^__END__/ &&

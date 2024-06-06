@@ -85,7 +85,13 @@ module Camping
       all_requires = $LOADED_FEATURES.dup
       all_apps = Camping::Apps.dup
 
+      # Zeitwerk will Autoload stuff, which is great. But we don't want Zeitwerk
+      # autoloading when we evaluate the camp.rb file because it will try to
+      # autoload any controllers and helpers that we've defined in there from
+      # the descendant /apps and /lib directory, which then make it break.
+      @zeit.unload
       load_file
+      @zeit.setup
       reload_directory("#{@root}/apps")
       reload_directory("#{@root}/lib")
       Camping.make_camp
@@ -138,7 +144,7 @@ module Camping
     # so everything in /apps, and /lib in relation from this script.
     def remove_constants
     	@requires.each do |(path, full)|
-     		$LOADED_FEATURES.delete(path)
+     		$LOADED_FEATURES.delete(path) unless path.match? "concurrent-ruby"
      	end
 
       @apps.each do |name, app|
