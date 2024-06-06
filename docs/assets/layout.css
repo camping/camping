@@ -1,0 +1,118 @@
+/* Layout.scss */
+/* Most of these styles lifted from picocss.com */
+body > main {
+  display: grid;
+  grid-template-rows: 1fr;
+  row-gap: 2rem;
+  margin-bottom: calc(var(--camp-spacing) * 4);
+  padding: 0;
+}
+
+body > main > * {
+    min-width: 0;
+    margin-bottom:0
+}
+
+@media (min-width: 1024px) {
+    body > main {
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 11rem 1fr;
+        grid-template-areas: "menu header" "menu body";
+        -moz-column-gap: 3rem;
+        column-gap: 3rem;
+        row-gap:3rem
+    }
+
+    body > main:has(aside#table-of-contents) {
+        grid-template-rows: auto auto 1fr;
+        grid-template-columns: 11rem 1fr;
+        grid-template-areas: "menu header" "menu table-of-content" "menu body"
+    }
+
+    body > main > nav[aria-label=breadcrumb] {
+        display:none
+    }
+
+    body > main > aside > nav {
+        margin-top:calc(var(--pico-block-spacing-vertical)/2)
+    }
+
+    /* body > main > aside > nav.is-sticky-above-lg {
+        position: sticky;
+        top: calc(var(--pico-main-top-offset) + var(--pico-block-spacing-vertical) /2);
+        max-height: calc(var(--max-height) - var(--pico-spacing));
+        overflow: auto;
+        transition: top var(--pico-transition);
+        transition-delay:50ms
+    } */
+
+    body > main > aside#documentation-menu {
+        grid-area:menu
+    }
+
+    body > main > hgroup {
+        grid-area: header;
+        margin-top:calc(var(--pico-block-spacing-vertical)/2)
+    }
+
+    body > main > aside#table-of-contents {
+        grid-area:table-of-content
+    }
+
+    body > main > [role=document] {
+        grid-area:body
+    }
+}
+
+@media (min-width: 1280px) {
+    body > main {
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 10.5rem 1fr;
+        grid-template-areas: "menu header" "menu body";
+        row-gap:4rem
+    }
+
+    body > main:has(aside#table-of-contents) {
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 10.5rem 1fr 10.5rem;
+        grid-template-areas: "menu header table-of-content" "menu body table-of-content"
+    }
+
+    body > main > aside#documentation-menu {
+        grid-area:menu
+    }
+
+    body > main > hgroup {
+        grid-area:header
+    }
+
+    body > main > aside#table-of-contents {
+        grid-area:table-of-content
+    }
+
+    body > main > [role=document] {
+        grid-area:body
+    }
+}
+
+@media (min-width: 1536px) {
+    body > main {
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 10rem 1fr 10rem;
+        grid-template-areas: "menu header table-of-content" "menu body table-of-content";
+        row-gap:5rem
+    }
+}
+
+/* Wells */
+well {
+  display: flex;
+  flex-direction: column;
+  gap: var(--camp-space-1);
+  margin-bottom: calc(var(--camp-spacing) * 4);
+}
+
+main > well {
+  width: 70%;
+  margin: auto;
+}
