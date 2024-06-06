@@ -121,7 +121,7 @@ TXT
 
 end
 
-class TestCase < MiniTest::Test
+class TestCase < Minitest::Test
   include Rack::Test::Methods
   include CommandLineCommands
   include Minitest::Hooks

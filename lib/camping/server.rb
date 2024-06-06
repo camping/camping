@@ -3,7 +3,7 @@ require 'erb'
 require 'rack'
 require 'rackup'
 require 'camping/version'
-require 'camping/firewatch'
+require 'camping/gear/firewatch'
 require 'camping/loader'
 require 'camping/commands'
 
