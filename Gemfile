@@ -9,7 +9,7 @@ gem 'mab'
 gem 'kdl', '~> 1.0.5'
 gem 'zeitwerk'
 gem 'listen', '~> 3.9.0'
-gem 'dry-logger'
+gem 'dry-logger', '~-> 1.0.4'
 gem 'bundler'
 gem 'tilt'
 
