@@ -1,3 +1,11 @@
+= 3.2.3
+== 09 June, 2024
+* Remove dead code make a derelict file in the generator.
+* Correct some Ruby warnings in Camping.rb, CampingTools, and Camping Gear.
+* Hopefully correct some Gemfile errors causing tests to fail.
+* Add MIT License to camping.gemspec.
+* Correct error where Minitest was misspelled in generated test helper.
+
 = 3.2.2
 == 09 June, 2024
 * Fix wrong version of dependency.
