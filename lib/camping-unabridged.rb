@@ -768,11 +768,11 @@ module Camping
     #   end
     #
     # This piece of code feels a bit confusing, but let's walk through it.
-    # Rack apps all implement a Call method. This is how Rub web servers
-    # pass call the app, or code that you're set up. In our case, our camping
+    # Rack apps all implement a Call method. This is how Ruby web servers
+    # call the app, or code that you've set up. In our case, our camping
     # apps.
     #
-    # The Use method is setting up a new middleware, it first shifts the first
+    # The Use method is setting up a new middleware, it shifts the first
     # argument supplied to Use, which should be the Middleware name, then
     # initializes it. That's your new middleware. Rack based middleware accept
     # a single argument to their initialize methods, which is an app. Optionally
@@ -828,6 +828,22 @@ module Camping
     #     end
     #   end
     #
+    # Camping gear can also provide Helper methods to our controllers:
+    #
+    #   module MyGear
+    #     module HelperMethods
+    #       # Define Helper Methods here
+    #     end
+    #
+    #     # This is plumbing in our Gear to add our Helper methods.
+    #     class << self
+    #       def included(mod)
+    #         mod::Helpers.include(HelperMethods)
+    #       end
+    #     end
+    #   end
+    #
+    # Helper methods are available in our controllers.
     def pack(*a, &b)
       G << g = a.shift
       include g
@@ -868,7 +884,7 @@ module Camping
     # which enables you to create a Camping-based application within
     # another module.
     #
-    # Here's an example of namespacing your web interface and
+    # Here's an example of name spacing your web interface and
     # code for a worker process together:
     #
     #   module YourApplication

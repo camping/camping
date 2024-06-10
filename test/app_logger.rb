@@ -13,6 +13,7 @@ module Loggy::Controllers
       log.debug("Created Logger")
       log.info("Program Started")
       log.warn("Nothing to do!")
+      log "what up"
     end
   end
 end
@@ -50,14 +51,14 @@ class Loggy::Test < TestCase
   end
 
   def test_change_log_location
-    Camping::Firewatch.logger = Dry.Logger(:Camping, template: Camping::Firewatch.default_template).add_backend(stream: "logs/production.log")
+    Camping::Firewatch.logger = Dry.Logger(:Camping, template: Camping::Firewatch::default_template).add_backend(stream: "logs/production.log")
     puts Camping::Firewatch.logger
     get '/'
     lags = File.read Dir["./**/logs/production.log"].first
     assert(/(INFO).*Program Started$/.match?(lags), "Log level of INFO not found.")
 
     # the end of the test means we set it back.
-    Camping::Firewatch.logger = Dry.Logger(:Camping, template: Camping::Firewatch.default_template).add_backend(stream: "logs/development.log")
+    Camping::Firewatch.logger = Dry.Logger(:Camping, template: Camping::Firewatch::default_template).add_backend(stream: "logs/development.log")
   end
 
   # def test_changing_loggging_formatter

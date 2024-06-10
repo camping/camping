@@ -111,13 +111,16 @@ module Camping
     # redefine logging middleware
     class << self
       def logging_middleware
-        @logger ||= Camping::Firewatch.logger
+        lambda { |server|
+          /CGI/.match?(server.server.name) || server.options[:quiet] ?  nil : [Camping::Firewatch, $stderr]
+        }
       end
     end
 
     def middleware
       h = super
       h["development"] << [XSendfile]
+      h["deployment"] << [XSendfile]
       h
     end
 
@@ -125,7 +128,6 @@ module Camping
     # referencing their documentation would be a good idea.
     # @file: String, file location for a camp.rb file.
     def start(file = nil)
-
       commands = ARGV
 
       # Parse commands
@@ -143,8 +145,6 @@ module Camping
       @reloader.reload!
       r = @reloader
 
-      logger = r.apps.first.options[:logger]
-
       if options[:routes] == true
         eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
         ARGV.clear
@@ -161,7 +161,7 @@ module Camping
       else
         name = server.name[/\w+$/]
         puts "** Starting #{name} on #{options[:Host]}:#{options[:Port]}"
-        super
+        super()
       end
     end
 

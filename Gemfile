@@ -6,19 +6,17 @@ gem 'rack'
 gem 'rack-session'
 gem 'rackup'
 gem 'mab'
-gem 'kdl'
+gem 'kdl', '~> 1.0.5'
 gem 'zeitwerk'
-gem 'listen'
+gem 'listen', '~> 3.9.0'
 gem 'dry-logger'
-
-group :extras do
-  gem 'tilt'
-end
+gem 'bundler'
+gem 'tilt'
 
 group :development do
   gem 'parser'
   gem 'unparser'
-  gem 'racc'
+  gem 'pp'
 end
 
 group :test do

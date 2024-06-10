@@ -5,15 +5,16 @@ GEM
     ast (2.4.2)
     base64 (0.2.0)
     bigdecimal (3.1.8)
-    builder (3.2.4)
+    builder (3.3.0)
     diff-lcs (1.5.1)
     dry-logger (1.0.4)
     ffi (1.17.0-arm64-darwin)
     ffi (1.17.0-x86_64-darwin)
     ffi (1.17.0-x86_64-linux-gnu)
-    kdl (1.0.4)
+    kdl (1.0.5)
       base64 (~> 0.2.0)
       bigdecimal (~> 3.1.6)
+      racc (~> 1.5)
       simpleidn (~> 0.2.1)
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -30,6 +31,9 @@ GEM
     parser (3.3.2.0)
       ast (~> 2.4.1)
       racc
+    pp (0.5.0)
+      prettyprint
+    prettyprint (0.2.0)
     racc (1.8.0)
     rack (3.0.11)
     rack-session (2.0.0)
@@ -64,15 +68,16 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  bundler
   dry-logger
-  kdl
-  listen
+  kdl (~> 1.0.5)
+  listen (~> 3.9.0)
   mab
   minitest (~> 5.0)
   minitest-hooks
   minitest-reporters
   parser
-  racc
+  pp
   rack
   rack-session
   rack-test
@@ -84,4 +89,4 @@ DEPENDENCIES
   zeitwerk
 
 BUNDLED WITH
-   2.5.10
+   2.5.3

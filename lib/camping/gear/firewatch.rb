@@ -30,7 +30,12 @@ module Camping
     # If +logger+ is nil, Firewatch(CommonLogger) will fall back <tt>env['rack.errors']</tt>.
     def initialize(app, logger = nil)
       @app = app
-      @logger = Camping::Firewatch.logger = logger.nil? ? Camping::Firewatch.default_logger : logger
+      if logger == nil
+        @logger = Camping::Firewatch.default_logger
+      else
+        @logger = logger
+      end
+      # @logger = Camping::Firewatch.logger = logger.nil? ? Camping::Firewatch.default_logger : logger
     end
 
   end
