@@ -390,7 +390,6 @@ RUBY
         Generators::make_readme()
         Generators::make_public_folder()
         Generators::make_test_folder()
-        Generators::make_test_helper()
 
         # optionally add omnibus support
           # add src/ folder
