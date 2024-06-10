@@ -32,7 +32,7 @@ module Gear
 				rs.chop!
 
 				symbol = s.to_sym
-				{s: s, rs: rs, symbol: symbol}
+				{rs: rs, symbol: symbol}
 			end
 
 			# ensures an app exists for the controllers.
@@ -64,7 +64,7 @@ module Gear
 
 				meth = method.to_s
 
-				self.normalize_routes(routes) => {s:, rs:, symbol:}
+				self.normalize_routes(routes) => {rs:, symbol:}
 
 				m = self.ensure_app app
 

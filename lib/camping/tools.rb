@@ -39,5 +39,4 @@ module Camping
   end
 end
 
-🏕 = Camping::Tools
-CampTools = Camping::Tools
+CampTools = 🏕 = Camping::Tools

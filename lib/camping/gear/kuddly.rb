@@ -147,7 +147,7 @@ module Gear
       # Then parses it, and merges the data based on the current environment.
       def get_config(provided_config_file = nil)
 
-        config_file, kdl_doc, merged_configs = provided_config_file, nil, {}
+        config_file, merged_configs = provided_config_file, {}
         config_file = get_root_config_file() unless provided_config_file != nil
 
         # If the config file is just nil then we probably don't have one.
