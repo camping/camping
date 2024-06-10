@@ -92,15 +92,6 @@ Rake::TestTask.new(:configreloader) do |t|
   t.test_files = FileList['test/config_*.rb']
 end
 
-Rake::TestTask.new(:integration) do |t|
-  `gem build`
-  gem = Dir.glob("camping*.gem").first
-  exit if gem == nil
-  `cd test/integration`
-  t.libs << "/"
-  t.test_files = FileList['test/test_*.rb']
-end
-
 ## Diff
 desc "Compare camping and camping-unabridged"
 task :diff do
