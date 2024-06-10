@@ -313,7 +313,7 @@ require 'rack/test'
 require "minitest/reporters"
 Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(:color => true)]
 
-class TestCase < MiniTest::Test
+class TestCase < Minitest::Test
   include Rack::Test::Methods
 
   def self.inherited(mod)
