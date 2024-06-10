@@ -12,6 +12,7 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
 @spec ||= Gem::Specification.new do |s|
   s.name = NAME
   s.version = VERS
+  s.licenses = ['MIT']
   s.platform = Gem::Platform::RUBY
   # s.extra_rdoc_files = FileList["README.md", "CHANGELOG", "COPYING", "book/*"].to_a
   s.rdoc_options += RDOC_OPTS + ['--exclude', '^(examples|extras)\/', '--exclude', 'lib/camping.rb']
