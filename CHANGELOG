@@ -1,3 +1,13 @@
+= 3.2.2
+== 09 June, 2024
+* Fix wrong version of dependency.
+
+= 3.2.1
+== 09 June, 2024
+* Start work on integration testing.
+* Change some gem requirements in Gemfile and gemspec.
+* Add XSendfile to deployment middleware.
+
 = 3.2.0
 == 05 June, 2024
 * Add default logging middleware to Camping.
