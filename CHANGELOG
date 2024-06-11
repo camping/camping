@@ -1,6 +1,7 @@
 = 3.2.4
-== 09 June, 2024
-*
+== 10 June, 2024
+* Add new integration test.
+* Pack the new Firewatch Logging Gear wrapper by default in Camping apps.
 
 = 3.2.3
 == 09 June, 2024
