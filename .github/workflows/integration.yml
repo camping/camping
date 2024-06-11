@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ 'ubuntu-latest', 'macos-latest' ] # 'windows-latest'
-        ruby: ['3.3', '3.2', '3.1' ] # , ruby-head ]
+        ruby: ['3.3', '3.2', '3.1', 'truffleruby'] #, 'ruby-head']
         exclude:
           - os: windows-latest
             ruby: jruby-head
@@ -24,7 +24,7 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-        bundler-cache: false # install gems and cache them
+        bundler-cache: false
     - name: Build Camping
       run: gem build -o camping.gem
     - name: Move to test folder
