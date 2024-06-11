@@ -8,6 +8,7 @@ GEM
     builder (3.3.0)
     diff-lcs (1.5.1)
     dry-logger (1.0.4)
+    ffi (1.17.0)
     ffi (1.17.0-arm64-darwin)
     ffi (1.17.0-x86_64-linux-gnu)
     kdl (1.0.5)
@@ -60,11 +61,10 @@ GEM
     zeitwerk (2.6.15)
 
 PLATFORMS
+  aarch64-darwin
+  arm64-darwin
   arm64-darwin-22
   arm64-darwin-23
-  arm64-darwin
-  x86_64-darwin-20
-  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
