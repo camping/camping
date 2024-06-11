@@ -945,7 +945,8 @@ module Camping
       # setup parental data
       a.set :_meta, H[file: fl, line_number: ln, parent: self, root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')]
 
-      # configure the app?
+      # configures the app, using the kuddly options and
+      # settings provided.
       C.configure(a)
     end
   end
@@ -1024,6 +1025,7 @@ module Camping
   pack Gear::Filters
   pack Gear::Nancy
   pack Gear::Kuddly
+  pack Gear::Firewatch
 
   C
 end

@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+tmp/
+db/camping.db
+db/camping.sqlite3
+db/camping.sqlite

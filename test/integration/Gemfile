@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+source 'https://rubygems.org'
+
+gem 'bundler'
+gem 'rake'
+gem 'puma'
+gem "camping", :path => "../../"
+
+group :production do
+  gem 'rack-ssl-enforcer'
+end
+
+group :test do
+  gem 'minitest', '~> 5.0'
+  gem 'minitest-reporters'
+  gem 'rack-test'
+  gem 'minitest-hooks'
+end

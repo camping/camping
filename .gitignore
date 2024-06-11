@@ -2,3 +2,5 @@ pkg
 doc
 camping-*.gem
 node_modules
+camping.gem
+test/integration/Gemfile.lock

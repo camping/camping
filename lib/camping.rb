@@ -83,4 +83,4 @@ root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')];C.configure(a
 module Views;include X,Helpers end;module Models
 Helpers.include(X,self) end;autoload:Mab,'camping/mab'
 autoload:Template,'camping/template';pack Gear::Inspection;pack Gear::Filters
-pack Gear::Nancy;pack Gear::Kuddly;C end
+pack Gear::Nancy;pack Gear::Kuddly;pack Gear::Firewatch;C end

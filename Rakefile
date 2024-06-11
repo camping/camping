@@ -86,7 +86,7 @@ Rake::TestTask.new(:reloader) do |t|
   t.test_files = FileList['test/reload_*.rb']
 end
 
-## Reloader Tests
+## Config Reloader Tests
 Rake::TestTask.new(:configreloader) do |t|
   t.libs << "test"
   t.test_files = FileList['test/config_*.rb']

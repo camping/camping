@@ -1,0 +1,37 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
+# For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
+
+name: Ruby
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest', 'macos-latest' ] # 'windows-latest'
+        ruby: ['3.3', '3.2', '3.1' ] # , ruby-head ]
+        exclude:
+          - os: windows-latest
+            ruby: jruby-head
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: false # install gems and cache them
+    - name: Build Camping
+      run: gem build -o camping.gem
+    - name: Move to test folder
+      run: cd test/integration
+    - name: Install all gems
+      run: bundle install
+    - name: Remove all gems
+      run: bundle clean --force
+    - name: Run tests
+      run: bundle exec rake
