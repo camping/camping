@@ -15,30 +15,3 @@ namespace 'test' do
   end
 end
 
-# def delete_file(filename="")
-#   return if !File.exist? filename
-#   begin
-#     f = File.open(filename, 'r')
-#   ensure
-#     f.close unless f.nil? or f.closed?
-#     File.delete(filename) if File.exist? filename
-#   end
-# end
-
-## Integration Test
-# desc "Perform an integration test"
-# task :integration do
-  # `bundle install` # remove gems
-  # `bundle clean --force` # remove gems
-  # puts Dir.pwd
-  # # `gem install` # add bundler.
-  # `bundle install` # rewrites Gemfile.lock
-  # `bundle add camping --path=../../`
-  # # `bundle add camping puma`
-  # # `bundle add minitest -g=test`
-  # # `bundle add minitest-reporters -g=test`
-  # # `bundle add rack-test -g=test`
-  # # `bundle add minitest-hooks -g=test`
-  # # t.libs << "/"
-  # # t.test_files = FileList['test/test_*.rb']
-# end
