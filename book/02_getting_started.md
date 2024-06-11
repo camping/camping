@@ -1,5 +1,11 @@
 # Getting Started
 
+You'll need Ruby Gems to get camping. Install camping like so:
+
+```bash
+gem install camping
+```
+
 Start a new text file called camp.rb. Here's what you put inside:
 
 ```ruby
@@ -10,7 +16,7 @@ Camping.goes :Nuts
 Save it. Then, open a command prompt in the same directory. You'll want to
 run:
 
-```ruby
+```bash
 $ camping
 ```
 
@@ -20,8 +26,7 @@ And you should get a message which reads:
 ** Camping running on 0.0.0.0:3301.
 ```
 
-This means that right now The Camping Server is running on port 3301 on your
-machine. Open your browser and visit http://localhost:3301/.
+This means that right now The Camping Server is running on port 3301 on your machine. Open your browser and visit http://localhost:3301/.
 
 Your browser window should show:
 
@@ -31,29 +36,23 @@ Camping Problem!
 / Not found
 ```
 
-No problem with that. The Camping Server is running, but it doesn't know what
-to show. Let's tell them.
+No problem with that. The Camping Server is running, but it doesn't know what to show. Let's tell them.
 
 ## Hello clock
 
-So, you've got Camping installed and it's running. Keep it running. You can
-edit files and The Camping Server will reload automatically. When you need to
-stop the server, press Control-C.
+So, you've got Camping installed and it's running. Keep it running. You can edit files and The Camping Server will reload automatically. When you need to stop the server, press **Control-C**.
 
 Let's show something. At the bottom of camp.rb add:
 
 ```ruby
 module Nuts::Controllers
   class Index < R '/'
-    def get
-      Time.now.to_s
-    end
+    def get = Time.now.to_s
   end
 end
 ```
 
-Save the file and refresh the browser window. Your browser window should show
-the time, e.g.
+Save the file and refresh the browser window. Your browser window should show the time, e.g.
 
 ```
 Sun Jul 15 12:56:15 +0200 2007
@@ -61,9 +60,7 @@ Sun Jul 15 12:56:15 +0200 2007
 
 ## Enjoying the view
 
-The Camping microframework allows us to separate our code using the MVC
-(Model-View-Controller) design pattern. Let's add a view to our Nuts
-application. Replace the <tt>module Nuts::Controllers</tt> with:
+The Camping microframework allows us to separate our code using the MVC (Model-View-Controller) design pattern. Let's add a view to our Nuts application. Replace the <tt>module Nuts::Controllers</tt> with:
 
 ```ruby
 module Nuts::Controllers
@@ -76,6 +73,8 @@ module Nuts::Controllers
 end
 ```
 
+And below it add:
+
 ```ruby
 module Nuts::Views
   def layout
@@ -87,14 +86,11 @@ module Nuts::Views
     end
   end
 
-  def sundial
-    p "The current time is: #{@time}"
-  end
+  def sundial = p "The current time is: #{@time}"
 end
 ```
 
-Save the file, refresh your browser window and it should show a message
-like:
+Save the file, refresh your browser window and it should show a message like:
 
 ```
 The current time is: Sun Jul 15 13:05:41 +0200 2013
@@ -102,59 +98,39 @@ The current time is: Sun Jul 15 13:05:41 +0200 2013
 
 And the window title reads "Nuts And GORP".
 
-Here you can see we call <tt>render :sundial</tt> from our controller. This
-does exactly what it says, and renders our <tt>sundial</tt> method. We've also
-added a special method called <tt>layout</tt> which Camping will automatically
-wrap our sundial output in. If you're familiar with HTML, you'll see that our
-view contains what looks HTML tag names. This is Markaby, which is like
-writing HTML using Ruby!
+Here you can see we call <tt>render :sundial</tt> from our controller. This does exactly what it says, and renders our <tt>sundial</tt> method. We've also added a special method called <tt>layout</tt> which Camping will automatically wrap our sundial output in. If you're familiar with HTML, you'll see that our view contains what looks HTML tag names. This is Markaby, which is like writing HTML using Ruby!
 
-Soon enough, you'll find that you can return anything from the controller, and
-it will be sent to the browser. But let's keep that for later and start
-investigating the routes.
+Soon enough, you'll find that you can return anything from the controller, and it will be sent to the browser. But let's keep that for later and start investigating the routes.
 
 ## Routes
 
-You probably noticed the weird <tt>R '/'</tt> syntax in the previous page.
-This is an uncommon feature of Ruby that is used in our favorite
-microframework, to describe the routes which the controller can be accessed
-on.
+You probably noticed the weird <tt>R '/'</tt> syntax in the previous page. This is an uncommon feature of Ruby that is used in our favorite microframework, to describe the routes which the controller can be accessed on.
 
-These routes can be very powerful, but we're going to have look at the
-simplest ones first.
+These routes can be very powerful, but we're going to have look at the simplest ones first.
 
 ```ruby
 module Nuts::Controllers
   class Words < R '/welcome/to/my/site'
-    def get
-      "You got here by: /welcome/to/my/site"
-    end
+    def get = "You got here by: /welcome/to/my/site"
   end
 
   class Digits < R '/nuts/(\d+)'
-    def get(number)
-      "You got here by: /nuts/#{number}"
-    end
+    def get(number) = "You got here by: /nuts/#{number}"
   end
 
   class Segment < R '/gorp/([^/]+)'
-    def get(everything_else_than_a_slash)
-      "You got here by: /gorp/#{everything_else_than_a_slash}"
-    end
+    def get(everything_else_than_a_slash) = "You got here by: /gorp/#{everything_else_than_a_slash}"
   end
 
   class DigitsAndEverything < R '/nuts/(\d+)/([^/]+)'
-    def get(number, everything)
-      "You got here by: /nuts/#{number}/#{everything}"
-    end
+    def get(number, everything) = "You got here by: /nuts/#{number}/#{everything}"
   end
 end
 ```
 
-Add this to `nuts.rb` and try if you can hit all of the controllers.
+Add this to `camp.rb` and try if you can hit all of the controllers.
 
-Also notice how everything inside a parenthesis gets passed into the method,
-and is ready at your disposal.
+Also notice how everything inside a parenthesis gets passed into the method, and is ready at your disposal.
 
 ### Simpler routes
 
@@ -163,44 +139,32 @@ This just in:
 ```ruby
 module Nuts::Controllers
   class Index
-    def get
-      "You got here by: /"
-    end
+    def get = "You got here by: /"
   end
 
   class WelcomeToMySite
-    def get
-      "You got here by: /welcome/to/my/site"
-    end
+    def get = "You got here by: /welcome/to/my/site"
   end
 
   class NutsN
-    def get(number)
-      "You got here by: /nuts/#{number}"
-    end
+    def get(number)= "You got here by: /nuts/#{number}"
   end
 
   class GorpX
-    def get(everything_else_than_a_slash)
-      "You got here by: /gorp/#{everything_else_than_a_slash}"
-    end
+    def get(everything_else_than_a_slash) = "You got here by: /gorp/#{everything_else_than_a_slash}"
   end
 
   class NutsNX
-    def get(number, everything)
-      "You got here by: /nuts/#{number}/#{everything}"
-    end
+    def get(number, everything) = "You got here by: /nuts/#{number}/#{everything}"
   end
 end
 ```
 
-Drop the <tt>< R</tt>-part and it attemps to read your mind. It won't always
-succeed, but it can simplify your application once in a while.
+Drop the <tt>< R</tt>-part and it attempts to read your mind. It won't always succeed, but it can simplify your application once in a while.
 
 ## Modeling the world
 
-You can get pretty far with what you've learned now, and hopefully you've been
-playing a bit off-book, but it's time to take the next step: Storing data.
+You can get pretty far with what you've learned now, and hopefully you've been playing a bit off-book, but it's time to take the next step: Storing data.
 
 Let's start over again.
 
@@ -213,8 +177,7 @@ module Nuts::Models
 end
 ```
 
-Obviously, this won't do anything, since we don't have any controllers, but
-let's rather have a look at what we _do_ have.
+Obviously, this won't do anything, since we don't have any controllers, but let's rather have a look at what we _do_ have.
 
 We have a model named Page. This means we now can store wiki pages and
 retrieve them later. In fact, we can have as many models as we want. Need one
@@ -278,7 +241,7 @@ class AddTagColumn < V 1.1
 end
 ```
 
-Now we just need to tell Camping to use our migration. Write this at the bottom of nuts.rb
+Now we just need to tell Camping to use our migration. Write this at the bottom of camp.rb
 
 ```ruby
 def Nuts.create
@@ -292,7 +255,7 @@ we only want to create our skeleton (or upgrade if needed). Start The Camping
 Server again and observe:
 
 ```bash
-$ camping nuts.rb
+$ camping camp.rb
 ** Starting Mongrel on 0.0.0.0:3301
 -- create_table("nuts_schema_infos")
    -> 0.1035s
@@ -315,7 +278,7 @@ is good way to familiarize with your models. Test your models adding some
 data by bare hand before addin it to the application.
 
 ```bash
-$ camping -C nuts.rb
+$ camping -C camp.rb
 ** Starting console
 >>
 ```
@@ -354,8 +317,7 @@ Now I have two pages: One about hiking and one about fishing.
 
 ## Wrapping it up
 
-Wouldn't it be nice if we could show this wonderful our pages in a browser?
-Update nuts.rb so it also contains something like this:
+Wouldn't it be nice if we could show this wonderful our pages in a browser? Update camp.rb so it also contains something like this:
 
 ```ruby
 module Nuts::Controllers

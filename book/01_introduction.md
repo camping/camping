@@ -11,9 +11,8 @@ currently a very much work in progress, and we'll be very grateful if you want
 to help out.)
 
 If you at any moment need some help or have any questions or comments, we
-highly recommend [the mailing list](http://rubyforge.org/mailman/listinfo/camping-list)
-which got plenty of nice people willing to help. We also have an IRC-channel
-at [#camping @ irc.freenode.net](http://java.freenode.net/?channel=camping)
+highly recommend [opening an issue](https://github.com/camping/camping/issues/new) to ask for help. We've got plenty of nice people willing to help. We also have a Discord channel
+at [rubypunks](https://discord.gg/JSmPBsWgFt)
 if you're into that sort of thing.
 
 Enough talk. Ready? Let's ["get started"](02_getting_started.md).

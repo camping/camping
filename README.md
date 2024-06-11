@@ -1,6 +1,6 @@
 ![Build Status](https://github.com/camping/camping/actions/workflows/camping.yml/badge.svg) ![Build Status](https://github.com/camping/camping/actions/workflows/integration.yml/badge.svg)
 
-# Camping, a Microframework
+# ⛺️ Camping, a Microframework
 
 Camping is a micro web framework which stays as small as possible.
 You can probably view the complete source code on a single page. But, you
@@ -72,12 +72,6 @@ Line and enter:
 gem install camping
 ```
 
-Also make certain to have Bundler installed:
-
-```
-gem install bundler
-```
-
 ~~Even better, install the Camping Omnibus, a full package of recommended libs:~~ Camping Omnibus will return for summer vacation.
 
 Now make a new directory filled with your camp essentials using the `camping new` command:
@@ -109,10 +103,16 @@ documentation for all the different parts of Camping.
 useful tricks that we've collected over the years.  Don't be afraid to share
 your own discoveries; the more, the better!
 
-And if there's anything you're wondering about, don't be shy, but rather
-subscribe to [the mailing list](http://rubyforge.org/mailman/listinfo/camping-list)
-and ask there.  We also have an IRC channel over at Freenode, so if you feel
-like chatting with us, you should join [#camping @ irc.freenode.net](http://java.freenode.net/?channel=camping).
+We have a Discord channel over at the Ruby Punks community, so if you feel
+like chatting with us, you should join [#camping](https://discord.gg/JSmPBsWgFt). Once our chattin' leads to action, we open up an issue on Github and move the conversation over there.
+
+## Contributing
+
+Camping is under active development, and we'd love some help!. Our current focus is bug fixes, documentation, and tests. We have a [number of issues](https://github.com/camping/camping/issues?q=is%3Aissue+is%3Aopen+label%3A%22Great+for+new+Contributors%22) open for new contributors to get crackin!
+
+To begin contributing, [Fork Camping](https://github.com/camping/camping/fork), Then make a new branch, (`git checkout -b my_branch_name`) with your changes. When you're ready to bring all that hard work on over, open a draft PR and ping Karl to take a look, He'll help you fix any issues and help you get it inside of old Camping.
+
+Have a suggestion? Open an issue with what you think we ought to be doing with our lives, and we'll talk about it. Don't be shy.
 
 ## Running Tests
 
@@ -120,11 +120,8 @@ Tests should be run using bundler and rake: `bundle exec rake`.
 
 ## Minting Releases
 
-We use Ruby Gems to distribute versions of Camping.
+We use Ruby Gems to distribute versions of Camping. When you're ready to mint a release, run: `gem build -o camping.gem`, then `gem push camping.gem`.
 
 ## Authors
 
-Camping was originally crafted by [why the lucky stiff](http://en.wikipedia.org/wiki/Why_the_lucky_stiff),
-but is now maintained by the _community_.  This simply means that if we like your
-patch, it will be applied.  Everything is managed through [the mailing list](http://rubyforge.org/mailman/listinfo/camping-list),
-so just subscribe and you can instantly take part in shaping Camping.
+Camping was originally crafted by [why the lucky stiff](http://en.wikipedia.org/wiki/Why_the_lucky_stiff), but is now maintained by the _community_. This simply means that if we like your patch, it will be applied. Everything is managed through this Github repo, so just [open an issue](https://github.com/camping/camping/issues/new) and you can instantly take part in shaping Camping.
