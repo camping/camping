@@ -9,6 +9,7 @@ GEM
     diff-lcs (1.5.1)
     dry-logger (1.0.4)
     ffi (1.17.0-arm64-darwin)
+    ffi (1.17.0-x86_64-linux-gnu)
     kdl (1.0.5)
       base64 (~> 0.2.0)
       bigdecimal (~> 3.1.6)
@@ -60,6 +61,7 @@ GEM
 
 PLATFORMS
   arm64-darwin
+  x86_64-linux
 
 DEPENDENCIES
   bundler
