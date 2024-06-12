@@ -10,7 +10,7 @@ GEM
     dry-logger (1.0.4)
     ffi (1.17.0)
     ffi (1.17.0-arm64-darwin)
-    ffi (1.17.0-x86_64-linux-gnu)
+    ffi (1.17.0-x86_64-linux)
     kdl (1.0.6)
       base64 (~> 0.2.0)
       bigdecimal (~> 3.1.6)
