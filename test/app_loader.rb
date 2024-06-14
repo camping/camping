@@ -5,6 +5,11 @@ require 'camping/loader'
 module Donuts end
 module Loader end
 
+def Loader.create
+  puts "creating..."
+  options.my_name = "slim shady"
+end
+
 # for Reloading stuff
 module TestCaseLoaderToo
   def loader
@@ -48,6 +53,14 @@ class Donuts::Test < TestCase
     get '/people'
     assert_body "People are great am I right?", "Response is wrong in the loader."
     assert_equal "text/html", last_response.headers['content-type']
+  end
+
+  def test_create_method
+    # Tests that our app even has a create method
+    assert(Loader.respond_to?(:create), "test/app_loader.rb: Loader doesn't respond to create method")
+
+    # Test that our create method code is actually run and that It has an effect.
+    assert_equal("slim shady", Loader.options.my_name, "test/app_loader.rb: create method wasn't even loaded.")
   end
 
 end

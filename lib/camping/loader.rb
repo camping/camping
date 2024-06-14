@@ -66,10 +66,10 @@ module Camping
 
     # pass through methods to the Listener.
     # for testing purposes.
-    def processing_events?;@listener.processing? end
-    def stop;@listener.stop end
-    def pause;@listener.pause end
-    def start;@listener.start end
+    def processing_events? = @listener.processing?
+    def stop = @listener.stop
+    def pause = @listener.pause
+    def start = @listener.start
 
     def name
       @name ||= begin
@@ -108,9 +108,10 @@ module Camping
         key = app.name.to_sym
         hash[key] = app
 
-        apps.each do |app|
+        if !@apps.include?(key)
           @callback.call(app) if @callback
           app.create if app.respond_to?(:create)
+          app.kindling if app.respond_to?(:kindling)
         end
 
         hash

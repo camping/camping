@@ -2,6 +2,9 @@ require_relative 'test_helper'
 require 'fileutils'
 require 'camping/loader'
 
+# This test file is mostly the same as reload_reloader.rb.
+# Except this checks to see if a config.ru app is reloaded correctly.
+
 $counter = 0
 
 # for Reloading stuff
@@ -16,11 +19,9 @@ module TestCaseLoader
     move_to_reloader
     loader.reload!
     assert Object.const_defined?(:Reloader), "Reloader didn't load app"
-    # puts "before_all called"
   end
 
   def after_all
-    # puts "after_all called"
     assert Object.const_defined?(:Reloader), "Test removed app"
     loader.remove_constants
     # breaks in CI for some reason.
@@ -41,7 +42,6 @@ class TestConfigRu < TestCase
     super
     $counter = 0
     loader.reload!
-    # puts "setup called"
   end
 
   def test_counter

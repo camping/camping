@@ -16,11 +16,9 @@ module TestCaseLoader
     move_to_reloader
     loader.reload!
     assert Object.const_defined?(:Reloader), "Reloader didn't load app"
-    # puts "before_all called"
   end
 
   def after_all
-    # puts "after_all called"
     assert Object.const_defined?(:Reloader), "Test removed app"
     loader.remove_constants
     assert !Object.const_defined?(:Reloader), "Loader didn't remove app"
@@ -40,7 +38,6 @@ class TestLoader < TestCase
     super
     $counter = 0
     loader.reload!
-    # puts "setup called"
   end
 
   def test_counter
@@ -71,11 +68,11 @@ class TestLoader < TestCase
   end
 end
 
-# class TestConfigRu < TestLoader
-#   BASE = File.expand_path('../apps/reloader', __FILE__)
-#   def file; BASE + '/config.ru' end
+class TestConfigRu < TestLoader
+  BASE = File.expand_path('../apps/reloader', __FILE__)
+  def file; BASE + '/config.ru' end
 
-#   def test_name
-#     assert_equal Reloader, loader.apps[:reloader]
-#   end
-# end
+  def test_name
+    assert_equal Reloader, loader.apps[:reloader]
+  end
+end

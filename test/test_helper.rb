@@ -18,7 +18,6 @@ require 'minitest/reporters'
 require 'minitest/hooks'
 Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new(:color => true)]
 
-
 module CommandLineCommands
 
   def move_to_tmp
@@ -50,25 +49,6 @@ module CommandLineCommands
     Dir.chdir @original_dir
     `rm -rf test/apps/reloader/apps` if File.exist?('test/apps/reloader/apps')
     `rm -rf test/apps/reloader/lib` if File.exist?('test/apps/reloader/lib')
-  end
-
-  # move_to_app
-  # Moves to an app directory,
-  # @app_name: String,
-  def move_to_app(app_name = "")
-    @original_dir = Dir.pwd
-    Dir.chdir "test"
-    Dir.chdir "apps"
-    Dir.chdir directory
-    Dir.mkdir("apps") unless Dir.exist?("apps")
-    Dir.mkdir("lib") unless Dir.exist?("lib")
-  end
-
-  def leave_app(app_name = "", purge_directorys = [])
-    Dir.chdir @original_dir
-    purge_directorys.each do |dir|
-      `rm -rf test/apps/#{app_name}/#{dir}` if File.exist?('test/apps/#{app_name}/#{dir}')
-    end
   end
 
   # Moves to the loader directory
