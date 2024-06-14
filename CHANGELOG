@@ -1,3 +1,8 @@
+= 3.2.5
+== 13 June, 2024
+* Fix bug where create method is never called.
+* Update KDL dependency to 1.0.6.
+
 = 3.2.4
 == 10 June, 2024
 * Add new integration test.
