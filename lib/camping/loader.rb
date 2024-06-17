@@ -196,7 +196,7 @@ module Camping
     # verifies that we can add a directory to the loader.
     # used for testing to prevent multiple loaders from watching the same directory.
     def can_add_directory(directory)
-      if Dir.exist?("#{@root}/apps")
+      if Dir.exist?(directory)
         Loaders.each do |loader|
           return false if loader.dirs.include? directory
         end
