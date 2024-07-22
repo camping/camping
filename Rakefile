@@ -17,13 +17,14 @@ else
   end
 end
 
+require "bundler/gem_tasks"
 require 'rake'
 require 'rake/clean'
 require 'rake/testtask'
 require 'tempfile'
 require 'open3'
 
-require File.expand_path('../constants', __FILE__)
+# require File.expand_path('../constants', __FILE__)
 
 CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log', '.*.pt']
 
@@ -92,6 +93,14 @@ Rake::TestTask.new(:configreloader) do |t|
   t.test_files = FileList['test/config_*.rb']
 end
 
+desc "Run Camping::Server tests"
+Rake::TestTask.new("test_server") do |t|
+  t.libs << 'test/server'
+  t.test_files = FileList["test/server/**/spec_*.rb"]
+  t.warning = false
+  t.verbose = true
+end
+
 ## Diff
 desc "Compare camping and camping-unabridged"
 task :diff do
@@ -119,7 +128,7 @@ end
 error = false
 
 ## Check
-task :check => ["test", "reloader", "configreloader", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
+task :check => ["test", "reloader", "configreloader", "test_server", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
 namespace :check do
 
   desc "Check source code validity"

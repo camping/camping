@@ -46,7 +46,7 @@ module CommandLineCommands
 
   # deletes the temporary directories found in the /apps directory for reloader testing.
   def leave_reloader
-    Dir.chdir @original_dir
+    leave_dir
     `rm -rf test/apps/reloader/apps` if File.exist?('test/apps/reloader/apps')
     `rm -rf test/apps/reloader/lib` if File.exist?('test/apps/reloader/lib')
   end
@@ -61,10 +61,14 @@ module CommandLineCommands
     Dir.mkdir("lib") unless Dir.exist?("lib")
   end
 
-  # deletes the temporary directories found in the /apps directory for reloader testing.
-  def leave_loader
-	  Dir.chdir @original_dir
+  # generic move_to(dir) method
+  def move_to(dir)
+    @original_dir = Dir.pwd
+    Dir.chdir dir
   end
+
+  # generic leave_dir method
+  def leave_dir = Dir.chdir @original_dir
 
   def write(file, content)
     raise "cannot write nil" unless file

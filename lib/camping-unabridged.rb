@@ -1014,6 +1014,7 @@ module Camping
   #
   # Models cannot be referred from Views at this time.
   module Models
+    autoload :Base, 'camping/sequel'
     Helpers.include(X, self)
   end
 

@@ -3,7 +3,7 @@ require 'erb'
 require 'rack'
 require 'rackup'
 require 'camping/version'
-require 'camping/gear/firewatch'
+require 'gear/firewatch'
 require 'camping/loader'
 require 'camping/commands'
 
@@ -140,6 +140,10 @@ module Camping
       if options[:version] == true
         puts "Camping v#{Camping::VERSION}"
         exit
+      end
+
+      Dir['./kindling/*.rb'].each do |kindling|
+        require kindling
       end
 
       @reloader.reload!
