@@ -76,29 +76,38 @@ desc "Packages Camping."
 task :package => :clean
 
 ## Tests
-Rake::TestTask.new(:test) do |t|
-  t.libs << "test"
-  t.test_files = FileList['test/app_*.rb', 'test/gear/gear_*.rb']
-end
+namespace :test do
 
-## Reloader Tests
-Rake::TestTask.new(:reloader) do |t|
-  t.libs << "test"
-  t.test_files = FileList['test/reload_*.rb']
-end
+  Rake::TestTask.new(:camping) do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/app_*.rb']
+  end
 
-## Config Reloader Tests
-Rake::TestTask.new(:configreloader) do |t|
-  t.libs << "test"
-  t.test_files = FileList['test/config_*.rb']
-end
+  Rake::TestTask.new(:gear) do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/gear/gear_*.rb']
+  end
 
-desc "Run Camping::Server tests"
-Rake::TestTask.new("test_server") do |t|
-  t.libs << 'test/server'
-  t.test_files = FileList["test/server/**/spec_*.rb"]
-  t.warning = false
-  t.verbose = true
+  ## Reloader Tests
+  Rake::TestTask.new(:reloader) do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/reload_*.rb']
+  end
+
+  ## Config Reloader Tests
+  Rake::TestTask.new(:configreloader) do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/config_*.rb']
+  end
+
+  desc "Run Camping::Server tests"
+  Rake::TestTask.new("server") do |t|
+    t.libs << 'test/server'
+    t.test_files = FileList["test/server/**/spec_*.rb"]
+    t.warning = false
+    t.verbose = false
+  end
+
 end
 
 ## Diff
@@ -128,7 +137,7 @@ end
 error = false
 
 ## Check
-task :check => ["test", "reloader", "configreloader", "test_server", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
+task :check => ["test:camping", "test:gear", "test:reloader", "test:configreloader", "test:server", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
 namespace :check do
 
   desc "Check source code validity"

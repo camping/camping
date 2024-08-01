@@ -1,8 +1,7 @@
-module STARTY
+module Starty
 
-  def self.message = "Hello Friends"
+  def message = "Hello Friends"
 
-  def self.name = "Starty"
+  def name = "Starty"
 
 end
-

@@ -142,8 +142,8 @@ module Camping
         exit
       end
 
-      Dir['./kindling/*.rb'].each do |kindling|
-        require kindling
+      Dir['kindling/*.rb'].each do |kindling|
+        require_relative File.expand_path(kindling)
       end
 
       @reloader.reload!
