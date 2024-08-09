@@ -1,3 +1,9 @@
+= 3.2.6
+09 Aug, 2024
+* Server now loads everything from the kindling directory. To start your fire.
+* Move Camping Gear to their own directory to play nicer with Zeitwerk.
+* Add some testing for Camping::Server.
+
 = 3.2.5
 == 13 June, 2024
 * Fix bug where create method is never called.

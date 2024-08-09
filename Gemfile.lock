@@ -11,6 +11,7 @@ GEM
     ffi (1.17.0)
     ffi (1.17.0-arm64-darwin)
     ffi (1.17.0-x86_64-darwin)
+    ffi (1.17.0-x86_64-linux-gnu)
     kdl (1.0.6)
       base64 (~> 0.2.0)
       bigdecimal (~> 3.1.6)
@@ -21,6 +22,8 @@ GEM
       rb-inotify (~> 0.9, >= 0.9.10)
     mab (0.0.3)
     minitest (5.23.1)
+    minitest-global_expectations (1.0.1)
+      minitest (> 5)
     minitest-hooks (1.5.1)
       minitest (> 5.3)
     minitest-reporters (1.6.1)
@@ -28,9 +31,12 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
+    minitest-sprint (1.2.2)
+      path_expander (~> 1.1)
     parser (3.3.3.0)
       ast (~> 2.4.1)
       racc
+    path_expander (1.1.2)
     pp (0.5.0)
       prettyprint
     prettyprint (0.2.0)
@@ -75,8 +81,10 @@ DEPENDENCIES
   listen (~> 3.9.0)
   mab
   minitest (~> 5.0)
+  minitest-global_expectations
   minitest-hooks
   minitest-reporters
+  minitest-sprint
   parser
   pp
   rack

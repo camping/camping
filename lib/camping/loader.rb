@@ -189,6 +189,7 @@ module Camping
     def setup_zeit(loader)
       loader.push_dir("#{@root}/apps") if can_add_directory "#{@root}/apps"
       loader.push_dir("#{@root}/lib") if can_add_directory "#{@root}/lib"
+      loader.ignore("#{@root}/lib/camping-unabridged.rb")
 	    loader.enable_reloading if ENV['environment'] == 'development'
 	    loader.setup
     end
@@ -219,6 +220,7 @@ module Camping
     def reload_directory(directory)
       files, folders = folders_and_files_in(directory)
       files.each {|file|
+        next if file.include? "unabridged"
         @requires << [file, File.expand_path(file)]
         load file
       }

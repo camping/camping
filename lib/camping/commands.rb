@@ -258,7 +258,7 @@ KDL
 source 'https://rubygems.org'
 
 gem 'camping'
-gem 'puma'
+gem 'falcon'
 gem 'rake'
 
 group :production do

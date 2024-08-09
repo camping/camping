@@ -23,7 +23,7 @@ module TestCaseLoaderToo
   end
 
   def after_all
-    leave_loader
+    leave_dir
     super
   end
 end

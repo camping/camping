@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 
 gem 'bundler'
 gem 'rake'
-gem 'puma'
+gem 'falcon'
 gem "camping", :path => "../../"
 
 group :production do
