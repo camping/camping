@@ -1,5 +1,5 @@
 = 3.2.6
-30 July, 2024
+09 Aug, 2024
 * Server now loads everything from the kindling directory. To start your fire.
 * Move Camping Gear to their own directory to play nicer with Zeitwerk.
 * Add some testing for Camping::Server.
