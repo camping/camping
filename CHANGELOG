@@ -3,6 +3,8 @@
 * Server now loads everything from the kindling directory. To start your fire.
 * Move Camping Gear to their own directory to play nicer with Zeitwerk.
 * Add some testing for Camping::Server.
+* Falcon is now the default server included with Camping and included in all generators.
+* Added new Model::Base stub for use with sequel.rb gem.
 
 = 3.2.5
 == 13 June, 2024
