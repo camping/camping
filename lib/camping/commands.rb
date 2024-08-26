@@ -35,7 +35,7 @@ module Camping
       # Displays formatted routes from a route collection
       # Assumes that Route structs are stored in :routes.
       def display
-        current_app, current_controller, current_method = "", "", ""
+        current_app, current_controller = "", ""
         puts "App      VERB     Route"
         routes.each { |r|
           if current_app != r.app.to_s
@@ -81,7 +81,7 @@ module Camping
       end
 
       def replace_reg(pattern = "")
-        xstr = "([^/]+)"; nstr = "(\d+)"
+        xstr = "([^/]+)";
         pattern = pattern.gsub(xstr, ":string").gsub("(\\d+)", ":integer") unless pattern == "/"
         pattern
       end
@@ -102,7 +102,7 @@ module Camping
       end
 
       def parse
-        routes = @parent_app.make_camp
+        @parent_app.make_camp
         collected_routes = []
 
         make_routes = -> (a) {
@@ -129,7 +129,7 @@ module Camping
           make_routes.(@parent_app)
         end
 
-        routes_collection = Camping::CommandsHelpers::RouteCollection.new(collected_routes)
+        Camping::CommandsHelpers::RouteCollection.new(collected_routes)
       end
     end
 

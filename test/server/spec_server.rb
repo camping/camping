@@ -48,7 +48,9 @@ describe Camping::Server do
     server.app.must_equal "FOO"
   end
 
-  # Fails a lot
+  # # Fails a lot
+  # # TODO: figure out why this fails and if we need to be testing this the
+  # # right way.
   # it "runs a server" do
   #   pidfile = Tempfile.open('pidfile') { |f| break f }
   #   FileUtils.rm pidfile.path
