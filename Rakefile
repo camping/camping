@@ -17,7 +17,8 @@ else
   end
 end
 
-require "bundler/gem_tasks"
+#$VERBOSE = nil
+require 'bundler/gem_tasks'
 require 'rake'
 require 'rake/clean'
 require 'rake/testtask'
@@ -30,6 +31,7 @@ CLEAN.include ['**/.*.sw?', '*.gem', '.config', 'test/test.log', '.*.pt']
 
 task :default => :check
 
+task :test => :default
 # New Docs
 
 ## context for the docs sections: we're going to move to using Rdoc and yard.
@@ -81,17 +83,20 @@ namespace :test do
   Rake::TestTask.new(:camping) do |t|
     t.libs << "test"
     t.test_files = FileList['test/app_*.rb']
+    t.verbose = false
   end
 
   Rake::TestTask.new(:gear) do |t|
     t.libs << "test"
     t.test_files = FileList['test/gear/gear_*.rb']
+    t.verbose = nil
   end
 
   ## Reloader Tests
   Rake::TestTask.new(:reloader) do |t|
     t.libs << "test"
     t.test_files = FileList['test/reload_*.rb']
+    t.verbose = nil
   end
 
   ## Config Reloader Tests
