@@ -1,5 +1,6 @@
 module Gear
 
+	## 
 	# Nancy
 	#
 	# Nancy is Camping gear that adds Sinatra style routing shortcuts to the Object
@@ -15,26 +16,28 @@ module Gear
 
 		class << self
 
+			##
 			# normalizes the routes provided to the controller, then returns some variables
 			# used in make_camping_route
 			def normalize_routes(routes)
-				s = ""
-				rs = ""
-				routes.each do |r|
-					rs += "'#{r}'" + ","
-					if r == '/'
-						r = 'Index'
+				str = ""
+				symbolString = routeString = str
+				routes.each do |route|
+					routeString += "'#{route}'" + ","
+					if route == '/'
+						route = 'Index'
 					end
-					r.split("/").each(&:capitalize!).each{|t|
-						s << t.gsub(/[^a-z0-9A-Z ]/, '')
+					route.split("/").each(&:capitalize!).each{|t|
+						symbolString << t.gsub(/[^a-z0-9A-Z ]/, '')
 					}
 				end
-				rs.chop!
+				routeString.chop!
 
-				symbol = s.to_sym
-				{rs: rs, symbol: symbol}
+				symbol = symbolString.to_sym
+				{rs: routeString, symbol: symbol}
 			end
 
+			## 
 			# ensures an app exists for the controllers.
 			def ensure_app(app)
 				if Camping::Apps.count == 0
@@ -47,6 +50,7 @@ module Gear
 				m
 			end
 
+			## 
 			# Make a camping route provided with a method type, a route, an optional app, and
 			# a required block:
 			#
@@ -85,6 +89,7 @@ module Gear
 					end
 				end
 
+				## 
 				# This is an interesting block. At times we'll pass an App to a route
 				# which will implicitly call it's `to_proc` method. In those cases, it's
 				# that block that is set as the block here, and it returns a Rack response.
@@ -114,6 +119,7 @@ module Gear
 				return nil
 			end
 
+			## 
 			# returns a formatted string for making a controller class in the App module
 			def module_script(name:, routes:)
 				%Q[
@@ -123,7 +129,8 @@ module Gear
 				end
 				]
 			end
-
+			
+			## 
 			# returns a formatted string for making a controller class in the Controllers module
 			def controller_script(name:, routes:)
 				%Q[
@@ -141,7 +148,9 @@ module Gear
 			def setup(app, *a, &block) end
 
 		end
-
+		##
+		# A coontainer for the class methods that Nancy contains.
+		# These are copied into Camping and used as the short and DSL like messages.
 		module ClassMethods
 
 			# Helper methods added to your Camping app that facilitates
@@ -153,7 +162,8 @@ module Gear
 			def patch(*routes, &block)   Nancy.make_camping_route('patch', routes, self, &block) end
 			def link(*routes, &block)    Nancy.make_camping_route('link', routes, self, &block) end
 			def unlink(*routes, &block)  Nancy.make_camping_route('unlink', routes, self, &block) end
-
+			
+			## 
 			# Turns this App into a proc to be consumed by one of the block based route generators
 			# An easy way to forward requests to an app.
 			# a references self, that's then captured by the proc, which is a closure.
@@ -163,10 +173,10 @@ module Gear
 			# The syntax: `a[e]` is an implicit call to the `#call` method. the brackets
 			# are syntatic sugar to get this to work. The following code is equivalent:
 			#
-			#	 e = [] # given e is a rack array.
-			#  a.call(e)
-			#  a.(e)
-			#  a[e]
+			#		e = [] # given e is a rack array.
+			#		a.call(e)
+			#		a.(e)
+			#		a[e]
 			#
 			# This code is defined in the Nancy Camping Gear. Specifically in it's
 			# ClassMethods module. ClassMethods is then extended onto our Camping app,
