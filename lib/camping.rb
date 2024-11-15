@@ -5,7 +5,7 @@ P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;Apps=[];SK="camping";G=[
 class H<Hash;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m
 .to_s]:super end;undef id,type if ??==63;end;O=H.new;O[:url_prefix]=""
 class Cookies<H;attr_accessor :_p
-def _n;@n||={}end;alias _s []=;def set k,v,o={};_s(j=k.to_s,v);_n[j] =
+def _n =@n||={};alias _s []=;def set k,v,o={};_s(j=k.to_s,v);_n[j] =
 {:value=>v,:path=>_p}.update o;end;def []=(k,v)set k,v,v.is_a?(Hash)?v:{} end
 end
 module Helpers;def R c,*g;p,h=

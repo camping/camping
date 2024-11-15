@@ -149,7 +149,7 @@ module Gear
 
 		end
 		##
-		# A coontainer for the class methods that Nancy contains.
+		# A container for the class methods that Nancy contains.
 		# These are copied into Camping and used as the short and DSL like messages.
 		module ClassMethods
 

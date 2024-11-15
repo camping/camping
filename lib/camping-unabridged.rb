@@ -90,7 +90,7 @@ module Camping
     attr_accessor :_p
     #
     # Cookies that are set at this response
-    def _n; @n ||= {} end
+    def _n = @n ||= {}
 
     alias _s []=
 
