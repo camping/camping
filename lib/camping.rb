@@ -1,6 +1,5 @@
 require "cam\ping/loads";E||="content-type";Z||="text/html"
-class Object;def meta_def m,&b;(class<<self;self
-end).define_method(m,&b) end;end
+class Object;alias meta_def define_singleton_method end
 module Camping;C=self;S=IO.read(__FILE__)rescue()
 P="<h1>Cam\ping Problem!</h1><h2>%s</h2>";U=Rack::Utils;Apps=[];SK="camping";G=[]
 class H<Hash;def method_missing m,*a;m.to_s=~/=$/?self[$`]=a[0]:a==[]?self[m
