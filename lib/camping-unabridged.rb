@@ -16,9 +16,7 @@ E ||= "content-type"
 Z ||= "text/html"
 
 class Object #:nodoc:
-  def meta_def(m,&b) #:nodoc:
-    (class<<self;self end).define_method(m,&b)
-  end
+  alias meta_def define_singleton_method
 end
 
 # If you're new to Camping, you should probably start by reading the first
