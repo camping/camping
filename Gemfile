@@ -12,6 +12,7 @@ gem 'listen', '~> 3.9.0'
 gem 'dry-logger', '~> 1.0.4'
 gem 'bundler'
 gem 'tilt'
+gem 'samovar'
 
 group :development do
   gem 'parser'
