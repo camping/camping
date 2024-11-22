@@ -98,10 +98,6 @@ module Camping
       @reloader || nil
     end
 
-    def opt_parser
-      Options.new
-    end
-
     def default_options
       super.merge({
         :Port => 3301
