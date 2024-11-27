@@ -2,14 +2,16 @@
 
 $:.unshift File.dirname(__FILE__) + "/../lib"
 
-require 'camping'
+#require 'camping'
 # require 'camping-unabridged' # comment out the above line and uncomment this line to run camping unabridged with all sorts of stuff in it.
-require 'camping/server'
+require 'camping/command'
 
-begin
-  Camping::Server.start
-rescue OptionParser::ParseError => ex
-  STDERR.puts "!! #{ex.message}"
-  puts "** use `#{File.basename($0)} --help` for more details..."
-  exit 1
-end
+Camping::Command.call
+
+#begin
+#  Camping::Server.start
+#rescue OptionParser::ParseError => ex
+#  STDERR.puts "!! #{ex.message}"
+#  puts "** use `#{File.basename($0)} --help` for more details..."
+#  exit 1
+#end
