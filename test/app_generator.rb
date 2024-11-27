@@ -7,7 +7,7 @@ Camping.goes :Generator
 class Generator::Test < TestCase
 
   def app_name(string)
-    Camping::CommandsHelpers.app_name_from_input string
+    Camping::Tools.app_name_from_input string
   end
 
   # the app_name_from_input method normalizes the input for the camping new command.

@@ -1,19 +1,14 @@
 require 'helper'
 require 'camping'
 require 'camping/commands'
-#require 'camping/command'
 
 Camping.goes :Commands
 
 class Commands::Test < TestCase
 
   def app_name(string)
-    Camping::CommandsHelpers.app_name_from_input string
+    Camping::Tools.app_name_from_input string
   end
-  
-  #def test_that_we_run_the_default_command
-  # Camping::Command.call
-  #end
 
   # the app_name_from_input method normalizes the input for the camping new command.
   # making sure it works right is kinda important.

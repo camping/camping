@@ -11,7 +11,7 @@ end
 module Helpers;def R c,*g;p,h=
 /\(.+?\)/,g.grep(Hash);g-=h;raise"bad route"if !u=c.urls.find{|x|break x if
 x.scan(p).size==g.size&&/^#{x}\/?$/=~(x=g.inject(x){|x,a|x.sub p,U.escape((a.
-to_param rescue a))}.gsub(Tools.descape){$1})};h.any?? u+??+U.build_query(h[0]) : u
+to_param rescue a))}.gsub(CampTools.descape){$1})};h.any?? u+??+U.build_query(h[0]) : u
 end;def /(p) p[0]==?/ ?(@root+@url_prefix.dup.prepend(?/).chop+p) : p end
 def URL c='/',*a;c=R(c,*a)if c.respond_to?(
 :urls);c=self/c;c=@request.url[/.{8,}?(?=\/|$)/]+c if c[0]==?/;URI c end
@@ -64,7 +64,7 @@ mu = true unless ka[1].name == () end
 k.meta_def(:urls){[A.(k,"#{c.to_s.scan(/.[^A-Z]*/).map(&N.method(:[]))*?/}",p)]} if (!k
 .respond_to?(:urls) || mu==true)};end end;I=R()end;X=Controllers
 class<<self;def make_camp;X.M prx;Apps.map(&:make_camp) end;def routes;(Apps.map(&:routes)<<X.v).flatten end
-def prx;@_prx||=Tools.norms(O[:url_prefix])end
+def prx;@_prx||=CampTools.norms(O[:url_prefix])end
 def call e;k,m,*a=X.D e["PATH_INFO"],e['REQUEST_METHOD'].
 downcase,e;k.new(e,m,prx).service(*a).to_a;rescue;r500(:I,k,m,$!,:env=>e).to_a end
 def method_missing m,c,*a;h=Hash===a[-1]?a.pop : {};e=H[Rack::MockRequest.
@@ -78,7 +78,7 @@ sp[0]+' <Cam\ping App> ',sp[1].to_i;Apps<< a=eval(S.gsub(/Camping/,m.to_s),g,fl,
 IO.read(a.set:__FILE__,$`)=~/^__END__/&&(b=$'.split(/^@@\s*(.+?)\s*\r?\n/m)
 ).shift rescue();a.set :_t,H[*b||[]]
 a.set :_meta, H[file: fl, line_number: ln, parent: self,
-root: (name != "Cam\ping" ? ?/ + name.to_snake : ?/)];C.configure(a)end end
+root: (name != "Cam\ping" ? ?/ + CampTools.to_snake(name) : ?/)];C.configure(a)end end
 module Views;include X,Helpers end;module Models
 autoload :Base, 'camping/sequel'
 Helpers.include(X,self) end;autoload:Mab,'camping/mab'

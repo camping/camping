@@ -7,6 +7,8 @@ require 'gear/firewatch'
 require 'camping/loader'
 require 'camping/commands'
 
+require 'camping'
+
 # == The Camping Server (for development)
 #
 # Camping includes a pretty nifty server which is built for development.
@@ -66,12 +68,6 @@ module Camping
 #            exit
 #          end
 #
-#          # Another typical switch to print the version.
-#          opts.on("-v", "--version", "Show version") { options[:version] = true }
-#
-#          # Show Routes
-#          opts.on("-r", "--routes", "Show Routes") { options[:routes] = true }
-#
 #        end
 #
 #        opt_parser.parse!(args)
@@ -85,8 +81,14 @@ module Camping
 #      end
 #    end
 
-    def initialize(options = nil)
-      raise StandardError.new("Camping::Server#new accepts an array.") unless (options.is_a?(Array))
+    ##
+    # new
+    #
+    # Camping::Server new method makes a new Camping Server. Well not exactly.
+    # We probably need to rename this. What it does is make a new Camping stack.
+    # A rack compatible app ready to be run in a server.
+    def initialize(options = {})
+      raise StandardError.new("Camping::Server#new accepts a Hash.") unless (options.is_a?(Hash))
 
       @ignore_options = []
     
@@ -99,12 +101,9 @@ module Camping
         @options = parse_options(ARGV)
       end
 
-      if options.empty?
-        args << "camp.rb"
+      if options.empty? || options.key?(:script) ==
+        options[:script] = "camp.rb"
       end
-      
-      options[:script] = args.shift
-      options
        
       @reloader = Camping::Reloader.new(options[:script]) do |app|
         if !app.options.has_key?(:dynamic_templates)
@@ -112,13 +111,21 @@ module Camping
         end
       end
       
-      # Setup kindling etc... when we make a new camping server.
+      load_kindling()
+      
+      # Force a reload of Camping, after the kindling is called. This makes it load the app files.
+      @reloader.reload!
+      @reloader
+    end
+    
+    ##
+    # load_kindling
+    #
+    # An internal method that requires the kindling files. Used before the reloader, reloads.
+    def load_kindling
       Dir['kindling/*.rb'].each do |kindling|
         require_relative File.expand_path(kindling)
       end
-      
-      @reloader.reload!
-      r = @reloader
     end
 
     #def default_options
@@ -148,23 +155,10 @@ module Camping
     # @file: String, file location for a camp.rb file.
     def start(file = nil)
       commands = ARGV
-
       # Parse commands
       case commands[0]
       when "new"
         Camping::Commands.new_cmd(commands[1])
-        exit
-      end
-
-      if options[:version] == true
-        puts "Camping v#{Camping::VERSION}"
-        exit
-      end
-
-      if options[:routes] == true
-        eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
-        ARGV.clear
-        Camping::Commands.routes
         exit
       end
 

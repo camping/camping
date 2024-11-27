@@ -25,17 +25,13 @@ class CampingFeatureHelper < CampingUnitTest
 		
 	end
 
-	# probably don't need this	
 	def before_all
-		FileUtils.rm_rf(Paths.test_dir) if Paths.test_dir.exist?
-		FileUtils.mkdir_p(Paths.test_dir) unless Paths.test_dir.directory?
-		Dir.chdir(Paths.test_dir)
+		move_to_tmp()
 		super
 	end
 	
 	def after_all
-		FileUtils.rm_rf(Paths.test_dir) if Paths.test_dir.exist?
-		Dir.chdir(Paths.test_dir.parent.parent)
+		leave_tmp()
 	end
 	
 	##
@@ -44,7 +40,7 @@ class CampingFeatureHelper < CampingUnitTest
 	# runs camping using the commands, arguments, etc... for exec_command.
 	def run_camping(command, args = "", skip_status_check: false)
 		args = args.strip.split
-		process, output = exec_command("ruby", Paths.camping_bin.to_s, command, *args, "--trace")
+		process, output = exec_command("ruby", Paths.camping_bin.to_s, command, *args)
 		unless skip_status_check
 		assert process.exitstatus.zero?, "Camping process failed: #{process} \n#{output}"
 		end

@@ -13,6 +13,7 @@ gem 'dry-logger', '~> 1.0.4'
 gem 'bundler'
 gem 'tilt'
 gem 'samovar'
+gem 'dry-inflector'
 
 group :development do
   gem 'parser'

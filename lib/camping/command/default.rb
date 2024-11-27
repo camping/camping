@@ -17,30 +17,27 @@ module Camping
 			
 			# default options.
 			options do
-				option "-?/--help", "Display a help message"
+				option "-h/-?/--help", "Display a help message"
 				option "-v/--version", "Displays the current version"
-				option "-h/--host", "Host for web server to bind to (default is all IPs)"
-				option "-p/--port", "Port for web server (defaults to 3301)"
 			end
 			
 			# nested commands that we grab from the second parameter
 			nested :command, {
 				"serve" => Serve,
-				"console" => Console,
+				#"console" => Console,
+				#"new" => NewCamping,
 				"routes" => Routes,
-				"new" => NewCamping,
-				#"version" => Version,
-			}, default: "serve"
+			}, default: "routes"
 			
 			# call()
 			# parses input and instantiates a new Default object, then calls this
 			# method
 			def call
 				
-				if @options[:version]
+				if @options[:help]
+					self.print_usage
+				elsif @options[:version]
 					puts "Camping v#{Camping::VERSION}"
-				elsif @options[:help]
-					puts "You need some serious help"
 				else
 					# @command is mapped to a nested command from above If a command is
 					# given.
