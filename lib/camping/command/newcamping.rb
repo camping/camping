@@ -1,6 +1,7 @@
 require 'samovar'
 
 require 'camping/server'
+require 'camping/generators/new'
 
 module Camping
 	module Command
@@ -9,8 +10,16 @@ module Camping
 		class NewCamping < Samovar::Command
 			self.description = "Display Camping's routes"
 			
+			options do
+				option '-a/--app <text>', "The name your app, can be camel cased"
+			end
+			
 			def call
-				puts "put camping new command stuff here."
+				if @options[:app]
+					Camping::Generators::New(@options[:app])
+				else
+					Camping::Generators::New()
+				end
 			end
 		end
 	end

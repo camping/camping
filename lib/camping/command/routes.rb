@@ -11,7 +11,6 @@ module Camping
 			self.description = "Display Camping's routes"
 			
 			options do
-				#option "-r/--routes", "Lists the Routes"
 				option '-a/--app <text>', "puts the routes for the specified app."
 				option '-s/--silent', "Don't display the routes for some reason."
 			end

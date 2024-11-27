@@ -25,7 +25,7 @@ module Camping
 			nested :command, {
 				"serve" => Serve,
 				#"console" => Console,
-				#"new" => NewCamping,
+				"new" => NewCamping,
 				"routes" => Routes,
 			}, default: "routes"
 			

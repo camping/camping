@@ -1,7 +1,5 @@
-# test/commands/test_routes.rb
+# test/commands/test_basics.rb
 require_relative 'commands_helper'
-
-# Tests's the routes command: camping -r/ camping --routes
 
 class TestBasicsCommand < CampingFeatureHelper
 	
