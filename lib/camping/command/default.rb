@@ -1,5 +1,6 @@
 require_relative 'serve'
 require_relative 'routes'
+require_relative 'newcamping'
 #require_relative 'generate'
 require_relative '../version'
 
@@ -27,7 +28,8 @@ module Camping
 				"serve" => Serve,
 				"console" => Console,
 				"routes" => Routes,
-			#}, default: "serve"
+				"new" => NewCamping,
+				#"version" => Version,
 			}, default: "serve"
 			
 			# call()
