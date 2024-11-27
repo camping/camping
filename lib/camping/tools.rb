@@ -4,17 +4,6 @@
 module Camping
   module Tools
     class << self
-      # to_snake
-      # Accepts a string and snake Cases it.
-      # Also accepts symbols and coerces them into a string.
-      def to_snake(string)
-        string = string.to_s if string.class == Symbol
-        string.gsub(/::/, '/').
-        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-        gsub(/([a-z\d])([A-Z])/,'\1_\2').
-        tr("-", "_").
-        downcase
-      end
 
       # Normalize Slashes
       # normalizes the leading and trailing slashes of a string to only have a
@@ -30,7 +19,7 @@ module Camping
       alias norms normalize_slashes
 
       # A Regex to descape escaped characters.
-      # used to correct URLs that are escpaed using Rack Util's escape function.
+      # used to correct URLs that are escaped using Rack Util's escape function.
       def descape
         /\\(.)/
       end
@@ -39,4 +28,28 @@ module Camping
   end
 end
 
-CampTools = 🏕 = Camping::Tools
+# String class extensions
+class String
+  
+  # to_snake
+  # Accepts a string and snake Cases it.
+  # Also accepts symbols and coerces them into a string.
+  def to_snake(string)
+    string = string.to_s if string.class == Symbol
+    string.gsub(/::/, '/').
+    gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+    gsub(/([a-z\d])([A-Z])/,'\1_\2').
+    tr("-", "_").
+    downcase
+  end
+  
+  # transform app_name to camel Case
+  def to_camel(string)
+    cammelled = ""
+    to_snake(string).split("_").each do |seq|
+      cammelled << seq.capitalize
+    end
+    cammelled
+  end
+
+end

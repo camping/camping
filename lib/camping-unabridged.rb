@@ -207,7 +207,7 @@ module Camping
       raise "bad route" if !u = c.urls.find{|x|
         break x if x.scan(p).size == g.size &&
           /^#{x}\/?$/ =~ (x=g.inject(x){|x,a|
-            x.sub p,U.escape((a.to_param rescue a))}.gsub(CampTools.descape){$1})
+            x.sub p,U.escape((a.to_param rescue a))}.gsub(Tools.descape){$1})
       }
       h.any?? u+"?"+U.build_query(h[0]) : u
     end
@@ -713,7 +713,7 @@ module Camping
     # trailing and leading slashes are removed. A trailing slash is added.
     # @return [String] A reference to the URL response
     def prx
-      @_prx ||= CampTools.normalize_slashes(O[:url_prefix])
+      @_prx ||= Tools.norms(O[:url_prefix])
     end
 
     # Ruby web servers use this method to enter the Camping realm. The +e+
@@ -941,7 +941,7 @@ module Camping
       a.set :_t,H[*b||[]]
 
       # setup parental data
-      a.set :_meta, H[file: fl, line_number: ln, parent: self, root: (name != "Cam\ping" ? '/' + CampTools.to_snake(name) : '/')]
+      a.set :_meta, H[file: fl, line_number: ln, parent: self, root: (name != "Cam\ping" ? '/' + name.to_snake : '/')]
 
       # configures the app, using the kuddly options and
       # settings provided.
