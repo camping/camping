@@ -20,16 +20,6 @@ module Camping
       cammelled
     end
 
-    # Helper method that generates an app name from command line input.
-    def self.app_name_from_input(app_name)
-      app_name = :Camp if app_name == nil
-      app_name = app_name.to_sym if app_name.class == String
-      snake_app_name = to_snake_case(app_name)
-      camel_app_name = to_camel_case(snake_app_name)
-
-      {app_name: camel_app_name.to_sym, snake_name: snake_app_name, camel_name: camel_app_name}
-    end
-
     RouteCollection = Struct.new(:routes)
     class RouteCollection
       # Displays formatted routes from a route collection

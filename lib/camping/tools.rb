@@ -23,6 +23,17 @@ module Camping
       def descape
         /\\(.)/
       end
+      
+      # Helper method that generates an app name from command line input.
+      def app_name_from_input(app_name)
+        app_name = :Camp if app_name == nil
+        app_name = app_name.to_sym if app_name.class == String
+        snake_name = app_name.to_snake
+        camel_name = snake_name.to_camel
+        app_name = camel_name.to_sym
+        
+        {app_name: , snake_name: , camel_name: }
+      end
 
     end
   end
