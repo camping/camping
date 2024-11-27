@@ -148,7 +148,7 @@ end
 error = false
 
 ## Check
-task :check => ["test:camping", "test:gear", "test:reloader", "test:configreloader", "test:server", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
+task :check => ["test:camping", "test:gear", "test:reloader", "test:configreloader", "test:server", "test:commands", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
 namespace :check do
 
   desc "Check source code validity"

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
-
-require_relative 'camping/command'
+$:.unshift File.dirname(__FILE__) + "/../lib"
+require 'camping/command'
 
 begin
 	Camping::Command.call
