@@ -17,7 +17,7 @@ module Camping
 			
 			# default options.
 			options do
-				option "-h/-?/--help", "Display a help message"
+				option "-?/--help", "Display a help message"
 				option "-v/--version", "Displays the current version"
 			end
 			

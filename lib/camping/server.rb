@@ -29,18 +29,9 @@ require 'camping'
 # And visit http://localhost:3301/ in your browser.
 module Camping
   class Server < Rackup::Server
-#    class Options
-#
-#      def parse!(args)
-#        args = args.dup
-#        options = {}
-#        opt_parser = OptionParser.new("", 24, '  ') do |opts|
-#          opts.banner = "Usage: camping Or: camping my-camping-app.rb"
-#
+
 #          # opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
 #
-#          opts.separator ""
-#          opts.separator "Specific options:"
 #
 #          opts.on("-h", "--host HOSTNAME",
 #          "Host for web server to bind to (default is all IPs)") { |v| options[:Host] = v }
@@ -58,28 +49,6 @@ module Camping
 #          opts.on("-s", "--server NAME",
 #          "Server to force (#{server_list.join(', ')})") { |v| options[:server] = v }
 #
-#          opts.separator ""
-#          opts.separator "Common options:"
-#
-#          # No argument, shows at tail.  This will print an options summary.
-#          # Try it and see!
-#          opts.on("-?", "--help", "Show this message") do
-#            puts opts
-#            exit
-#          end
-#
-#        end
-#
-#        opt_parser.parse!(args)
-#
-#        if args.empty?
-#          args << "camp.rb"
-#        end
-#
-#        options[:script] = args.shift
-#        options
-#      end
-#    end
 
     ##
     # new

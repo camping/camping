@@ -13,11 +13,6 @@ class TestBasicsCommand < CampingFeatureHelper
 	end
 	
 	def test_help
-		_, output = run_camping "-h"
-		assert_includes output, "CAMPING! miniature rails for anyone"
-		assert_includes output, "Run Camping"
-		assert_includes output, "Display Camping's routes"
-		
 		_, output = run_camping "-?"
 		assert_includes output, "CAMPING! miniature rails for anyone"
 		assert_includes output, "Run Camping"
