@@ -7,7 +7,7 @@ module Camping
 	
 		# The default command is called, creatively, Default
 		class NewCamping < Samovar::Command
-			self.description = "Displays camping's routes"
+			self.description = "Display Camping's routes"
 			
 			def call
 				puts "put camping new command stuff here."

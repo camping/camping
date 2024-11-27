@@ -8,7 +8,7 @@ module Camping
 	
 		# The default command is called, creatively, Default
 		class Routes < Samovar::Command
-			self.description = "Displays camping's routes"
+			self.description = "Display Camping's routes"
 			
 			options do
 				#option "-r/--routes", "Lists the Routes"
