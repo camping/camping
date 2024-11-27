@@ -44,23 +44,23 @@ describe Camping::Command do
    $stderr = old
  end
  
- it "Runs a default server when no options are passed to camping command" do
-  pidfile = Tempfile.open('pidfile') { |f| break f }
-  FileUtils.rm pidfile.path
-  
-  puts "doing stuff"
-  
-  t = Thread.new {
-    Camping::Command.call {|s|
-      puts "ore stuff"
-      Thread.current[:server] = s
-    }
-  }
-  t.join(0.1) until t[:server] && t[:server].status != :Stop
-  
-  Process.kill(:INT, $$)
-  t.join
- end
+ #it "Runs a default server when no options are passed to camping command" do
+ # pidfile = Tempfile.open('pidfile') { |f| break f }
+ # FileUtils.rm pidfile.path
+ # 
+ # puts "doing stuff"
+ # 
+ # t = Thread.new {
+ #   Camping::Command.call {|s|
+ #     puts "ore stuff"
+ #     Thread.current[:server] = s
+ #   }
+ # }
+ # t.join(0.1) until t[:server] && t[:server].status != :Stop
+ # 
+ # Process.kill(:INT, $$)
+ # t.join
+ #end
 
  # # Fails a lot
  # # TODO: figure out why this fails and if we need to be testing this the

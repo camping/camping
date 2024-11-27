@@ -18,11 +18,13 @@ module Camping
 			
 			def call
 				server = Camping::Server.new
+				silent = false
+				silent = true if @options[:silent]
 				
 				if @options[:app]
-					routes(@options[:app])
+					routes(@options[:app], silent)
 				else
-					routes()
+					routes(Camping, silent)
 				end
 			end
 			
