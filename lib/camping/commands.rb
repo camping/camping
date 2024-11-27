@@ -363,7 +363,7 @@ RUBY
       def new_cmd(app_name=:Camp)
 
         # Normalize the app_name
-        Camping::CommandsHelpers.app_name_from_input(app_name) => {app_name:, snake_name:, camel_name:}
+        CampTools.app_name_from_input(app_name) => {app_name:, snake_name:, camel_name:}
 
         # make a directory then move there.
         # _original_dir = Dir.pwd
