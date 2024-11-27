@@ -104,6 +104,12 @@ namespace :test do
     t.libs << "test"
     t.test_files = FileList['test/config_*.rb']
   end
+  
+  ## Command tests
+  Rake::TestTask.new(:commands) do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/commands/test_*.rb']
+  end
 
   desc "Run Camping::Server tests"
   Rake::TestTask.new("server") do |t|

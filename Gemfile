@@ -26,6 +26,7 @@ group :test do
   gem 'rack-test'
   gem 'ruby_parser'
   gem 'minitest-hooks'
-  gem "minitest-global_expectations"
-  gem "minitest-sprint"
+  gem 'minitest-global_expectations'
+  gem 'minitest-sprint'
+  gem 'fileutils'
 end

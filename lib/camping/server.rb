@@ -27,82 +27,105 @@ require 'camping/commands'
 # And visit http://localhost:3301/ in your browser.
 module Camping
   class Server < Rackup::Server
-    class Options
+#    class Options
+#
+#      def parse!(args)
+#        args = args.dup
+#        options = {}
+#        opt_parser = OptionParser.new("", 24, '  ') do |opts|
+#          opts.banner = "Usage: camping Or: camping my-camping-app.rb"
+#
+#          # opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
+#
+#          opts.separator ""
+#          opts.separator "Specific options:"
+#
+#          opts.on("-h", "--host HOSTNAME",
+#          "Host for web server to bind to (default is all IPs)") { |v| options[:Host] = v }
+#
+#          opts.on("-p", "--port NUM",
+#          "Port for web server (defaults to 3301)") { |v| options[:Port] = v }
+#
+#          opts.on("-c", "--console",
+#          "Run in console mode with IRB") { options[:server] = "console" }
+#
+#          opts.on("-e", "--env ENVIRONMENT",
+#          "Sets the environment. (defaults: development)") { |v| options[:environment] = ENV['environment'] = v }
+#
+#          server_list = ["thin", "webrick", "console", "puma", "tipi", "falcon"]
+#          opts.on("-s", "--server NAME",
+#          "Server to force (#{server_list.join(', ')})") { |v| options[:server] = v }
+#
+#          opts.separator ""
+#          opts.separator "Common options:"
+#
+#          # No argument, shows at tail.  This will print an options summary.
+#          # Try it and see!
+#          opts.on("-?", "--help", "Show this message") do
+#            puts opts
+#            exit
+#          end
+#
+#          # Another typical switch to print the version.
+#          opts.on("-v", "--version", "Show version") { options[:version] = true }
+#
+#          # Show Routes
+#          opts.on("-r", "--routes", "Show Routes") { options[:routes] = true }
+#
+#        end
+#
+#        opt_parser.parse!(args)
+#
+#        if args.empty?
+#          args << "camp.rb"
+#        end
+#
+#        options[:script] = args.shift
+#        options
+#      end
+#    end
 
-      def parse!(args)
-        args = args.dup
-        options = {}
-        opt_parser = OptionParser.new("", 24, '  ') do |opts|
-          opts.banner = "Usage: camping Or: camping my-camping-app.rb"
+    def initialize(options = nil)
+      raise StandardError.new("Camping::Server#new accepts an array.") unless (options.is_a?(Array))
 
-          # opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
-
-          opts.separator ""
-          opts.separator "Specific options:"
-
-          opts.on("-h", "--host HOSTNAME",
-          "Host for web server to bind to (default is all IPs)") { |v| options[:Host] = v }
-
-          opts.on("-p", "--port NUM",
-          "Port for web server (defaults to 3301)") { |v| options[:Port] = v }
-
-          opts.on("-c", "--console",
-          "Run in console mode with IRB") { options[:server] = "console" }
-
-          opts.on("-e", "--env ENVIRONMENT",
-          "Sets the environment. (defaults: development)") { |v| options[:environment] = ENV['environment'] = v }
-
-          server_list = ["thin", "webrick", "console", "puma", "tipi", "falcon"]
-          opts.on("-s", "--server NAME",
-          "Server to force (#{server_list.join(', ')})") { |v| options[:server] = v }
-
-          opts.separator ""
-          opts.separator "Common options:"
-
-          # No argument, shows at tail.  This will print an options summary.
-          # Try it and see!
-          opts.on("-?", "--help", "Show this message") do
-            puts opts
-            exit
-          end
-
-          # Another typical switch to print the version.
-          opts.on("-v", "--version", "Show version") { options[:version] = true }
-
-          # Show Routes
-          opts.on("-r", "--routes", "Show Routes") { options[:routes] = true }
-
-        end
-
-        opt_parser.parse!(args)
-
-        if args.empty?
-          args << "camp.rb"
-        end
-
-        options[:script] = args.shift
-        options
+      @ignore_options = []
+    
+      if options
+        @use_default_options = false
+        @options = options
+        @app = options[:app] if options[:app]
+      else
+        @use_default_options = true
+        @options = parse_options(ARGV)
       end
-    end
 
-    def initialize(*)
-      super
+      if options.empty?
+        args << "camp.rb"
+      end
+      
+      options[:script] = args.shift
+      options
+       
       @reloader = Camping::Reloader.new(options[:script]) do |app|
         if !app.options.has_key?(:dynamic_templates)
-		      app.options[:dynamic_templates] = true
-	      end
+         app.options[:dynamic_templates] = true
+        end
       end
+      
+      # Setup kindling etc... when we make a new camping server.
+      Dir['kindling/*.rb'].each do |kindling|
+        require_relative File.expand_path(kindling)
+      end
+      
+      @reloader.reload!
+      r = @reloader
     end
 
-    def loader
-      @reloader || nil
-    end
-
-    def default_options
-      super.merge({
-        :Port => 3301
-      })
-    end
+    #def default_options
+    #  super.merge({
+    #    :Port => 3301
+    #  })
+    #end
 
     # redefine logging middleware
     class << self
@@ -138,13 +161,6 @@ module Camping
         exit
       end
 
-      Dir['kindling/*.rb'].each do |kindling|
-        require_relative File.expand_path(kindling)
-      end
-
-      @reloader.reload!
-      r = @reloader
-
       if options[:routes] == true
         eval("self", TOPLEVEL_BINDING).meta_def(:reload!) { r.reload!; nil }
         ARGV.clear
@@ -172,7 +188,7 @@ module Camping
 
     # add the public directory as a Rack app serving files first, then the
     # current value of self, which is our camping apps, as an app.
-    def app
+    def app # WARNING: I don't think this is even being used!!!
       Rack::Cascade.new([Rack::Files.new(public_dir), self], [405, 404, 403])
     end
 
@@ -279,4 +295,23 @@ module Camping
       end
     end
   end
+end
+
+
+module Camping
+
+  # makes a new Camp, parsing Camp.rb, and builds all our wonderful apps, etc...
+  # intended to be loaded from a config.ru file like so:
+  #
+  #   require 'camping'
+  # 
+  #   app = Camping.make
+  #   run app
+  # 
+  # because camping sets up it's own middleware, and rack stuff internally,
+  # It's not necessary to put much else in the config.ru file.
+  #
+  # The make method doesn't require any methods. It will parse ARGV, if it's
+  # around, and start up from there.
+  def self.make = Camping::Server.new
 end
