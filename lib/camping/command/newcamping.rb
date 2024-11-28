@@ -1,7 +1,7 @@
 require 'samovar'
 
 require 'camping/server'
-require 'camping/generators/new'
+require 'camping/generators/project'
 
 module Camping
 	module Command
@@ -15,10 +15,11 @@ module Camping
 			end
 			
 			def call
+				puts "NewCampingCalled"
 				if @options[:app]
-					Camping::Generators::New(@options[:app])
+					Camping::Generators::Project.call(@options[:app])
 				else
-					Camping::Generators::New()
+					Camping::Generators::Project.call()
 				end
 			end
 		end

@@ -4,7 +4,7 @@ module Camping
 	module Generators
 	
 		# generates a new camping application
-		class New
+		class Project
 			
 			# call
 			#

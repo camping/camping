@@ -1,5 +1,6 @@
 require 'helper'
 require 'open3'
+require 'camping'
 require 'camping/command'
 require 'fileutils'
 
@@ -34,6 +35,11 @@ class CampingFeatureHelper < CampingUnitTest
 		leave_tmp()
 	end
 	
+	def leave_tmp
+		Dir.chdir @original_dir
+		`rm -rf test/tmp` if File.exist?('test/tmp')
+	end
+	
 	##
 	# run_camping
 	#
@@ -61,31 +67,13 @@ class CampingFeatureHelper < CampingUnitTest
 		[process.value, out + err]
 	end
 	
-	##
-	# create_directory
-	#
-	# Creates a directory from the supplied parameter: +dir+ which should be a *String*.
-	def create_directory(dir)
-		if Paths.root_files.include?(dir)
-			FileUtils.mkdir_p(dir)
-		else
-			dir_in_src = File.join("src", dir)
-			FileUtils.mkdir_p(dir_in_src) unless File.directory?(dir_in_src)
-		end
-	end
+	# returns all the files in the current working directory.
+	def files_in_directory = Dir.glob('*').select {|f| !File.directory? f }
 	
-	##
-	# create_file
-	#
-	# creates a file with the provided text. params: +file+, +text+, are the file 
-	# name as a string and the file text also as a *String*.
-	def create_file(file, text)
-		if Paths.root_files.include?(file.split("/").first)
-			File.write(file, text)
-		else
-			FileUtils.mkdir_p("src")
-			File.write(File.join("src", file), text)
-		end
-	end
+	# returns all the folders in the current working directory.
+	def folders_in_directory = Dir.glob('*').select { |f| File.directory? f }
+	
+	# returns all the hidden files in the current working directory.
+	def hidden_files_in_directory = Dir.glob(".*")
 	
 end

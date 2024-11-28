@@ -21,9 +21,9 @@ module Camping
 				silent = true if @options[:silent]
 				
 				if @options[:app]
-					routes(@options[:app], silent)
+					return routes(@options[:app], silent)
 				else
-					routes(Camping, silent)
+					return routes(Camping, silent)
 				end
 			end
 			

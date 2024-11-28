@@ -5,6 +5,20 @@ require_relative 'commands_helper'
 
 class TestRoutesCommand < CampingFeatureHelper
 	
+	##
+	# create_file
+	#
+	# creates a file with the provided text. params: +file+, +text+, are the file 
+	# name as a string and the file text also as a *String*.
+	def create_file(file, text)
+		if Paths.root_files.include?(file.split("/").first)
+			File.write(file, text)
+		else
+			FileUtils.mkdir_p("src")
+			File.write(File.join("src", file), text)
+		end
+	end
+	
 	def before_all
 		super
 		create_file "camp.rb", <<~CAMP
