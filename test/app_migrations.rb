@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'helper'
 
 begin
   # load File.expand_path('../apps/migrations.rb', __FILE__)

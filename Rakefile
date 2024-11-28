@@ -104,6 +104,12 @@ namespace :test do
     t.libs << "test"
     t.test_files = FileList['test/config_*.rb']
   end
+  
+  ## Command tests
+  Rake::TestTask.new(:commands) do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/commands/test_*.rb']
+  end
 
   desc "Run Camping::Server tests"
   Rake::TestTask.new("server") do |t|
@@ -142,7 +148,7 @@ end
 error = false
 
 ## Check
-task :check => ["test:camping", "test:gear", "test:reloader", "test:configreloader", "test:server", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
+task :check => ["test:camping", "test:gear", "test:reloader", "test:configreloader", "test:server", "test:commands", "check:valid", "check:equal", "check:size", "check:lines", "check:exit"]
 namespace :check do
 
   desc "Check source code validity"

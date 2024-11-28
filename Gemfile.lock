@@ -6,12 +6,23 @@ GEM
     base64 (0.2.0)
     bigdecimal (3.1.8)
     builder (3.3.0)
+    console (1.29.0)
+      fiber-annotation
+      fiber-local (~> 1.1)
+      json
     diff-lcs (1.5.1)
+    dry-inflector (1.1.0)
     dry-logger (1.0.4)
     ffi (1.17.0)
     ffi (1.17.0-arm64-darwin)
     ffi (1.17.0-x86_64-darwin)
     ffi (1.17.0-x86_64-linux-gnu)
+    fiber-annotation (0.2.0)
+    fiber-local (1.1.0)
+      fiber-storage
+    fiber-storage (1.0.0)
+    fileutils (1.7.3)
+    json (2.8.2)
     kdl (1.0.6)
       base64 (~> 0.2.0)
       bigdecimal (~> 3.1.6)
@@ -21,6 +32,7 @@ GEM
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     mab (0.0.3)
+    mapping (1.1.1)
     minitest (5.25.1)
     minitest-global_expectations (1.0.1)
       minitest (> 5)
@@ -57,6 +69,9 @@ GEM
     ruby_parser (3.21.1)
       racc (~> 1.5)
       sexp_processor (~> 4.16)
+    samovar (2.3.0)
+      console (~> 1.0)
+      mapping (~> 1.0)
     sexp_processor (4.17.2)
     simpleidn (0.2.3)
     tilt (2.4.0)
@@ -76,7 +91,9 @@ PLATFORMS
 
 DEPENDENCIES
   bundler
+  dry-inflector
   dry-logger (~> 1.0.4)
+  fileutils
   kdl (~> 1.0.6)
   listen (~> 3.9.0)
   mab
@@ -93,6 +110,7 @@ DEPENDENCIES
   rackup
   rake
   ruby_parser
+  samovar
   tilt
   unparser
   zeitwerk

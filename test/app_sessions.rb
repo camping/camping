@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'helper'
 require 'camping'
 require 'camping/session'
 

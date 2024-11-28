@@ -31,6 +31,7 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.add_runtime_dependency('zeitwerk', '~> 2.6.15', '>=2.6.15')
   s.add_runtime_dependency('listen', '~> 3.9.0', '>=3.9.0')
   s.add_runtime_dependency('dry-logger', '~> 1.0.4')
+  s.add_runtime_dependency('samovar', '~> 2.3.0')
 
   s.add_development_dependency "bundler"
   s.add_development_dependency "minitest", "~> 5.0"

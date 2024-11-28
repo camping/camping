@@ -713,7 +713,7 @@ module Camping
     # trailing and leading slashes are removed. A trailing slash is added.
     # @return [String] A reference to the URL response
     def prx
-      @_prx ||= CampTools.normalize_slashes(O[:url_prefix])
+      @_prx ||= CampTools.norms(O[:url_prefix])
     end
 
     # Ruby web servers use this method to enter the Camping realm. The +e+

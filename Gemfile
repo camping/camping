@@ -12,6 +12,8 @@ gem 'listen', '~> 3.9.0'
 gem 'dry-logger', '~> 1.0.4'
 gem 'bundler'
 gem 'tilt'
+gem 'samovar'
+gem 'dry-inflector'
 
 group :development do
   gem 'parser'
@@ -25,6 +27,7 @@ group :test do
   gem 'rack-test'
   gem 'ruby_parser'
   gem 'minitest-hooks'
-  gem "minitest-global_expectations"
-  gem "minitest-sprint"
+  gem 'minitest-global_expectations'
+  gem 'minitest-sprint'
+  gem 'fileutils'
 end

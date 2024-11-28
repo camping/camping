@@ -159,3 +159,7 @@ class TestCase < Minitest::Test
 
   def test_silly; end
 end
+
+class CampingUnitTest < TestCase
+  
+end
