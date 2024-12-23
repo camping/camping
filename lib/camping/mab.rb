@@ -18,11 +18,11 @@ $MAB_CODE = %q{
       html(*a, &b)
     end
 
-    def xhtml_strict(*a, &b) xhtml(*a, &b) end
-    def xhtml_transitional(*a, &b) xhtml(*a, &b) end
-    def xhtml_frameset(*a, &b) xhtml(*a, &b) end
+    def xhtml_strict(*a, &b) = xhtml(*a, &b)
+    def xhtml_transitional(*a, &b) = xhtml(*a, &b)
+    def xhtml_frameset(*a, &b) = xhtml(*a, &b)
 
-    def helpers() self end
+    def helpers() = self
 
     def html(*) doctype!; super end
 
