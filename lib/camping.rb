@@ -15,7 +15,7 @@ to_param rescue a))}.gsub(CampTools.descape){$1})};h.any?? u+??+U.build_query(h[
 end;def /(p) p[0]==?/ ?(@root+@url_prefix.dup.prepend(?/).chop+p) : p end
 def URL c='/',*a;c=R(c,*a)if c.respond_to?(
 :urls);c=self/c;c=@request.url[/.{8,}?(?=\/|$)/]+c if c[0]==?/;URI c end
-def app_name;"Camping"end end
+def app_name = "Camping" end
 module Base;attr_accessor:env,:request,:root,:input,:cookies,:state,:status,
 :headers,:body,:url_prefix;T={};L=:layout
 def lookup n;T.fetch(n.to_sym){|k|t=Views.

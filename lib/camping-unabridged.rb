@@ -253,7 +253,7 @@ module Camping
 
     # Just a helper to tell you the App Name
     # During the instantiation of the app, "Camping" is replaced with the Apps namespace.
-    def app_name;"Camping"end
+    def app_name = "Camping"
 
   end
 
