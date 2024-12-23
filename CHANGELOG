@@ -1,3 +1,6 @@
+= Unreleased
+* Remove `String#bytesize` fallback in Camping::Server.
+
 = 3.2.6
 09 Aug, 2024
 * Server now loads everything from the kindling directory. To start your fire.

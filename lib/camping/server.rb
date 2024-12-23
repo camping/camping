@@ -272,14 +272,8 @@ module Camping
         return status, headers, body
       end
 
-      if "".respond_to?(:bytesize)
-        def size(str)
-          str.bytesize
-        end
-      else
-        def size(str)
-          str.size
-        end
+      def size(str)
+        str.bytesize
       end
     end
   end
