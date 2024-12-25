@@ -12,7 +12,7 @@ GEM
     ffi (1.17.0-arm64-darwin)
     ffi (1.17.0-x86_64-darwin)
     ffi (1.17.0-x86_64-linux-gnu)
-    kdl (1.0.6)
+    kdl (2.0.0)
       base64 (~> 0.2.0)
       bigdecimal (~> 3.1.6)
       racc (~> 1.5)
@@ -77,7 +77,7 @@ PLATFORMS
 DEPENDENCIES
   bundler
   dry-logger (~> 1.0.4)
-  kdl (~> 1.0.6)
+  kdl (~> 2.0.0)
   listen (~> 3.9.0)
   mab
   minitest (~> 5.0)

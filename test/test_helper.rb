@@ -87,16 +87,16 @@ module CommandLineCommands
   end
 
   def write_config
-    write 'config.kdl', <<-TXT
+    write 'config.kdl', <<-KDL
 // config.kdl
 database {
-  default adapter="sqlite3" host="localhost" max_connections=5 timeout=5000
+  default adapter=sqlite3 host=localhost max_connections=5 timeout=5000
   development
-  production adapter="postgres" database="kow"
+  production adapter=postgres database=kow
 }
-hostname "crickets.com"
-friends "_why" "judofyr" "chunky bacon"
-TXT
+hostname crickets.com
+friends _why judofyr "chunky bacon"
+KDL
   end
 
   def trash_config

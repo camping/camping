@@ -247,7 +247,7 @@ TXT
       def make_configkdl
         write 'config.kdl', <<-KDL
 // config.kdl
-hostname "localhost"
+hostname localhost
 KDL
       end
 

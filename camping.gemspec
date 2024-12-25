@@ -27,7 +27,7 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.add_runtime_dependency('rack', '~> 3.0', '>= 3.0.4.1')
   s.add_runtime_dependency('rack-session', '~> 2.0', '>=2.0.0')
   s.add_runtime_dependency('rackup', '~> 2.1.0')
-  s.add_runtime_dependency('kdl', '~> 1.0', '>=1.0.5')
+  s.add_runtime_dependency('kdl', '~> 2.0')
   s.add_runtime_dependency('zeitwerk', '~> 2.6.15', '>=2.6.15')
   s.add_runtime_dependency('listen', '~> 3.9.0', '>=3.9.0')
   s.add_runtime_dependency('dry-logger', '~> 1.0.4')
