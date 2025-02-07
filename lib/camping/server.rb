@@ -33,15 +33,19 @@ module Camping
         args = args.dup
         options = {}
         opt_parser = OptionParser.new("", 24, '  ') do |opts|
-          opts.banner = "Usage: camping Or: camping my-camping-app.rb"
-
-          # opts.define_head "#{File.basename($0)}, the microframework ON-button for ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]"
+          opts.banner = "Usage: camping [options] [my-camping-app.rb]"
 
           opts.separator ""
           opts.separator "Specific options:"
 
-          opts.on("-h", "--host HOSTNAME",
-          "Host for web server to bind to (default is all IPs)") { |v| options[:Host] = v }
+          opts.on("-h [HOSTNAME]", "--host [HOSTNAME]",
+          "Host for web server to bind to (default is all IPs)") do |v|
+            if v.nil? && ARGV.length == 1
+              puts opts
+              exit
+            end
+            options[:Host] = v
+          end
 
           opts.on("-p", "--port NUM",
           "Port for web server (defaults to 3301)") { |v| options[:Port] = v }
@@ -56,11 +60,11 @@ module Camping
           opts.on("-s", "--server NAME",
           "Server to force (#{server_list.join(', ')})") { |v| options[:server] = v }
 
-          opts.separator ""
-          opts.separator "Common options:"
-
-          # No argument, shows at tail.  This will print an options summary.
-          # Try it and see!
+          # Can be shown with -?, --help or -h alone
+          opts.on("--help", "Show this message") do
+            puts opts
+            exit
+          end
           opts.on("-?", "--help", "Show this message") do
             puts opts
             exit
