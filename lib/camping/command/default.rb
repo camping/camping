@@ -27,7 +27,7 @@ module Camping
 				#"console" => Console,
 				"new" => NewCamping,
 				"routes" => Routes,
-			}, default: "routes"
+			}, default: "serve"
 			
 			# call()
 			# parses input and instantiates a new Default object, then calls this

@@ -29,7 +29,7 @@ module Camping
 			
 			# A helper method to spit out Routes for an application
 			def routes(theApp = Camping, silent = false)
-				#names = ::CampTools.app_name_from_input(theApp) 
+				#names = ::CampTools.app_name_from_input(theApp)
 				if theApp.is_a? String
 					::CampTools.app_name_from_input(theApp) => {app_name:, snake_name:, camel_name:}
 				else
