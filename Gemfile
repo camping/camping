@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 source 'https://rubygems.org'
 
+gem 'logger'
+gem 'cgi'
+gem 'base64'
 gem 'rake'
+gem 'irb'
 gem 'rack'
 gem 'rack-session'
 gem 'rackup'
