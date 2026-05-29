@@ -38,7 +38,7 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.add_development_dependency "minitest-global_expectations"
   s.add_development_dependency "minitest-sprint"
 
-  s.required_ruby_version = '>= 3.1.2'
+  s.required_ruby_version = '>= 4.0.5'
 
   s.files = %w(COPYING README.md Rakefile) +
     Dir.glob("{bin,doc,test,lib,extras,book}/**/*") +
