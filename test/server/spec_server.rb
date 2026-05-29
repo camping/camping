@@ -1,5 +1,4 @@
-require_relative 'helper'
-
+require 'helper'
 require 'tempfile'
 require 'socket'
 require 'webrick'

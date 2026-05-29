@@ -4,7 +4,6 @@
 require "uri"
 require "rack"
 require 'rubygems'
-require 'bundler/setup'
 
 # internal dependencies
 require 'camping/tools'
