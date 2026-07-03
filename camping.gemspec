@@ -19,7 +19,7 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.summary = "miniature rails for anyone"
   s.author = "why the lucky stiff"
   s.email = 'why@ruby-lang.org'
-  s.homepage = 'http://rubycamping.org/'
+  s.homepage = 'https://github.com/camping/camping'
   s.executables = ['camping']
   s.add_runtime_dependency('rake', '~> 13.2.1')
   s.add_runtime_dependency('mab', '~> 0.0', '>=0.0.3')
