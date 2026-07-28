@@ -1,4 +1,5 @@
 ![Build Status](https://github.com/camping/camping/actions/workflows/camping.yml/badge.svg) ![Build Status](https://github.com/camping/camping/actions/workflows/integration.yml/badge.svg)
+[![Ruby Users Forum](https://img.shields.io/discourse/topics?server=https%3A%2F%2Fwww.rubyforum.org&style=flat&logo=discourse&label=Ruby%20Users%20Forum)](https://www.rubyforum.org/tag/camping)
 
 # ⛺️ Camping, a Microframework
 
@@ -105,6 +106,10 @@ your own discoveries; the more, the better!
 
 We have a Discord channel over at the Ruby Punks community, so if you feel
 like chatting with us, you should join [#camping](https://discord.gg/JSmPBsWgFt). Once our chattin' leads to action, we open up an issue on Github and move the conversation over there.
+
+## Community
+
+Join us in the `camping` tag on the [Ruby Users Forum](https://www.rubyforum.org/tag/campig).
 
 ## Contributing
 
