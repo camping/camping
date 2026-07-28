@@ -109,7 +109,7 @@ like chatting with us, you should join [#camping](https://discord.gg/JSmPBsWgFt)
 
 ## Community
 
-Join us in the `camping` tag on the [Ruby Users Forum](https://www.rubyforum.org/tag/campig).
+Join us in the `camping` tag on the [Ruby Users Forum](https://www.rubyforum.org/tag/camping).
 
 ## Contributing
 
