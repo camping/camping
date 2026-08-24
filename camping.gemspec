@@ -20,6 +20,8 @@ RDOC_OPTS = ["--line-numbers", "--quiet", "--main", "README"]
   s.author = "why the lucky stiff"
   s.email = 'why@ruby-lang.org'
   s.homepage = 'http://rubycamping.org/'
+  s.metadata["mailing_list_uri"]   = "https://www.rubyforum.org/tag/camping"
+
   s.executables = ['camping']
   s.add_runtime_dependency('rake', '~> 13.2.1')
   s.add_runtime_dependency('mab', '~> 0.0', '>=0.0.3')
